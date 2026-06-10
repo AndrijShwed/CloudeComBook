@@ -14,6 +14,7 @@ builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<IVillageRepository, VillageRepository>();
 builder.Services.AddScoped<IStreetRepository, StreetRepository>();
 builder.Services.AddScoped<IVillageStreetRepository, VillageStreetRepository>();
+builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 
 var app = builder.Build();
 
