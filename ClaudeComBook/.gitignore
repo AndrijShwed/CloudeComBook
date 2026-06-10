@@ -1,0 +1,17 @@
+﻿## .gitignore для ClaudeComBook
+
+# Конфігурація з паролями — НЕ публікувати!
+**/appsettings.json
+**/appsettings.*.json
+
+# Build
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+
+# OS
+.DS_Store
+Thumbs.db

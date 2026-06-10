@@ -1,0 +1,6 @@
+@ClaudeComBook_HostAddress = http://localhost:5296
+
+GET {{ClaudeComBook_HostAddress}}/api/villages
+Accept: application/json
+
+###
