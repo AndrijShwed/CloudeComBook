@@ -23,20 +23,20 @@
 			<Button Margin="15" Background="White" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/house.png"/>
-					<TextBlock Text="Домогосподарства" FontFamily="Comic Sans MS"
+					<Image Width="90" Height="90" Source="/Assets/house.png"/>
+					<TextBlock Text="Домогосподарства" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
 
 			<!-- Населення -->
-			<Button Margin="15" Background="#2196F3" CornerRadius="15"
+			<Button Margin="15" Background="White" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/people.png"/>
-					<TextBlock Text="Населення" FontFamily="Comic Sans MS"
+					<Image Width="155" Height="90" Source="/Assets/people.png"/>
+					<TextBlock Text="Населення" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"
-							   Foreground="White"/>
+							   />
 				</StackPanel>
 			</Button>
 
@@ -44,8 +44,8 @@
 			<Button Margin="15" Background="White" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/enterprise.png"/>
-					<TextBlock Text="Підприємства" FontFamily="Comic Sans MS"
+					<Image Width="150" Height="90" Source="/Assets/enterprise.png"/>
+					<TextBlock Text="Підприємства" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
@@ -56,8 +56,8 @@
 					Click="OnVillagesClick">
 				    
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/village.png"/>
-					<TextBlock Text="Населені пункти" FontFamily="Comic Sans MS"
+					<Image Width="150" Height="90" Source="/Assets/village.png"/>
+					<TextBlock Text="Населені пункти" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
@@ -66,8 +66,8 @@
 			<Button Margin="15" Background="White" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/street.png"/>
-					<TextBlock Text="Заміна назви вулиці" FontFamily="Comic Sans MS"
+					<Image Width="90" Height="90" Source="/Assets/street.png"/>
+					<TextBlock Text="Заміна назви вулиці" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
@@ -76,8 +76,8 @@
 			<Button Margin="15" Background="#FFF3E0" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/animals.png"/>
-					<TextBlock Text="Худоба та птиця" FontFamily="Comic Sans MS"
+					<Image Width="150" Height="90" Source="/Assets/animals.png"/>
+					<TextBlock Text="Худоба та птиця" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
@@ -86,8 +86,8 @@
 			<Button Margin="15" Background="White" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/start.png"/>
-					<TextBlock Text="Початок роботи" FontFamily="Comic Sans MS"
+					<Image Width="150" Height="90" Source="/Assets/start.png"/>
+					<TextBlock Text="Початок роботи" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
@@ -96,8 +96,8 @@
 			<Button Margin="15" Background="White" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/excel.png"/>
-					<TextBlock Text="Експорт Excel to DB" FontFamily="Comic Sans MS"
+					<Image Width="90" Height="90" Source="/Assets/excel.png"/>
+					<TextBlock Text="Експорт Excel to DB" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
@@ -106,8 +106,8 @@
 			<Button Margin="15" Background="#E8F5E9" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="120" Height="120" Source="/Assets/land.png"/>
-					<TextBlock Text="Земля" FontFamily="Comic Sans MS"
+					<Image Width="150" Height="90" Source="/Assets/land.png"/>
+					<TextBlock Text="Земля" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
