@@ -18,6 +18,8 @@ builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 builder.Services.AddScoped<IHouseRepository, HouseRepository>();
 builder.Services.AddScoped<IAnymalRepository, AnymalRepository>();
 builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
+builder.Services.AddScoped<IPlotRepository, PlotRepository>();
+builder.Services.AddScoped<IPopulationSnapshotRepository, PopulationSnapshotRepository>();
 
 var app = builder.Build();
 

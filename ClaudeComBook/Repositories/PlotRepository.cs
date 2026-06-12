@@ -1,0 +1,84 @@
+﻿using Dapper;
+using ClaudeComBook.API.Data;
+using ClaudeComBook.API.Models;
+using ClaudeComBook.API.Repositories.Interfaces;
+
+namespace ClaudeComBook.API.Repositories;
+
+public class PlotRepository : IPlotRepository
+{
+    private readonly DbConnectionFactory _db;
+
+    public PlotRepository(DbConnectionFactory db) => _db = db;
+
+    public async Task<IEnumerable<Plot>> GetAllAsync()
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<Plot>(
+            "SELECT * FROM plot ORDER BY village");
+    }
+
+    public async Task<Plot?> GetByIdAsync(int id)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryFirstOrDefaultAsync<Plot>(
+            "SELECT * FROM plot WHERE id = @id", new { id });
+    }
+
+    public async Task<IEnumerable<Plot>> SearchAsync(string query)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<Plot>(
+            @"SELECT * FROM plot 
+              WHERE village LIKE @q
+              OR street LIKE @q
+              OR fullname LIKE @q
+              OR cadastr LIKE @q
+              OR tenant LIKE @q
+              ORDER BY village
+              LIMIT 50",
+            new { q = $"%{query}%" });
+    }
+
+    public async Task<int> CreateAsync(Plot plot)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.ExecuteScalarAsync<int>(
+            @"INSERT INTO plot 
+              (fullname, village, street, housenumb, fieldnumber, plottype, plotnumber,
+               plotarea, cadastr, tenant, url)
+              VALUES
+              (@fullname, @village, @street, @housenumber, @fieldnumber, @plottype, @plotnumber,
+               @plotarea, @cadastr, @tenant, @url);
+              SELECT LAST_INSERT_ID();", plot);
+    }
+
+    public async Task<bool> UpdateAsync(Plot plot)
+    {
+        using var conn = _db.CreateConnection();
+        var rows = await conn.ExecuteAsync(
+            @"UPDATE plot SET
+              fullname=@Fullname,
+              village=@Village,
+              street=@Street,
+              housenumb=@Housenumb,
+              fieldnumber=@Fieldnumber,
+              plottype=@Plottype,
+              plotnumber=@Plotnumber,
+              plotarea=@Plotarea,
+              cadastr=@Cadastr,
+              tenant=@Tenant,
+              url=@Url
+              WHERE idhouses=@IdHouses", plot);
+        return rows > 0;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        using var conn = _db.CreateConnection();
+        var rows = await conn.ExecuteAsync(
+            "DELETE FROM plot WHERE id = @id", new { id });
+        return rows > 0;
+    }
+}
+
