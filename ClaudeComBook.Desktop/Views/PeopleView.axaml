@@ -1,0 +1,48 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.PeopleView"
+        Title="Населення"
+        Width="700" Height="400"
+        Background="#FF7043">
+
+	<Grid RowDefinitions="Auto,*">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13" Cursor="Hand"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Населення" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Дві кнопки -->
+		<UniformGrid Grid.Row="1" Columns="2" Margin="60">
+
+			<!-- Додати -->
+			<Button Margin="30" Background="#FFE0B2" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnAddClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="170" Height="130" Source="/Assets/add_person.png"/>
+					<TextBlock Text="Додати" FontFamily="Comic Sans MS"
+							   FontSize="18" FontWeight="Bold" Foreground="Black"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+			<!-- Пошук Редагування Видалення -->
+			<Button Margin="30" Background="#FFF9C4" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+				    Click="OnOpenSearchWindowClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="110" Source="/Assets/search.png"/>
+					<TextBlock Text="Пошук Редагування Видалення"
+							   FontFamily="Comic Sans MS"
+							   FontSize="18" FontWeight="Bold" Foreground="Black" 
+							   TextWrapping="Wrap" TextAlignment="Center"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+		</UniformGrid>
+	</Grid>
+</Window>

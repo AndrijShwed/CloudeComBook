@@ -14,5 +14,11 @@ namespace ClaudeComBook.Desktop.Views
             var window = new VillagesView();
             window.Show();
         }
+
+        private void OnPeopleClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new PeopleView();
+            window.Show();
+        }
     }
 }

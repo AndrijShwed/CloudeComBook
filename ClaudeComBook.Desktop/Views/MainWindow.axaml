@@ -31,7 +31,8 @@
 
 			<!-- Населення -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center">
+					HorizontalContentAlignment="Center"
+				    Click="OnPeopleClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="155" Height="90" Source="/Assets/people.png"/>
 					<TextBlock Text="Населення" FontFamily="Comic Sans MS" Foreground="Black"

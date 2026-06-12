@@ -1,0 +1,117 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:dg="using:Avalonia.Controls"
+        xmlns:local="using:ClaudeComBook.Desktop.Models"
+        x:Class="ClaudeComBook.Desktop.Views.PeopleSearchView"
+        Title="Вікно пошуку"
+        Width="1200" Height="700"
+        Background="#8B0000">
+
+	<Grid RowDefinitions="Auto,Auto,*">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Населення" Foreground="White" FontSize="13"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Вікно пошуку" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Панель пошуку -->
+		<Border Grid.Row="1" Margin="10,5" BorderBrush="Gray"
+				BorderThickness="1" CornerRadius="5" Padding="10">
+			<Grid RowDefinitions="Auto,Auto,Auto">
+
+				<!-- Рядок 1: ПІБ і стать -->
+				<Grid Grid.Row="0" ColumnDefinitions="Auto,*,*,*,*" Margin="0,5">
+					<TextBlock Grid.Column="0" Text="Введіть дані :"
+							   Foreground="White" FontWeight="Bold"
+							   FontSize="14" VerticalAlignment="Center" Margin="0,0,15,0"/>
+					<TextBox Grid.Column="1" Name="LastNameBox"
+							 Watermark="Прізвище" Margin="5,0"/>
+					<TextBox Grid.Column="2" Name="FirstNameBox"
+							 Watermark="Ім'я" Margin="5,0"/>
+					<TextBox Grid.Column="3" Name="SurnameBox"
+							 Watermark="Побатькові" Margin="5,0"/>
+					<ComboBox Grid.Column="4" Name="SexBox"
+							  PlaceholderText="Оберіть стать" Margin="5,0" Width="150">
+						<ComboBoxItem Content="Чоловіча"/>
+						<ComboBoxItem Content="Жіноча"/>
+					</ComboBox>
+				</Grid>
+
+				<!-- Рядок 2: Село, Вулиця, Будинок, Статус -->
+				<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,Auto,Auto" Margin="0,5">
+					<ComboBox Grid.Column="0" Name="VillageBox"
+							  PlaceholderText="Населений пункт" Margin="5,0"/>
+					<ComboBox Grid.Column="1" Name="StreetBox"
+							  PlaceholderText="Вулиця" Margin="5,0"/>
+					<TextBox Grid.Column="2" Name="HouseBox"
+							 Watermark="Номер будинку" Margin="5,0"/>
+					<ComboBox Grid.Column="3" Name="StatusBox"
+							  PlaceholderText="Статус" Margin="5,0"/>
+					<Button Grid.Column="4" Content="Пошук"
+							Background="#4CAF50" Foreground="White"
+							FontWeight="Bold" Padding="15,8" Margin="5,0"
+							Click="OnSearchClick"/>
+					<Button Grid.Column="5" Content="Очистити поля"
+							Background="#FF9800" Foreground="White"
+							FontWeight="Bold" Padding="15,8" Margin="5,0"
+							Click="OnClearClick"/>
+				</Grid>
+
+				<!-- Рядок 3: Вік і кількість результатів -->
+				<Grid Grid.Row="2" ColumnDefinitions="*,*,*,Auto,Auto,Auto" Margin="0,5">
+					<TextBox Grid.Column="0" Name="AgeFromBox"
+							 Watermark="Вік від:" Margin="5,0"/>
+					<TextBox Grid.Column="1" Name="AgeToBox"
+							 Watermark="Вік до:" Margin="5,0"/>
+					<StackPanel Grid.Column="2" Orientation="Horizontal"
+								VerticalAlignment="Center" Margin="5,0">
+						<TextBlock Text="Результат пошуку : " Foreground="White"/>
+						<TextBlock Name="ResultCount" Text="0"
+								   Foreground="White" FontWeight="Bold"/>
+						<TextBlock Text=" записів" Foreground="White"/>
+					</StackPanel>
+					<Button Grid.Column="3" Content="Зберегти в Excel"
+							Background="#00BCD4" Foreground="White"
+							FontWeight="Bold" Padding="15,8" Margin="5,0"
+							Click="OnExcelClick"/>
+					<Button Grid.Column="4" Content="Очистити таблицю"
+							Background="#00BCD4" Foreground="White"
+							FontWeight="Bold" Padding="15,8" Margin="5,0"
+							Click="OnClearTableClick"/>
+				</Grid>
+
+			</Grid>
+		</Border>
+
+		<!-- Таблиця результатів -->
+		<DataGrid Grid.Row="2" Name="PeopleGrid"
+				   x:DataType="local:Person"
+          Margin="10,5"
+          Background="White"
+	      Foreground="Black"
+          IsReadOnly="True"
+          AutoGenerateColumns="False"
+          GridLinesVisibility="All"
+          HeadersVisibility="Column">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="№" Binding="{Binding PeopleId}" Width="50"/>
+				<DataGridTextColumn Header="Прізвище" Binding="{Binding LastName}" Width="120"/>
+				<DataGridTextColumn Header="Ім'я" Binding="{Binding Name}" Width="100"/>
+				<DataGridTextColumn Header="Побатькові" Binding="{Binding Surname}" Width="120"/>
+				<DataGridTextColumn Header="Стать" Binding="{Binding Sex}" Width="70"/>
+				<DataGridTextColumn Header="Дата народження" Binding="{Binding DateOfBirth}" Width="130"/>
+				<DataGridTextColumn Header="Ном. буд" Binding="{Binding NumbOfHouse}" Width="90"/>
+				<DataGridTextColumn Header="Паспорт" Binding="{Binding Passport}" Width="100"/>
+				<DataGridTextColumn Header="Ідент. код" Binding="{Binding IdKod}" Width="100"/>
+				<DataGridTextColumn Header="Номер телефону" Binding="{Binding PhoneNumber}" Width="130"/>
+				<DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="100"/>
+				<DataGridTextColumn Header="Військ. ID" Binding="{Binding MilID}" Width="100"/>
+			</DataGrid.Columns>
+		</DataGrid>
+
+	</Grid>
+</Window>

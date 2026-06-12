@@ -32,4 +32,8 @@ public class ApiService
     // Streets
     public async Task<List<Street>?> GetStreetsAsync() =>
         await _http.GetFromJsonAsync<List<Street>>("/api/streets");
+
+    //Person
+    public async Task<List<Person>?> GetPeopleAsync() =>
+        await _http.GetFromJsonAsync<List<Person>>("/api/people");
 }
