@@ -17,6 +17,7 @@ builder.Services.AddScoped<IVillageStreetRepository, VillageStreetRepository>();
 builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 builder.Services.AddScoped<IHouseRepository, HouseRepository>();
 builder.Services.AddScoped<IAnymalRepository, AnymalRepository>();
+builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
 
 var app = builder.Build();
 
