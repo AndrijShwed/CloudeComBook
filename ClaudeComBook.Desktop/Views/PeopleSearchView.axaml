@@ -5,6 +5,7 @@
         x:Class="ClaudeComBook.Desktop.Views.PeopleSearchView"
         Title="Вікно пошуку"
         Width="1200" Height="700"
+		WindowState="Maximized"
         Background="#8B0000">
 
 	<Grid RowDefinitions="Auto,Auto,*">
@@ -113,6 +114,8 @@
 				<DataGridTextColumn Header="Побатькові" Binding="{Binding Surname}" Width="120"/>
 				<DataGridTextColumn Header="Стать" Binding="{Binding Sex}" Width="70"/>
 				<DataGridTextColumn Header="Дата народження" Binding="{Binding DateOfBirth}" Width="130"/>
+				<DataGridTextColumn Header="Село" Binding="{Binding VillageName}" Width="120"/>
+                <DataGridTextColumn Header="Вулиця" Binding="{Binding StreetName}" Width="120"/>
 				<DataGridTextColumn Header="Ном. буд" Binding="{Binding NumbOfHouse}" Width="90"/>
 				<DataGridTextColumn Header="Паспорт" Binding="{Binding Passport}" Width="100"/>
 				<DataGridTextColumn Header="Ідент. код" Binding="{Binding IdKod}" Width="100"/>

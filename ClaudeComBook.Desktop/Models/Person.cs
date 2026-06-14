@@ -16,4 +16,7 @@ public class Person
     public string? PhoneNumber { get; set; }
     public string? Status { get; set; }
     public string? MilID { get; set; }
+    public int? VillageStreetId { get; set; }
+    public string? VillageName { get; set; }
+    public string? StreetName { get; set; }
 }

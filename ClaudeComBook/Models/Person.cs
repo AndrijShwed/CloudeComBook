@@ -18,5 +18,7 @@
         public string? MilID { get; set; }
         public int? VillageStreetId { get; set; }
         public string? Description { get; set; }
+        public string? VillageName { get; set; }
+        public string? StreetName { get; set; }
     }
 }

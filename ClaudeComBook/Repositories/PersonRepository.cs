@@ -15,21 +15,79 @@ public class PersonRepository : IPersonRepository
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<Person>(
-            "SELECT * FROM people ORDER BY lastname, name");
+            @"SELECT 
+            p.people_id AS PeopleId,
+            p.lastname AS LastName,
+            p.name AS Name,
+            p.surname AS Surname,
+            p.sex AS Sex,
+            p.date_of_birth AS DateOfBirth,
+            p.numb_of_house AS NumbOfHouse,
+            p.passport AS Passport,
+            p.id_kod AS IdKod,
+            p.phone_numb AS PhoneNumber,
+            p.status AS Status,
+            p.registr AS Registr,
+            p.m_date AS MDate,
+            p.mil_ID AS MilID,
+            p.villagestreetId AS VillageStreetId,
+            p.description AS Description,
+            v.name AS VillageName,
+            s.name AS StreetName
+          FROM people p
+          LEFT JOIN villagestreet vs ON p.villagestreetId = vs.id
+          LEFT JOIN villages v ON vs.villageId = v.id
+          LEFT JOIN streets s ON vs.streetId = s.id
+          ORDER BY p.lastname, p.name");
     }
 
     public async Task<Person?> GetByIdAsync(int id)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryFirstOrDefaultAsync<Person>(
-            "SELECT * FROM people WHERE people_id = @id", new { id });
+            @"SELECT 
+            people_id AS PeopleId,
+            lastname AS LastName,
+            name AS Name,
+            surname AS Surname,
+            sex AS Sex,
+            date_of_birth AS DateOfBirth,
+            numb_of_house AS NumbOfHouse,
+            passport AS Passport,
+            id_kod AS IdKod,
+            phone_numb AS PhoneNumber,
+            status AS Status,
+            registr AS Registr,
+            m_date AS MDate,
+            mil_ID AS MilID,
+            villagestreetId AS VillageStreetId,
+            description AS Description
+           FROM people " +
+            " WHERE people_id = @id", new { id });
     }
 
     public async Task<IEnumerable<Person>> GetByVillageStreetIdAsync(int villageStreetId)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<Person>(
-            @"SELECT * FROM people 
+             @"SELECT 
+            people_id AS PeopleId,
+            lastname AS LastName,
+            name AS Name,
+            surname AS Surname,
+            sex AS Sex,
+            date_of_birth AS DateOfBirth,
+            numb_of_house AS NumbOfHouse,
+            passport AS Passport,
+            id_kod AS IdKod,
+            phone_numb AS PhoneNumber,
+            status AS Status,
+            registr AS Registr,
+            m_date AS MDate,
+            mil_ID AS MilID,
+            villagestreetId AS VillageStreetId,
+            description AS Description
+           FROM people 
               WHERE villagestreetId = @villageStreetId 
               ORDER BY lastname, name",
             new { villageStreetId });
@@ -39,7 +97,24 @@ public class PersonRepository : IPersonRepository
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<Person>(
-            @"SELECT * FROM people 
+             @"SELECT 
+            people_id AS PeopleId,
+            lastname AS LastName,
+            name AS Name,
+            surname AS Surname,
+            sex AS Sex,
+            date_of_birth AS DateOfBirth,
+            numb_of_house AS NumbOfHouse,
+            passport AS Passport,
+            id_kod AS IdKod,
+            phone_numb AS PhoneNumber,
+            status AS Status,
+            registr AS Registr,
+            m_date AS MDate,
+            mil_ID AS MilID,
+            villagestreetId AS VillageStreetId,
+            description AS Description
+           FROM people 
               WHERE lastname LIKE @q 
               OR name LIKE @q 
               OR surname LIKE @q
