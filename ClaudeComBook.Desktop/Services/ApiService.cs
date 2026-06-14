@@ -67,4 +67,34 @@ public class ApiService
     // ApiService.cs
     public async Task<List<VillageStreet>?> GetVillageStreetsAsync() =>
         await _http.GetFromJsonAsync<List<VillageStreet>>("/api/villagestreets");
+
+    public async Task<int> CreateVillageAsync(string name)
+    {
+        var response = await _http.PostAsJsonAsync("/api/villages", new { name });
+        var village = await response.Content.ReadFromJsonAsync<Village>();
+        return village?.Id ?? 0;
+    }
+
+    public async Task<int> CreateStreetAsync(string name)
+    {
+        var response = await _http.PostAsJsonAsync("/api/streets", new { name });
+        var street = await response.Content.ReadFromJsonAsync<Street>();
+        return street?.Id ?? 0;
+    }
+
+    public async Task CreateVillageStreetAsync(int villageId, int streetId)
+    {
+        await _http.PostAsJsonAsync("/api/villagestreets", new { villageId, streetId, isActive = true });
+    }
+
+    public async Task DeleteVillageStreetAsync(int id)
+    {
+        await _http.DeleteAsync($"/api/villagestreets/{id}");
+    }
+
+    public async Task UpdateVillageStreetFileAsync(int id, byte[] fileData)
+    {
+        await _http.PutAsJsonAsync($"/api/villagestreets/{id}/file",
+            new { fileData = Convert.ToBase64String(fileData) });
+    }
 }

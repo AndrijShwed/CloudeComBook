@@ -1,6 +1,8 @@
 ﻿using ClaudeComBook.API.Models;
 using ClaudeComBook.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using ClaudeComBook.API.DTOs;
+using static ClaudeComBook.API.DTOs.DTOs;
 
 namespace ClaudeComBook.API.Controllers;
 
@@ -50,6 +52,14 @@ public class VillageStreetsController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var ok = await _repo.DeleteAsync(id);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpPut("{id}/file")]
+    public async Task<IActionResult> UpdateFile(int id, [FromBody] UpdateFileRequest request)
+    {
+        var fileData = Convert.FromBase64String(request.FileData);
+        var ok = await _repo.UpdateFileAsync(id, fileData);
         return ok ? NoContent() : NotFound();
     }
 }

@@ -15,7 +15,18 @@ public class VillageStreetRepository : IVillageStreetRepository
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<VillageStreet>(
-            "SELECT * FROM villagestreet ORDER BY id");
+            @"SELECT vs.id AS Id, vs.villageId AS VillageId, vs.streetId AS StreetId,
+            vs.oldStreetId AS OldStreetId, vs.isActive AS IsActive,
+            vs.renameDate AS RenameDate,
+            v.name AS VillageName,
+            s.name AS StreetName,
+            os.name AS OldStreetName,
+            vs.fileData AS FileData
+          FROM villagestreet vs
+          LEFT JOIN villages v ON vs.villageId = v.id
+          LEFT JOIN streets s ON vs.streetId = s.id
+          LEFT JOIN streets os ON vs.oldStreetId = os.id
+          ORDER BY v.name, s.name");
     }
 
     public async Task<VillageStreet?> GetByIdAsync(int id)
@@ -71,6 +82,15 @@ public class VillageStreetRepository : IVillageStreetRepository
         using var conn = _db.CreateConnection();
         var rows = await conn.ExecuteAsync(
             "DELETE FROM villagestreet WHERE id = @id", new { id });
+        return rows > 0;
+    }
+
+    public async Task<bool> UpdateFileAsync(int id, byte[] fileData)
+    {
+        using var conn = _db.CreateConnection();
+        var rows = await conn.ExecuteAsync(
+            "UPDATE villagestreet SET fileData = @fileData WHERE id = @id",
+            new { id, fileData });
         return rows > 0;
     }
 }
