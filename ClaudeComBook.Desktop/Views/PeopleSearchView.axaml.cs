@@ -11,9 +11,10 @@ namespace ClaudeComBook.Desktop.Views;
 
 public partial class PeopleSearchView : Window
 {
+    private readonly Window _previousWindow;
     private readonly ApiService _api = new();
 
-    public PeopleSearchView()
+    public PeopleSearchView(Window previousWindow)
     {
         InitializeComponent();
         LoadComboBoxes();
@@ -27,6 +28,7 @@ public partial class PeopleSearchView : Window
         VillageBox.SelectionChanged += OnVillageChanged;
 
         PeopleGrid.LoadingRow += OnLoadingRow;
+        _previousWindow = previousWindow;
     }
 
     private void OnLoadingRow(object? sender, DataGridRowEventArgs e)
@@ -204,5 +206,11 @@ public partial class PeopleSearchView : Window
     private void OnExcelClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         // Пізніше додамо експорт в Excel
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        _previousWindow.Show();
+        base.OnClosing(e);
     }
 }

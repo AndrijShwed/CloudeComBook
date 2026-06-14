@@ -5,11 +5,13 @@ namespace ClaudeComBook.Desktop.Views;
 
 public partial class VillagesView : Window
 {
+    private readonly Window _previousWindow;
     private readonly ApiService _api = new();
 
-    public VillagesView()
+    public VillagesView(Window previousWindow)
     {
         InitializeComponent();
+        _previousWindow = previousWindow;
         LoadData();
     }
 
@@ -17,5 +19,10 @@ public partial class VillagesView : Window
     {
         var villages = await _api.GetVillagesAsync();
         VillagesList.ItemsSource = villages;
+    }
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        _previousWindow.Show();
+        base.OnClosing(e);
     }
 }
