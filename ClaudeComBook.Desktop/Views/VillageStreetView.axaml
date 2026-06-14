@@ -7,6 +7,22 @@
         WindowState="Maximized"
         Background="White">
 
+	<Window.Styles>
+		<Style Selector="TextBox#VillageInputBox:focus /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector="TextBox#VillageInputBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+		<Style Selector="TextBox#StreetInputBox:focus /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector="TextBox#StreetInputBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+
+
 	<Grid RowDefinitions="Auto,Auto,*">
 
 		<!-- Хлібні крихти -->
@@ -20,15 +36,18 @@
 		<Grid Grid.Row="1" ColumnDefinitions="*,*,Auto" Margin="10,5">
 			<TextBox Grid.Column="0" Name="VillageInputBox"
 					 PlaceholderText="Введіть назву населеного пункту"
+					 PlaceholderForeground="Black"
 					 Margin="5,0" FontSize="14"
-					 Foreground="Black"
-					 Background="#ADD8E6">
-			</TextBox>
+					 Background="#ADD8E6"
+					 BorderBrush="Gray"
+					 BorderThickness="1"/>
 			<TextBox Grid.Column="1" Name="StreetInputBox"
 					 PlaceholderText="Введіть назву вулиці"
+					 PlaceholderForeground="Black"
 					 Margin="5,0" FontSize="14"
-					 Foreground="Black"
-					 Background="#ADD8E6"/>
+					 Background="#ADD8E6"
+					 BorderBrush="Gray"
+					 BorderThickness="1"/>
 			<Button Grid.Column="2" Content="Додати в таблицю"
 					Background="#8B0000" Foreground="White"
 					FontFamily="Comic Sans MS" FontSize="14"
@@ -45,6 +64,8 @@
 				  IsReadOnly="True"
 				  AutoGenerateColumns="False"
 				  GridLinesVisibility="All"
+				  BorderThickness="1"
+				  BorderBrush="Gray"
 				  HeadersVisibility="Column">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Номер" Binding="{Binding Id}" Width="80"/>
@@ -52,8 +73,8 @@
 				<DataGridTextColumn Header="Вулиця" Binding="{Binding StreetName}" Width="200"/>
 				<DataGridTextColumn Header="Стара назва вулиці" Binding="{Binding OldStreetName}" Width="200"/>
 				<DataGridTextColumn Header="Дата зміни назви"
-									Binding="{Binding RenameDate, StringFormat=dd.MM.yyyy}"
-									Width="150"/>
+                    Binding="{Binding RenameDateFormatted}"
+                    Width="150"/>
 				<DataGridTemplateColumn Header="Видалити" Width="100">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="local:VillageStreet">

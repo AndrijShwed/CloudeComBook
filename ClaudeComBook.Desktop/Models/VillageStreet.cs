@@ -15,4 +15,8 @@ public class VillageStreet
     public DateTime? RenameDate { get; set; }
     public bool HasFile => FileData != null && FileData.Length > 0;
     public byte[]? FileData { get; set; }
+    public string RenameDateFormatted =>
+    RenameDate.HasValue && RenameDate.Value.Year > 1
+        ? RenameDate.Value.ToString("dd.MM.yyyy")
+        : "";
 }

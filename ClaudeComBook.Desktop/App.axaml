@@ -12,5 +12,14 @@
 	<Application.Styles>
 		<FluentTheme />
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+		<Style Selector="DataGridCell">
+			<Setter Property="BorderBrush" Value="Gray"/>
+			<Setter Property="BorderThickness" Value="0,0,1,1"/>
+		</Style>
+		<Style Selector="DataGridColumnHeader">
+			<Setter Property="BorderBrush" Value="Gray"/>
+			<Setter Property="BorderThickness" Value="0,0,1,1"/>
+		</Style>
 	</Application.Styles>
+
 </Application>
