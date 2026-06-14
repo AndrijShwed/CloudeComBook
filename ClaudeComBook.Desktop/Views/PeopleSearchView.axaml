@@ -41,8 +41,8 @@
 					</ComboBox>
 				</Grid>
 
-				<!-- Рядок 2: Село, Вулиця, Будинок, Статус -->
-				<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,Auto,Auto" Margin="0,5">
+				<!-- Рядок 2: Село, Вулиця, Будинок, Статус, Реєстр -->
+				<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,Auto,Auto,Auto" Margin="0,5">
 					<ComboBox Grid.Column="0" Name="VillageBox"
 							  PlaceholderText="Населений пункт" Margin="5,0"/>
 					<ComboBox Grid.Column="1" Name="StreetBox"
@@ -51,11 +51,20 @@
 							 Watermark="Номер будинку" Margin="5,0"/>
 					<ComboBox Grid.Column="3" Name="StatusBox"
 							  PlaceholderText="Статус" Margin="5,0"/>
-					<Button Grid.Column="4" Content="Пошук"
+					<StackPanel Grid.Column="4" Orientation="Horizontal"
+								VerticalAlignment="Center" Margin="5,0">
+						<TextBlock Text="Реєстр:" Foreground="White"
+								   VerticalAlignment="Center" Margin="0,0,8,0"/>
+						<CheckBox Name="RegistrYesBox" Content="так"
+								  Foreground="White" Margin="0,0,8,0"/>
+						<CheckBox Name="RegistrNoBox" Content="ні"
+								  Foreground="White"/>
+					</StackPanel>
+					<Button Grid.Column="5" Content="Пошук"
 							Background="#4CAF50" Foreground="White"
 							FontWeight="Bold" Padding="15,8" Margin="5,0"
 							Click="OnSearchClick"/>
-					<Button Grid.Column="5" Content="Очистити поля"
+					<Button Grid.Column="6" Content="Очистити поля"
 							Background="#FF9800" Foreground="White"
 							FontWeight="Bold" Padding="15,8" Margin="5,0"
 							Click="OnClearClick"/>

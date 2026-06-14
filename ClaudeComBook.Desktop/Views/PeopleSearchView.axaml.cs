@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using ClaudeComBook.Desktop.Services;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace ClaudeComBook.Desktop.Views;
 
@@ -11,6 +13,13 @@ public partial class PeopleSearchView : Window
     {
         InitializeComponent();
         LoadComboBoxes();
+        AgeFromBox.AddHandler(TextInputEvent, OnAgeInput, RoutingStrategies.Tunnel);
+        AgeToBox.AddHandler(TextInputEvent, OnAgeInput, RoutingStrategies.Tunnel);
+    }
+
+    private void OnAgeInput(object sender, TextInputEventArgs e)
+    {
+        e.Handled = !int.TryParse(e.Text, out _);
     }
 
     private async void LoadComboBoxes()
@@ -26,6 +35,42 @@ public partial class PeopleSearchView : Window
 
     private async void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        int ageFrom = 0, ageTo = 200;
+
+        if (!string.IsNullOrEmpty(AgeFromBox.Text))
+        {
+            if (!int.TryParse(AgeFromBox.Text, out ageFrom) || ageFrom > 200)
+            {
+                AgeFromBox.Text = "";
+                var msg = MsBox.Avalonia.MessageBoxManager
+                    .GetMessageBoxStandard("Помилка", "Вік від: має бути від 0 до 200");
+                await msg.ShowAsync();
+                return;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(AgeToBox.Text))
+        {
+            if (!int.TryParse(AgeToBox.Text, out ageTo) || ageTo > 200)
+            {
+                AgeToBox.Text = "";
+                var msg = MsBox.Avalonia.MessageBoxManager
+                    .GetMessageBoxStandard("Помилка", "Вік до: має бути від 0 до 200");
+                await msg.ShowAsync();
+                return;
+            }
+        }
+
+        if (ageFrom > ageTo)
+        {
+            AgeFromBox.Text = "";
+            AgeToBox.Text = "";
+            var msg = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка", "Вік від: не може бути більше ніж Вік до:");
+            await msg.ShowAsync();
+            return;
+        }
+
         var people = await _api.GetPeopleAsync();
         PeopleGrid.ItemsSource = people;
         ResultCount.Text = people?.Count.ToString() ?? "0";
@@ -43,6 +88,8 @@ public partial class PeopleSearchView : Window
         VillageBox.SelectedIndex = -1;
         StreetBox.SelectedIndex = -1;
         StatusBox.SelectedIndex = -1;
+        RegistrYesBox.IsChecked = true;
+        RegistrNoBox.IsChecked = false;
     }
 
     private void OnClearTableClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
