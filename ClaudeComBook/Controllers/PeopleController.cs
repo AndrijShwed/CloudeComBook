@@ -13,8 +13,23 @@ public class PeopleController : ControllerBase
     public PeopleController(IPersonRepository repo) => _repo = repo;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await _repo.GetAllAsync());
+    public async Task<IActionResult> GetAll(
+    [FromQuery] string? lastName = null,
+    [FromQuery] string? name = null,
+    [FromQuery] string? surname = null,
+    [FromQuery] string? sex = null,
+    [FromQuery] string? status = null,
+    [FromQuery] string? registr = null,
+    [FromQuery] int? villageStreetId = null,
+    [FromQuery] string? houseNumb = null,
+    [FromQuery] int? ageFrom = null,
+    [FromQuery] int? ageTo = null)
+    {
+        var result = await _repo.GetAllAsync(
+            lastName, name, surname, sex, status,
+            registr, villageStreetId, houseNumb, ageFrom, ageTo);
+        return Ok(result);
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)

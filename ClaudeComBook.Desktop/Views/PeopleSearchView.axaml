@@ -37,8 +37,8 @@
 							 Watermark="Побатькові" Margin="5,0"/>
 					<ComboBox Grid.Column="4" Name="SexBox"
 							  PlaceholderText="Оберіть стать" Margin="5,0" Width="150">
-						<ComboBoxItem Content="Чоловіча"/>
-						<ComboBoxItem Content="Жіноча"/>
+						<ComboBoxItem Content="Чол"/>
+						<ComboBoxItem Content="Жін"/>
 					</ComboBox>
 				</Grid>
 
@@ -51,12 +51,24 @@
 					<TextBox Grid.Column="2" Name="HouseBox"
 							 Watermark="Номер будинку" Margin="5,0"/>
 					<ComboBox Grid.Column="3" Name="StatusBox"
-							  PlaceholderText="Статус" Margin="5,0"/>
+                              PlaceholderText="Статус" Margin="5,0">
+						<ComboBoxItem Content="помер"/>
+						<ComboBoxItem Content="ЗСУ"/>
+						<ComboBoxItem Content="ВПО"/>
+						<ComboBoxItem Content="одинокий"/>
+						<ComboBoxItem Content="безвісти"/>
+						<ComboBoxItem Content="не проживає"/>
+						<ComboBoxItem Content="відстрочка"/>
+						<ComboBoxItem Content="багатодітний"/>
+						<ComboBoxItem Content="виключено з в/о"/>
+						<ComboBoxItem Content="бронь"/>
+					</ComboBox>
 					<StackPanel Grid.Column="4" Orientation="Horizontal"
 								VerticalAlignment="Center" Margin="5,0">
 						<TextBlock Text="Реєстр:" Foreground="White"
 								   VerticalAlignment="Center" Margin="0,0,8,0"/>
 						<CheckBox Name="RegistrYesBox" Content="так"
+								  IsChecked="True"
 								  Foreground="White" Margin="0,0,8,0"/>
 						<CheckBox Name="RegistrNoBox" Content="ні"
 								  Foreground="White"/>

@@ -1,7 +1,11 @@
 using Avalonia.Controls;
-using ClaudeComBook.Desktop.Services;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using ClaudeComBook.Desktop.Models;
+using ClaudeComBook.Desktop.Services;
+using System.Threading.Tasks;
+using System.Linq;
+using Avalonia.Controls;
 
 namespace ClaudeComBook.Desktop.Views;
 
@@ -15,6 +19,75 @@ public partial class PeopleSearchView : Window
         LoadComboBoxes();
         AgeFromBox.AddHandler(TextInputEvent, OnAgeInput, RoutingStrategies.Tunnel);
         AgeToBox.AddHandler(TextInputEvent, OnAgeInput, RoutingStrategies.Tunnel);
+
+        LastNameBox.TextChanged += OnNameTextChanged;
+        FirstNameBox.TextChanged += OnNameTextChanged;
+        SurnameBox.TextChanged += OnNameTextChanged;
+
+        VillageBox.SelectionChanged += OnVillageChanged;
+
+        PeopleGrid.LoadingRow += OnLoadingRow;
+    }
+
+    private void OnLoadingRow(object? sender, DataGridRowEventArgs e)
+    {
+        if (e.Row.DataContext is Person person)
+        {
+            if (person.Status?.ToLower() == "помер" || person.Status?.ToLower() == "померла")
+            {
+                e.Row.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Black);
+                e.Row.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.White);
+            }
+            else if (person.Registr?.ToLower() == "ні")
+            {
+                e.Row.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.FromRgb(255, 182, 193));
+                e.Row.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Black);
+            }
+            else
+            {
+                e.Row.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.FromRgb(245, 245, 220));
+                e.Row.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Black);
+            }
+        }
+    }
+
+    private async void OnVillageChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        var selectedVillage = VillageBox.SelectedItem as Village;
+        if (selectedVillage == null)
+        {
+            StreetBox.ItemsSource = null;
+            StreetBox.SelectedIndex = -1;
+            return;
+        }
+
+        var villageStreets = await _api.GetVillageStreetsAsync();
+        var streetIds = villageStreets?
+            .Where(vs => vs.VillageId == selectedVillage.Id && vs.IsActive)
+            .Select(vs => vs.StreetId)
+            .ToList();
+
+        var allStreets = await _api.GetStreetsAsync();
+        var filteredStreets = allStreets?
+            .Where(s => streetIds != null && streetIds.Contains(s.Id))
+            .ToList();
+
+        StreetBox.ItemsSource = filteredStreets;
+        StreetBox.DisplayMemberBinding = new Avalonia.Data.Binding("Name");
+        StreetBox.SelectedIndex = -1;
+    }
+    private void OnNameTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (sender is TextBox box && !string.IsNullOrEmpty(box.Text))
+        {
+            var text = box.Text;
+            var capitalized = char.ToUpper(text[0]) + text.Substring(1);
+            if (text != capitalized)
+            {
+                box.Text = capitalized;
+                box.CaretIndex = box.Text.Length;
+            }
+        }
     }
 
     private void OnAgeInput(object sender, TextInputEventArgs e)
@@ -61,7 +134,8 @@ public partial class PeopleSearchView : Window
             }
         }
 
-        if (ageFrom > ageTo)
+        if (!string.IsNullOrEmpty(AgeFromBox.Text) &&
+            !string.IsNullOrEmpty(AgeToBox.Text) && ageFrom > ageTo)
         {
             AgeFromBox.Text = "";
             AgeToBox.Text = "";
@@ -71,9 +145,38 @@ public partial class PeopleSearchView : Window
             return;
         }
 
-        var people = await _api.GetPeopleAsync();
+        // Отримуємо вибрані значення
+        var selectedVillage = VillageBox.SelectedItem as Village;
+        var selectedStreet = StreetBox.SelectedItem as Street;
+        var selectedSex = (SexBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+        var registr = (RegistrYesBox.IsChecked == true && RegistrNoBox.IsChecked == true) ? null :
+              RegistrYesBox.IsChecked == true ? "так" :
+              RegistrNoBox.IsChecked == true ? "ні" : null;
+
+        var people = await _api.GetPeopleAsync(
+            lastName: string.IsNullOrEmpty(LastNameBox.Text) ? null : LastNameBox.Text,
+            name: string.IsNullOrEmpty(FirstNameBox.Text) ? null : FirstNameBox.Text,
+            surname: string.IsNullOrEmpty(SurnameBox.Text) ? null : SurnameBox.Text,
+            sex: selectedSex,
+            status: (StatusBox.SelectedItem as ComboBoxItem)?.Content?.ToString(),
+            registr: registr,
+            villageStreetId: selectedVillage != null && selectedStreet != null
+                ? await GetVillageStreetId(selectedVillage.Id, selectedStreet.Id)
+                : null,
+            houseNumb: string.IsNullOrEmpty(HouseBox.Text) ? null : HouseBox.Text,
+            ageFrom: string.IsNullOrEmpty(AgeFromBox.Text) ? null : ageFrom,
+            ageTo: string.IsNullOrEmpty(AgeToBox.Text) ? null : ageTo
+        );
+
         PeopleGrid.ItemsSource = people;
         ResultCount.Text = people?.Count.ToString() ?? "0";
+    }
+
+    private async Task<int?> GetVillageStreetId(int villageId, int streetId)
+    {
+        var villageStreets = await _api.GetVillageStreetsAsync();
+        return villageStreets?
+            .FirstOrDefault(vs => vs.VillageId == villageId && vs.StreetId == streetId)?.Id;
     }
 
     private void OnClearClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)

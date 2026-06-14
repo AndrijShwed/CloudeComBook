@@ -12,6 +12,7 @@ public class Person
     public DateTime? DateOfBirth { get; set; }
     public string? NumbOfHouse { get; set; }
     public string? Passport { get; set; }
+    public string? Registr { get; set; }
     public string? IdKod { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Status { get; set; }

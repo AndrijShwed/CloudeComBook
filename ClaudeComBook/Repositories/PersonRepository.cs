@@ -11,7 +11,17 @@ public class PersonRepository : IPersonRepository
 
     public PersonRepository(DbConnectionFactory db) => _db = db;
 
-    public async Task<IEnumerable<Person>> GetAllAsync()
+    public async Task<IEnumerable<Person>> GetAllAsync(
+    string? lastName = null,
+    string? name = null,
+    string? surname = null,
+    string? sex = null,
+    string? status = null,
+    string? registr = null,
+    int? villageStreetId = null,
+    string? houseNumb = null,
+    int? ageFrom = null,
+    int? ageTo = null)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<Person>(
@@ -38,7 +48,31 @@ public class PersonRepository : IPersonRepository
           LEFT JOIN villagestreet vs ON p.villagestreetId = vs.id
           LEFT JOIN villages v ON vs.villageId = v.id
           LEFT JOIN streets s ON vs.streetId = s.id
-          ORDER BY p.lastname, p.name");
+          WHERE
+            (@lastName IS NULL OR p.lastname LIKE CONCAT('%', @lastName, '%'))
+            AND (@name IS NULL OR p.name LIKE CONCAT('%', @name, '%'))
+            AND (@surname IS NULL OR p.surname LIKE CONCAT('%', @surname, '%'))
+            AND (@sex IS NULL OR LOWER(p.sex) = LOWER(@sex))
+            AND (@status IS NULL OR LOWER(p.status) LIKE CONCAT('%', LOWER(@status), '%'))
+            AND (@registr IS NULL OR p.registr = @registr)
+            AND (@houseNumb IS NULL OR p.numb_of_house = @houseNumb)
+            AND (@villageStreetId IS NULL OR p.villagestreetId = @villageStreetId)
+            AND (@ageFrom IS NULL OR TIMESTAMPDIFF(YEAR, p.date_of_birth, CURDATE()) >= @ageFrom)
+            AND (@ageTo IS NULL OR TIMESTAMPDIFF(YEAR, p.date_of_birth, CURDATE()) <= @ageTo)
+          ORDER BY p.lastname, p.name",
+            new
+            {
+                lastName,
+                name,
+                surname,
+                sex,
+                status,
+                registr,
+                villageStreetId,
+                houseNumb,
+                ageFrom,
+                ageTo
+            });
     }
 
     public async Task<Person?> GetByIdAsync(int id)
