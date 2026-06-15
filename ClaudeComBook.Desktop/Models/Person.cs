@@ -20,4 +20,10 @@ public class Person
     public int? VillageStreetId { get; set; }
     public string? VillageName { get; set; }
     public string? StreetName { get; set; }
+    public DateTime? MDate { get; set; }
+    public string? Description { get; set; }
+    public string MDateFormatted =>
+    MDate.HasValue && MDate.Value.Year > 1
+        ? MDate.Value.ToString("dd.MM.yyyy")
+        : "";
 }

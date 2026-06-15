@@ -99,4 +99,8 @@ public class ApiService
         await _http.PutAsJsonAsync($"/api/villagestreets/{id}/file",
             new { fileData = Convert.ToBase64String(fileData) });
     }
+    public async Task UpdatePersonAsync(Person person)
+    {
+        await _http.PutAsJsonAsync($"/api/people/{person.PeopleId}", person);
+    }
 }

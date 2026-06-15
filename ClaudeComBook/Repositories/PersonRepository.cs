@@ -22,7 +22,8 @@ public class PersonRepository : IPersonRepository
     int? streetId = null,
     string? houseNumb = null,
     int? ageFrom = null,
-    int? ageTo = null)
+    int? ageTo = null,
+    string? description = null)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<Person>(
@@ -164,7 +165,7 @@ public class PersonRepository : IPersonRepository
               OR name LIKE @q 
               OR surname LIKE @q
               OR id_kod LIKE @q
-              OR phone_number LIKE @q
+              OR phone_numb LIKE @q
               ORDER BY lastname, name
               LIMIT 50",
             new { q = $"%{query}%" });
@@ -176,7 +177,7 @@ public class PersonRepository : IPersonRepository
         return await conn.ExecuteScalarAsync<int>(
             @"INSERT INTO people 
               (lastname, name, surname, sex, date_of_birth, numb_of_house,
-               passport, id_kod, phone_number, status, registr, m_date,
+               passport, id_kod, phone_numb, status, registr, m_date,
                mil_ID, villagestreetId, description)
               VALUES
               (@LastName, @Name, @Surname, @Sex, @DateOfBirth, @NumbOfHouse,
@@ -192,7 +193,7 @@ public class PersonRepository : IPersonRepository
             @"UPDATE people SET
               lastname=@LastName, name=@Name, surname=@Surname,
               sex=@Sex, date_of_birth=@DateOfBirth, numb_of_house=@NumbOfHouse,
-              passport=@Passport, id_kod=@IdKod, phone_number=@PhoneNumber,
+              passport=@Passport, id_kod=@IdKod, phone_numb=@PhoneNumber,
               status=@Status, registr=@Registr, m_date=@MDate,
               mil_ID=@MilID, villagestreetId=@VillageStreetId,
               description=@Description

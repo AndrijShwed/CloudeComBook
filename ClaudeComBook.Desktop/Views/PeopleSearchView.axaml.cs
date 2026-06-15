@@ -173,13 +173,6 @@ public partial class PeopleSearchView : Window
         ResultCount.Text = people?.Count.ToString() ?? "0";
     }
 
-    private async Task<int?> GetVillageStreetId(int villageId, int streetId)
-    {
-        var villageStreets = await _api.GetVillageStreetsAsync();
-        return villageStreets?
-            .FirstOrDefault(vs => vs.VillageId == villageId && vs.StreetId == streetId)?.Id;
-    }
-
     private void OnClearClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         LastNameBox.Text = "";
@@ -211,5 +204,14 @@ public partial class PeopleSearchView : Window
     {
         _previousWindow.Show();
         base.OnClosing(e);
+    }
+    private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
+    {
+        if (PeopleGrid.SelectedItem is Person person)
+        {
+            var window = new PersonEditView(person, this);
+            window.Show();
+            this.Hide();
+        }
     }
 }

@@ -112,13 +112,14 @@
 		<!-- Таблиця результатів -->
 		<DataGrid Grid.Row="2" Name="PeopleGrid"
 				   x:DataType="local:Person"
-          Margin="10,5"
-          Background="White"
-	      Foreground="Black"
-          IsReadOnly="True"
-          AutoGenerateColumns="False"
-          GridLinesVisibility="All"
-          HeadersVisibility="Column">
+				  DoubleTapped="OnRowDoubleTapped"
+				  Margin="10,5"
+				  Background="White"
+				  Foreground="Black"
+				  IsReadOnly="True"
+				  AutoGenerateColumns="False"
+				  GridLinesVisibility="All"
+				  HeadersVisibility="Column">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="№" Binding="{Binding PeopleId}" Width="50"/>
 				<DataGridTextColumn Header="Прізвище" Binding="{Binding LastName}" Width="120"/>
@@ -134,6 +135,7 @@
 				<DataGridTextColumn Header="Номер телефону" Binding="{Binding PhoneNumber}" Width="130"/>
 				<DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="100"/>
 				<DataGridTextColumn Header="Військ. ID" Binding="{Binding MilID}" Width="100"/>
+				<DataGridTextColumn Header="Дата зміни статусу" Binding="{Binding MDateFormatted}" Width="150"/>
 			</DataGrid.Columns>
 		</DataGrid>
 

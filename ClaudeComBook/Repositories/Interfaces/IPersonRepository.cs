@@ -15,7 +15,8 @@ public interface IPersonRepository
     int? streetId = null,
     string? houseNumb = null,
     int? ageFrom = null,
-    int? ageTo = null);
+    int? ageTo = null,
+    string? description = null);
     Task<Person?> GetByIdAsync(int id);
     Task<IEnumerable<Person>> GetByVillageStreetIdAsync(int villageStreetId);
     Task<IEnumerable<Person>> SearchAsync(string query);
