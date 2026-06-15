@@ -253,6 +253,24 @@ public partial class PersonEditView : Window
         Close();
     }
 
+    private async void OnDeleteClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.DataContext is Person p)
+        {
+            var msg = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Підтвердження",
+                    $"Ви дійсно хочете видалити особу прізвище: \"{p.LastName}\" ім'я:  \"{p.Name}\"?",
+                    MsBox.Avalonia.Enums.ButtonEnum.YesNo);
+            var result = await msg.ShowAsync();
+
+            if (result == MsBox.Avalonia.Enums.ButtonResult.Yes)
+            {
+                await _api.DeletePersonAsync(p.PeopleId);
+                LoadData();
+            }
+        }
+    }
+
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         _previousWindow.Show();

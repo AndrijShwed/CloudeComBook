@@ -107,4 +107,9 @@ public class ApiService
     {
         await _http.PostAsJsonAsync("/api/people", person);
     }
+
+    public async Task DeletePersonAsync(int id)
+    {
+        await _http.DeleteAsync($"/api/people/{id}");
+    }
 }

@@ -156,6 +156,11 @@
 					FontFamily="Comic Sans MS" FontSize="14"
 					FontWeight="Bold" Padding="20,10"
 					Click="OnBackClick"/>
+			<Button Content="Видалити"
+					Background="Red" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14"
+					FontWeight="Bold" Padding="20,10"
+					Click="OnDeleteClick"/>
 		</StackPanel>
 
 	</Grid>
