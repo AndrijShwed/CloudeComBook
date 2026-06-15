@@ -61,8 +61,14 @@ public class PersonRepository : IPersonRepository
                 SELECT id FROM villagestreet WHERE villageId = @villageId))
             AND (@streetId IS NULL OR p.villagestreetId IN (
                 SELECT id FROM villagestreet WHERE streetId = @streetId))
-            AND (@ageFrom IS NULL OR TIMESTAMPDIFF(YEAR, p.date_of_birth, CURDATE()) >= @ageFrom)
-            AND (@ageTo IS NULL OR TIMESTAMPDIFF(YEAR, p.date_of_birth, CURDATE()) <= @ageTo)
+            AND (@ageFrom IS NULL OR (
+                    YEAR(CURDATE()) - YEAR(p.date_of_birth) - 
+                    (DATE_FORMAT(CURDATE(), '%m%d') < DATE_FORMAT(p.date_of_birth, '%m%d'))
+                ) >= @ageFrom)
+                AND (@ageTo IS NULL OR (
+                    YEAR(CURDATE()) - YEAR(p.date_of_birth) - 
+                    (DATE_FORMAT(CURDATE(), '%m%d') < DATE_FORMAT(p.date_of_birth, '%m%d'))
+                ) <= @ageTo)
           ORDER BY p.lastname, p.name",
             new
             {
