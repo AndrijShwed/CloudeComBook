@@ -12,6 +12,7 @@ public partial class PersonEditView : Window
     private readonly Window _previousWindow;
     private readonly ApiService _api = new();
     private readonly Person _person;
+    private readonly bool _isAddMode = false;
 
     public PersonEditView(Person person, Window previousWindow)
     {
@@ -25,6 +26,19 @@ public partial class PersonEditView : Window
         LoadData();
     }
 
+    // Режим додавання
+    public PersonEditView(Window previousWindow)
+    {
+        InitializeComponent();
+        _person = new Person();
+        _previousWindow = previousWindow;
+        _isAddMode = true;
+        MDateBox.AddHandler(TextInputEvent, OnDateInput, RoutingStrategies.Tunnel);
+        MDateBox.TextChanged += OnMDateTextChanged;
+        DateOfBirthBox.AddHandler(TextInputEvent, OnDateInput, RoutingStrategies.Tunnel);
+        DateOfBirthBox.TextChanged += OnDateOfBirthTextChanged;
+        LoadData();
+    }
     private void OnDateInput(object? sender, TextInputEventArgs e)
     {
         if (!char.IsDigit(e.Text![0]))
@@ -65,6 +79,7 @@ public partial class PersonEditView : Window
     }
     private async void LoadData()
     {
+        Title = _isAddMode ? "Додавання особи" : "Редагувати";
         // Завантажуємо населені пункти
         var villages = await _api.GetVillagesAsync();
         VillageBox.ItemsSource = villages;
@@ -147,6 +162,43 @@ public partial class PersonEditView : Window
 
     private async void OnSaveClick(object sender, RoutedEventArgs e)
     {
+        // Перевірка обов'язкових полів
+        if (string.IsNullOrEmpty(LastNameBox.Text))
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка", "Прізвище є обов'язковим полем!");
+            await err.ShowAsync();
+            return;
+        }
+        if (string.IsNullOrEmpty(FirstNameBox.Text))
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка", "Ім'я є обов'язковим полем!");
+            await err.ShowAsync();
+            return;
+        }
+        if (VillageBox.SelectedItem == null)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка", "Населений пункт є обов'язковим полем!");
+            await err.ShowAsync();
+            return;
+        }
+        if (StreetBox.SelectedItem == null)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка", "Вулиця є обов'язковим полем!");
+            await err.ShowAsync();
+            return;
+        }
+        if (string.IsNullOrEmpty(HouseBox.Text))
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка", "Номер будинку є обов'язковим полем!");
+            await err.ShowAsync();
+            return;
+        }
+
         // Отримуємо villageStreetId
         var selectedVillage = VillageBox.SelectedItem as Village;
         var selectedStreet = StreetBox.SelectedItem as Street;
@@ -182,10 +234,13 @@ public partial class PersonEditView : Window
             null, System.Globalization.DateTimeStyles.None, out var mdate))
             _person.MDate = mdate;
 
-        await _api.UpdatePersonAsync(_person);
+        if (_isAddMode)
+            await _api.CreatePersonAsync(_person);
+        else
+            await _api.UpdatePersonAsync(_person);
 
         var msg = MsBox.Avalonia.MessageBoxManager
-            .GetMessageBoxStandard("Успіх", "Зміни збережено!");
+            .GetMessageBoxStandard("Успіх", _isAddMode ? "Особу додано!" : "Зміни збережено!");
         await msg.ShowAsync();
 
         _previousWindow.Show();

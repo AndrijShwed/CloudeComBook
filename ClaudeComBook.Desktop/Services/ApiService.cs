@@ -103,4 +103,8 @@ public class ApiService
     {
         await _http.PutAsJsonAsync($"/api/people/{person.PeopleId}", person);
     }
+    public async Task CreatePersonAsync(Person person)
+    {
+        await _http.PostAsJsonAsync("/api/people", person);
+    }
 }

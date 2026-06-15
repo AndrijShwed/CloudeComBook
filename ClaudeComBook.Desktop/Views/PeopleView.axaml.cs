@@ -22,7 +22,9 @@ public partial class PeopleView : Window
 
     private void OnAddClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // пізніше
+        var window = new PersonEditView(this);
+        window.Show();
+        this.Hide();
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)
