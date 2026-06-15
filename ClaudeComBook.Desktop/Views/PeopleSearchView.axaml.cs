@@ -162,9 +162,8 @@ public partial class PeopleSearchView : Window
             sex: selectedSex,
             status: (StatusBox.SelectedItem as ComboBoxItem)?.Content?.ToString(),
             registr: registr,
-            villageStreetId: selectedVillage != null && selectedStreet != null
-                ? await GetVillageStreetId(selectedVillage.Id, selectedStreet.Id)
-                : null,
+            villageId: selectedVillage?.Id,
+            streetId: selectedStreet?.Id,
             houseNumb: string.IsNullOrEmpty(HouseBox.Text) ? null : HouseBox.Text,
             ageFrom: string.IsNullOrEmpty(AgeFromBox.Text) ? null : ageFrom,
             ageTo: string.IsNullOrEmpty(AgeToBox.Text) ? null : ageTo

@@ -20,14 +20,15 @@ public class PeopleController : ControllerBase
     [FromQuery] string? sex = null,
     [FromQuery] string? status = null,
     [FromQuery] string? registr = null,
-    [FromQuery] int? villageStreetId = null,
+    [FromQuery] int? villageId = null,
+    [FromQuery] int? streetId = null,
     [FromQuery] string? houseNumb = null,
     [FromQuery] int? ageFrom = null,
     [FromQuery] int? ageTo = null)
     {
         var result = await _repo.GetAllAsync(
             lastName, name, surname, sex, status,
-            registr, villageStreetId, houseNumb, ageFrom, ageTo);
+            registr, villageId, streetId, houseNumb, ageFrom, ageTo);
         return Ok(result);
     }
 

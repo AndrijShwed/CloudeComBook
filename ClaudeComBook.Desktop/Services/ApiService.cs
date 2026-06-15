@@ -41,7 +41,8 @@ public class ApiService
     string? sex = null,
     string? status = null,
     string? registr = null,
-    int? villageStreetId = null,
+    int? villageId = null,
+    int? streetId = null,
     string? houseNumb = null,
     int? ageFrom = null,
     int? ageTo = null)
@@ -53,7 +54,8 @@ public class ApiService
         if (!string.IsNullOrEmpty(sex)) query.Add($"sex={Uri.EscapeDataString(sex)}");
         if (!string.IsNullOrEmpty(status)) query.Add($"status={Uri.EscapeDataString(status)}");
         if (!string.IsNullOrEmpty(registr)) query.Add($"registr={Uri.EscapeDataString(registr)}");
-        if (villageStreetId.HasValue) query.Add($"villageStreetId={villageStreetId}");
+        if (villageId.HasValue) query.Add($"villageId={villageId}");
+        if (streetId.HasValue) query.Add($"streetId={streetId}");
         if (!string.IsNullOrEmpty(houseNumb)) query.Add($"houseNumb={Uri.EscapeDataString(houseNumb)}");
         if (ageFrom.HasValue) query.Add($"ageFrom={ageFrom}");
         if (ageTo.HasValue) query.Add($"ageTo={ageTo}");

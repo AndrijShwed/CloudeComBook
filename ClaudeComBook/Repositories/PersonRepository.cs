@@ -18,7 +18,8 @@ public class PersonRepository : IPersonRepository
     string? sex = null,
     string? status = null,
     string? registr = null,
-    int? villageStreetId = null,
+    int? villageId = null,
+    int? streetId = null,
     string? houseNumb = null,
     int? ageFrom = null,
     int? ageTo = null)
@@ -56,7 +57,10 @@ public class PersonRepository : IPersonRepository
             AND (@status IS NULL OR LOWER(p.status) LIKE CONCAT('%', LOWER(@status), '%'))
             AND (@registr IS NULL OR p.registr = @registr)
             AND (@houseNumb IS NULL OR p.numb_of_house = @houseNumb)
-            AND (@villageStreetId IS NULL OR p.villagestreetId = @villageStreetId)
+            AND (@villageId IS NULL OR p.villagestreetId IN (
+                SELECT id FROM villagestreet WHERE villageId = @villageId))
+            AND (@streetId IS NULL OR p.villagestreetId IN (
+                SELECT id FROM villagestreet WHERE streetId = @streetId))
             AND (@ageFrom IS NULL OR TIMESTAMPDIFF(YEAR, p.date_of_birth, CURDATE()) >= @ageFrom)
             AND (@ageTo IS NULL OR TIMESTAMPDIFF(YEAR, p.date_of_birth, CURDATE()) <= @ageTo)
           ORDER BY p.lastname, p.name",
@@ -68,7 +72,8 @@ public class PersonRepository : IPersonRepository
                 sex,
                 status,
                 registr,
-                villageStreetId,
+                villageId,
+                streetId,
                 houseNumb,
                 ageFrom,
                 ageTo

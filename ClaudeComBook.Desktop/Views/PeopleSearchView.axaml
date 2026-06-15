@@ -125,7 +125,7 @@
 				<DataGridTextColumn Header="Ім'я" Binding="{Binding Name}" Width="100"/>
 				<DataGridTextColumn Header="Побатькові" Binding="{Binding Surname}" Width="120"/>
 				<DataGridTextColumn Header="Стать" Binding="{Binding Sex}" Width="70"/>
-				<DataGridTextColumn Header="Дата народження" Binding="{Binding DateOfBirth}" Width="130"/>
+				<DataGridTextColumn Header="Дата народження" Binding="{Binding DateOfBirth, StringFormat = dd.MM.yyyy}" Width="130"/>
 				<DataGridTextColumn Header="Село" Binding="{Binding VillageName}" Width="120"/>
                 <DataGridTextColumn Header="Вулиця" Binding="{Binding StreetName}" Width="120"/>
 				<DataGridTextColumn Header="Ном. буд" Binding="{Binding NumbOfHouse}" Width="90"/>

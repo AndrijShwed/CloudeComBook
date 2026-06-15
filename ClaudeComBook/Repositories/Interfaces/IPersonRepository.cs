@@ -11,7 +11,8 @@ public interface IPersonRepository
     string? sex = null,
     string? status = null,
     string? registr = null,
-    int? villageStreetId = null,
+    int? villageId = null,
+    int? streetId = null,
     string? houseNumb = null,
     int? ageFrom = null,
     int? ageTo = null);
