@@ -108,7 +108,7 @@ public partial class PeopleSearchView : Window
         StreetBox.DisplayMemberBinding = new Avalonia.Data.Binding("Name");
     }
 
-    private async void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    public async void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         int ageFrom = 0, ageTo = 200;
 

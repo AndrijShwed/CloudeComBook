@@ -103,10 +103,16 @@ public partial class PersonEditView : Window
             MDateBox.Text = _person.MDate.Value.ToString("dd.MM.yyyy");
 
         // Стать
-        SexBox.SelectedIndex = _person.Sex == "чол" ? 0 : 1;
+        if (_isAddMode)
+            SexBox.SelectedIndex = 0;
+        else
+            SexBox.SelectedIndex = _person.Sex == "чол" ? 0 : 1;
 
         // Реєстрація
-        RegistrBox.SelectedIndex = _person.Registr == "так" ? 0 : 1;
+        if (_isAddMode)
+            RegistrBox.SelectedIndex = 0;
+        else
+            RegistrBox.SelectedIndex = _person.Registr == "так" ? 0 : 1;
 
         // Статус
         var statusItems = StatusBox.Items.Cast<ComboBoxItem>().ToList();
@@ -252,25 +258,24 @@ public partial class PersonEditView : Window
         _previousWindow.Show();
         Close();
     }
-
-    private async void OnDeleteClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private async void OnDeleteClick(object sender, RoutedEventArgs e)
     {
-        if (sender is Button btn && btn.DataContext is Person p)
-        {
-            var msg = MsBox.Avalonia.MessageBoxManager
-                .GetMessageBoxStandard("Підтвердження",
-                    $"Ви дійсно хочете видалити особу прізвище: \"{p.LastName}\" ім'я:  \"{p.Name}\"?",
-                    MsBox.Avalonia.Enums.ButtonEnum.YesNo);
-            var result = await msg.ShowAsync();
+        var msg = MsBox.Avalonia.MessageBoxManager
+            .GetMessageBoxStandard("Підтвердження",
+                $"Ви дійсно хочете видалити особу \"{_person.LastName} {_person.Name}\"?",
+                MsBox.Avalonia.Enums.ButtonEnum.YesNo);
+        var result = await msg.ShowAsync();
 
-            if (result == MsBox.Avalonia.Enums.ButtonResult.Yes)
-            {
-                await _api.DeletePersonAsync(p.PeopleId);
-                LoadData();
-            }
+        if (result == MsBox.Avalonia.Enums.ButtonResult.Yes)
+        {
+            await _api.DeletePersonAsync(_person.PeopleId);
+            if (_previousWindow is PeopleSearchView searchView)
+                searchView.OnSearchClick(null!, null!);
+            _previousWindow.Show();
+            Close();
         }
     }
-
+    
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         _previousWindow.Show();
