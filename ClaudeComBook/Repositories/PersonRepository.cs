@@ -56,6 +56,7 @@ public class PersonRepository : IPersonRepository
             AND (@surname IS NULL OR p.surname LIKE CONCAT('%', @surname, '%'))
             AND (@sex IS NULL OR LOWER(p.sex) = LOWER(@sex))
             AND (@status IS NULL OR LOWER(p.status) LIKE CONCAT('%', LOWER(@status), '%'))
+            AND (@MDate IS NULL OR YEAR(p.m_date) = YEAR(@MDate))
             AND (@registr IS NULL OR p.registr = @registr)
             AND (@houseNumb IS NULL OR p.numb_of_house = @houseNumb)
             AND (@villageId IS NULL OR p.villagestreetId IN (
