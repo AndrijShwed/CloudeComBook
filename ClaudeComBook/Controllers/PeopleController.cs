@@ -24,11 +24,12 @@ public class PeopleController : ControllerBase
     [FromQuery] int? streetId = null,
     [FromQuery] string? houseNumb = null,
     [FromQuery] int? ageFrom = null,
-    [FromQuery] int? ageTo = null)
+    [FromQuery] int? ageTo = null,
+    [FromQuery] int? statusYear = null)
     {
         var result = await _repo.GetAllAsync(
             lastName, name, surname, sex, status,
-            registr, villageId, streetId, houseNumb, ageFrom, ageTo);
+            registr, villageId, streetId, houseNumb, ageFrom, ageTo, statusYear);
         return Ok(result);
     }
 

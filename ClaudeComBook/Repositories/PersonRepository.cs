@@ -23,7 +23,9 @@ public class PersonRepository : IPersonRepository
     string? houseNumb = null,
     int? ageFrom = null,
     int? ageTo = null,
-    string? description = null)
+    int? statusYear = null,
+    string? description = null
+    )
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<Person>(
@@ -56,7 +58,7 @@ public class PersonRepository : IPersonRepository
             AND (@surname IS NULL OR p.surname LIKE CONCAT('%', @surname, '%'))
             AND (@sex IS NULL OR LOWER(p.sex) = LOWER(@sex))
             AND (@status IS NULL OR LOWER(p.status) LIKE CONCAT('%', LOWER(@status), '%'))
-            AND (@MDate IS NULL OR YEAR(p.m_date) = YEAR(@MDate))
+            AND (@statusYear IS NULL OR YEAR(p.m_date) = @statusYear)
             AND (@registr IS NULL OR p.registr = @registr)
             AND (@houseNumb IS NULL OR p.numb_of_house = @houseNumb)
             AND (@villageId IS NULL OR p.villagestreetId IN (
@@ -84,7 +86,9 @@ public class PersonRepository : IPersonRepository
                 streetId,
                 houseNumb,
                 ageFrom,
-                ageTo
+                ageTo,
+                statusYear,
+                description
             });
     }
 

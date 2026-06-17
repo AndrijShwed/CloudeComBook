@@ -63,7 +63,7 @@
 						<ComboBoxItem Content="виключено з в/о"/>
 						<ComboBoxItem Content="бронь"/>
 					</ComboBox>
-					<TextBox Grid.Column="4" Name="StatusDateBox"
+					<TextBox Grid.Column="4" x:Name="StatusDateBox"
 							 Watermark="Рік зміни статусу" Margin="5,0"/>
 					<StackPanel Grid.Column="5" Orientation="Horizontal"
 								VerticalAlignment="Center" Margin="5,0">

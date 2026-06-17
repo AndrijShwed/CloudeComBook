@@ -35,7 +35,7 @@ public partial class PeopleSearchView : Window
     {
         if (e.Row.DataContext is Person person)
         {
-            if (person.Status?.ToLower() == "помер" || person.Status?.ToLower() == "померла")
+            if (person.Status?.Contains("помер", System.StringComparison.OrdinalIgnoreCase) == true)
             {
                 e.Row.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Black);
                 e.Row.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.White);
@@ -111,6 +111,14 @@ public partial class PeopleSearchView : Window
     public async void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         int ageFrom = 0, ageTo = 200;
+        int? statusYear = null;
+
+        if (!string.IsNullOrEmpty(StatusDateBox.Text))
+        {
+            if (int.TryParse(StatusDateBox.Text, out var year) && year >= 1900 & year <= 2100)
+                statusYear = year;
+        }
+                
 
         if (!string.IsNullOrEmpty(AgeFromBox.Text))
         {
@@ -166,7 +174,8 @@ public partial class PeopleSearchView : Window
             streetId: selectedStreet?.Id,
             houseNumb: string.IsNullOrEmpty(HouseBox.Text) ? null : HouseBox.Text,
             ageFrom: string.IsNullOrEmpty(AgeFromBox.Text) ? null : ageFrom,
-            ageTo: string.IsNullOrEmpty(AgeToBox.Text) ? null : ageTo
+            ageTo: string.IsNullOrEmpty(AgeToBox.Text) ? null : ageTo,
+            statusYear: statusYear
         );
 
         PeopleGrid.ItemsSource = people;
@@ -187,6 +196,7 @@ public partial class PeopleSearchView : Window
         StatusBox.SelectedIndex = -1;
         RegistrYesBox.IsChecked = true;
         RegistrNoBox.IsChecked = false;
+        StatusDateBox.Text = "";
     }
 
     private void OnClearTableClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)

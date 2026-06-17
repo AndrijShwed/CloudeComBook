@@ -45,7 +45,8 @@ public class ApiService
     int? streetId = null,
     string? houseNumb = null,
     int? ageFrom = null,
-    int? ageTo = null)
+    int? ageTo = null,
+    int? statusYear = null)
     {
         var query = new List<string>();
         if (!string.IsNullOrEmpty(lastName)) query.Add($"lastName={Uri.EscapeDataString(lastName)}");
@@ -59,6 +60,7 @@ public class ApiService
         if (!string.IsNullOrEmpty(houseNumb)) query.Add($"houseNumb={Uri.EscapeDataString(houseNumb)}");
         if (ageFrom.HasValue) query.Add($"ageFrom={ageFrom}");
         if (ageTo.HasValue) query.Add($"ageTo={ageTo}");
+        if (statusYear.HasValue) query.Add($"statusYear={statusYear}");
 
         var url = "/api/people";
         if (query.Count > 0) url += "?" + string.Join("&", query);
