@@ -7,7 +7,6 @@
         Background="#8B0000">
 
 	<Window.Styles>
-
 		<!-- Звичайний стан -->
 		<Style Selector="TextBox /template/ ScrollViewer">
 			<Setter Property="Foreground" Value="Black"/>
@@ -37,9 +36,6 @@
 			<Setter Property="Foreground" Value="Black"/>
 			<Setter Property="Background" Value="White"/>
 		</Style>
-		
-		
-		
 	</Window.Styles>
 
 	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
@@ -137,6 +133,7 @@
 					<ComboBoxItem Content="багатодітний"/>
 					<ComboBoxItem Content="виключено з в/о"/>
 					<ComboBoxItem Content="бронь"/>
+					<ComboBoxItem Content="вибув"/>
 				</ComboBox>
 			</StackPanel>
 
