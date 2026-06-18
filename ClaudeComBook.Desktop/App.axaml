@@ -20,6 +20,41 @@
 			<Setter Property="BorderBrush" Value="Gray"/>
 			<Setter Property="BorderThickness" Value="0,0,1,1"/>
 		</Style>
+		<!-- Звичайний стан -->
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+
+		<!-- Наведення мишки -->
+		<Style Selector="TextBox:pointerover /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+
+		<!-- Фокус -->
+		<Style Selector="TextBox:focus /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="Foreground" Value="Black"/>
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="PlaceholderForeground" Value="Black"/>
+		</Style>
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Background" Value="Black"/>
+			<Setter Property="PlaceholderForeground" Value="White"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="Foreground" Value="Black"/>
+			<Setter Property="Background" Value="White"/>
+		</Style>
+
+		<Style Selector="Button:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="{Binding $parent[Button].Background}"/>
+			<Setter Property="Opacity" Value="0.5"/>
+		</Style>
 	</Application.Styles>
 
 </Application>

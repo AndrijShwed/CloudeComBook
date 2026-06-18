@@ -7,22 +7,6 @@
         WindowState="Maximized"
         Background="White">
 
-	<Window.Styles>
-		<Style Selector="TextBox#VillageInputBox:focus /template/ ScrollViewer">
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-		<Style Selector="TextBox#VillageInputBox /template/ ScrollViewer">
-			<Setter Property="Foreground" Value="Black"/>
-		</Style>
-		<Style Selector="TextBox#StreetInputBox:focus /template/ ScrollViewer">
-			<Setter Property="Foreground" Value="White"/>
-		</Style>
-		<Style Selector="TextBox#StreetInputBox /template/ ScrollViewer">
-			<Setter Property="Foreground" Value="Black"/>
-		</Style>
-	</Window.Styles>
-
-
 	<Grid RowDefinitions="Auto,Auto,*">
 
 		<!-- Хлібні крихти -->
