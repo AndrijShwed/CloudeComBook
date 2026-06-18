@@ -5,7 +5,7 @@ namespace ClaudeComBook.Desktop.Views;
 
 public partial class PeopleView : Window
 {
-    private readonly Window _previousWindow;
+    public readonly Window _previousWindow;
 
     public PeopleView(Window previousWindow)
     {

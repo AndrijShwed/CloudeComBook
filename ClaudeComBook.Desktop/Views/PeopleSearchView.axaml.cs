@@ -210,11 +210,6 @@ public partial class PeopleSearchView : Window
         // Пізніше додамо експорт в Excel
     }
 
-    protected override void OnClosing(WindowClosingEventArgs e)
-    {
-        _previousWindow.Show();
-        base.OnClosing(e);
-    }
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
         if (PeopleGrid.SelectedItem is Person person)
@@ -223,5 +218,49 @@ public partial class PeopleSearchView : Window
             window.Show();
             this.Hide();
         }
+    }
+
+    private bool _manualClose = false;
+    private void OnHomeClick(object sender, Avalonia.Input.TappedEventArgs e)
+    {
+        _manualClose = true;
+        if (_previousWindow is PeopleView peopleView)
+        {
+            peopleView._previousWindow.Show();
+            peopleView.Hide();
+        }
+        else
+        {
+            _previousWindow.Show();
+        }
+        Close();
+    }
+
+    private void OnPeopleViewClick(object sender, Avalonia.Input.TappedEventArgs e)
+    {
+        _manualClose = true;
+        if (_previousWindow is PeopleSearchView peopleSearchView)
+        {
+            peopleSearchView._previousWindow.Show();
+            peopleSearchView.Hide();
+        }
+        else
+        {
+            _previousWindow.Show();
+        }
+        Close();
+    }
+
+
+    private void OnPeopleClick(object sender, Avalonia.Input.TappedEventArgs e)
+    {
+        _previousWindow.Show();
+        Close();
+    }
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        if (!_manualClose)
+            _previousWindow.Show();
+        base.OnClosing(e);
     }
 }

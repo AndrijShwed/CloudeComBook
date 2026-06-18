@@ -12,9 +12,11 @@
 
 		<!-- Хлібні крихти -->
 		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
-			<TextBlock Text="Головна" Foreground="White" FontSize="13"/>
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+			             Cursor="Hand" Tapped="OnHomeClick"/>
 			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
-			<TextBlock Text="Населення" Foreground="White" FontSize="13"/>
+			<TextBlock Text="Населення" Foreground="White" FontSize="13"
+			             Cursor="Hand" Tapped="OnPeopleViewClick"/>
 			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
 			<TextBlock Text="Вікно пошуку" Foreground="White" FontSize="13" FontWeight="Bold"/>
 		</StackPanel>
