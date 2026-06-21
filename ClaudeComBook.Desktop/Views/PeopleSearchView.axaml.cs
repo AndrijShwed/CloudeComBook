@@ -11,7 +11,7 @@ namespace ClaudeComBook.Desktop.Views;
 
 public partial class PeopleSearchView : Window
 {
-    private readonly Window _previousWindow;
+    public readonly Window _previousWindow;
     private readonly ApiService _api = new();
 
     public PeopleSearchView(Window previousWindow)

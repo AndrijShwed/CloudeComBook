@@ -11,10 +11,12 @@
 
 		<!-- Хлібні крихти -->
 		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
-			<TextBlock Text="Головна" FontSize="13"/>
-			<TextBlock Text=" / " FontSize="13"/>
-			<TextBlock Text="Населені пункти" FontSize="13" FontWeight="Bold"/>
+			<TextBlock Text="Головна" Foreground="Black" FontSize="13" Cursor="Hand"
+					    Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="Black" FontSize="13"/>
+			<TextBlock Text="Населені пункти" Foreground="Black" FontSize="13" FontWeight="Bold"/>
 		</StackPanel>
+
 
 		<!-- Панель введення -->
 		<Grid Grid.Row="1" ColumnDefinitions="*,*,Auto" Margin="10,5">

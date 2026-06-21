@@ -281,4 +281,21 @@ public partial class PersonEditView : Window
         _previousWindow.Show();
         base.OnClosing(e);
     }
+
+    private bool _manualClose = false;
+    private void OnSearchWindowClick(object sender, Avalonia.Input.TappedEventArgs e)
+    {
+        _manualClose = true;
+        if (_previousWindow is PeopleSearchView peopleSearchView)
+        {
+            peopleSearchView._previousWindow.Show();
+            peopleSearchView.Hide();
+        }
+        else
+        {
+            _previousWindow.Show();
+        }
+        Close();
+    }
+  
 }
