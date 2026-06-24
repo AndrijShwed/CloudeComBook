@@ -65,7 +65,8 @@
 
 			<!-- Заміна назви вулиці -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center">
+					HorizontalContentAlignment="Center"
+					Click="OnRenameStreetClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="90" Height="90" Source="/Assets/street.png"/>
 					<TextBlock Text="Заміна назви вулиці" FontFamily="Comic Sans MS" Foreground="Black"

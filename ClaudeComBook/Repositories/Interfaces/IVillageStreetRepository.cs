@@ -12,5 +12,7 @@ namespace ClaudeComBook.API.Repositories.Interfaces
         Task<IEnumerable<VillageStreet>> GetByVillageIdAsync(int villageId);
         Task<IEnumerable<VillageStreet>> GetByStreetIdAsync(int streetId);
         Task<bool> UpdateFileAsync(int id, byte[] fileData);
+        Task<bool> RenameStreetAsync(int villageId, int oldStreetId, int newStreetId,
+                                        DateTime? renameDate, byte[]? fileData);
     }
 }

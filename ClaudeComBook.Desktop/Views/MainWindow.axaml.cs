@@ -21,5 +21,12 @@ namespace ClaudeComBook.Desktop.Views
             window.Show();
             this.Hide();
         }
+
+        private void OnRenameStreetClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new RenameStreetView(this);
+            window.Show();
+            this.Hide();
+        }
     }
 }

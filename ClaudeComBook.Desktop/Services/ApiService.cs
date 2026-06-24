@@ -114,4 +114,18 @@ public class ApiService
     {
         await _http.DeleteAsync($"/api/people/{id}");
     }
+
+    public async Task RenameStreetAsync(int villageId, int oldStreetId,
+    int newStreetId, DateTime? renameDate, byte[]? fileData)
+    {
+        var request = new
+        {
+            villageId,
+            oldStreetId,
+            newStreetId,
+            renameDate,
+            fileData = fileData != null ? Convert.ToBase64String(fileData) : null
+        };
+        await _http.PostAsJsonAsync("/api/villagestreets/rename", request);
+    }
 }

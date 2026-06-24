@@ -93,4 +93,20 @@ public class VillageStreetRepository : IVillageStreetRepository
             new { id, fileData });
         return rows > 0;
     }
+
+    public async Task<bool> RenameStreetAsync(int villageId, int oldStreetId,
+    int newStreetId, DateTime? renameDate, byte[]? fileData)
+    {
+        using var conn = _db.CreateConnection();
+        var rows = await conn.ExecuteAsync(
+            @"UPDATE villagestreet 
+          SET streetId = @newStreetId,
+              oldStreetId = @oldStreetId,
+              renameDate = @renameDate,
+              fileData = @fileData
+          WHERE villageId = @villageId 
+          AND streetId = @oldStreetId",
+            new { villageId, oldStreetId, newStreetId, renameDate, fileData });
+        return rows > 0;
+    }
 }

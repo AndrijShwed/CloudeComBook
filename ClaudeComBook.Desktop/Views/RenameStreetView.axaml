@@ -1,0 +1,92 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.RenameStreetView"
+        Title="Перейменування вулиць"
+        WindowState="Maximized"
+        Background="#8B0000">
+
+	<Grid RowDefinitions="Auto,*" Margin="20">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Перейменування вулиць" Foreground="White"
+					   FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Вміст -->
+		<Grid Grid.Row="1" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+
+			<!-- Населений пункт -->
+			<StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
+				<Button Content="Виберіть населений пункт"
+						Background="#FF8080" Foreground="White"
+						FontFamily="Comic Sans MS" FontSize="14"
+						FontStyle="Italic" HorizontalAlignment="Left"
+						Padding="10,5" Margin="0,0,0,5"/>
+				<ComboBox Name="VillageBox" HorizontalAlignment="Stretch"
+						  Background="White"/>
+			</StackPanel>
+
+			<!-- Дата зміни -->
+			<StackPanel Grid.Column="1" Grid.Row="0" Margin="5">
+				<Button Content="Вкажіть дату зміни назви вул."
+						Background="#FF8080" Foreground="White"
+						FontFamily="Comic Sans MS" FontSize="14"
+						FontStyle="Italic" HorizontalAlignment="Left"
+						Padding="10,5" Margin="0,0,0,5"/>
+				<TextBox Name="RenameDateBox" Background="White"
+						 Foreground="Black" Width="200"
+						 HorizontalAlignment="Left"/>
+			</StackPanel>
+
+			<!-- Стара назва вулиці -->
+			<StackPanel Grid.Column="0" Grid.Row="1" Margin="5">
+				<Button Content="Виберіть стару назву вулиці"
+						Background="#FF8080" Foreground="White"
+						FontFamily="Comic Sans MS" FontSize="14"
+						FontStyle="Italic" HorizontalAlignment="Left"
+						Padding="10,5" Margin="0,0,0,5"/>
+				<ComboBox Name="OldStreetBox" HorizontalAlignment="Stretch"
+						  Background="White"/>
+			</StackPanel>
+
+			<!-- Нова назва вулиці -->
+			<StackPanel Grid.Column="1" Grid.Row="1" Margin="5">
+				<Button Content="Введіть нову назву вулиці"
+						Background="#FF8080" Foreground="White"
+						FontFamily="Comic Sans MS" FontSize="14"
+						FontStyle="Italic" HorizontalAlignment="Left"
+						Padding="10,5" Margin="0,0,0,5"/>
+				<TextBox Name="NewStreetBox" Background="White"
+						 Foreground="Black" HorizontalAlignment="Stretch"/>
+			</StackPanel>
+
+			<!-- Файл -->
+			<Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
+				  ColumnDefinitions="*,Auto" Margin="5">
+				<TextBox Grid.Column="0" Name="FilePathBox"
+						 Background="White" Foreground="Black"
+						 IsReadOnly="True"/>
+				<Button Grid.Column="1" Content="Оберіть файл з рішенням про перейменування"
+						Background="#7B68EE" Foreground="White"
+						FontFamily="Comic Sans MS" FontSize="14"
+						FontStyle="Italic" Padding="15,10" Margin="10,0,0,0"
+						Click="OnSelectFileClick"/>
+			</Grid>
+
+			<!-- Кнопка збереження -->
+			<Button Grid.Column="0" Grid.Row="3"
+					Content="Замінити і зберегти"
+					Background="Red" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="18"
+					FontStyle="Italic" FontWeight="Bold"
+					Padding="30,15" Margin="5,20,0,0"
+					CornerRadius="20"
+					Click="OnSaveClick"/>
+
+		</Grid>
+	</Grid>
+</Window>

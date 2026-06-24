@@ -62,4 +62,16 @@ public class VillageStreetsController : ControllerBase
         var ok = await _repo.UpdateFileAsync(id, fileData);
         return ok ? NoContent() : NotFound();
     }
+
+    [HttpPost("rename")]
+    public async Task<IActionResult> Rename([FromBody] RenameStreetRequest request)
+    {
+        var ok = await _repo.RenameStreetAsync(
+            request.VillageId,
+            request.OldStreetId,
+            request.NewStreetId,
+            request.RenameDate,
+            request.FileData != null ? Convert.FromBase64String(request.FileData) : null);
+        return ok ? NoContent() : BadRequest();
+    }
 }
