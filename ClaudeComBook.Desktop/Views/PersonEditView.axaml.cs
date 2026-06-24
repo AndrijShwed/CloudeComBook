@@ -247,6 +247,7 @@ public partial class PersonEditView : Window
 
         var msg = MsBox.Avalonia.MessageBoxManager
             .GetMessageBoxStandard("Успіх", _isAddMode ? "Особу додано!" : "Зміни збережено!");
+        
         await msg.ShowAsync();
 
         _previousWindow.Show();
