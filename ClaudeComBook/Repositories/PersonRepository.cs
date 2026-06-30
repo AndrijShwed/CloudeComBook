@@ -213,4 +213,17 @@ public class PersonRepository : IPersonRepository
             "DELETE FROM people WHERE people_id = @id", new { id });
         return rows > 0;
     }
+    public async Task<Dictionary<string, int>> GetPopulationByVillageAsync()
+    {
+        using var conn = _db.CreateConnection();
+        var result = await conn.QueryAsync<(string Village, int Count)>(
+            @"SELECT v.name AS Village, COUNT(*) AS Count
+          FROM people p
+          JOIN villagestreet vs ON p.villagestreetId = vs.id
+          JOIN villages v ON vs.villageId = v.id
+          WHERE p.status IS NULL OR p.status != 'помер'
+          GROUP BY v.name");
+
+        return result.ToDictionary(r => r.Village, r => r.Count);
+    }
 }

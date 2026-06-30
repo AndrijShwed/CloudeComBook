@@ -9,7 +9,7 @@ namespace ClaudeComBook.Desktop.Views
             InitializeComponent();
         }
 
-        private void OnVillagesClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void OnVillagesStreetsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             var window = new VillageStreetsView(this);
             window.Show();
@@ -25,6 +25,13 @@ namespace ClaudeComBook.Desktop.Views
         private void OnRenameStreetClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             var window = new RenameStreetView(this);
+            window.Show();
+            this.Hide();
+        }
+
+        private void OnPopulationClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new PopulationView(this);
             window.Show();
             this.Hide();
         }

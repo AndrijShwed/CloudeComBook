@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ClaudeComBook.Desktop.Models"
+        x:Class="ClaudeComBook.Desktop.Views.PopulationView"
+        Title="Населені Пункти"
+        WindowState="Maximized"
+        Background="#F0F0F0">
+
+	<Grid RowDefinitions="Auto,Auto,*" Margin="10">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+			<TextBlock Text="Головна" FontSize="13" Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " FontSize="13"/>
+			<TextBlock Text="Населені_Пункти" FontSize="13" FontWeight="Bold" FontStyle="Italic"/>
+		</StackPanel>
+
+		<!-- Кнопки -->
+		<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+			<Button Content="Оновити"
+					Background="#FF8A65" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14" FontWeight="Bold"
+					Padding="20,8" Margin="0,0,10,0"
+					Click="OnRefreshClick"/>
+			<Button Content="Зберегти в таблицю"
+					Background="#FF9800" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14" FontWeight="Bold"
+					Padding="20,8" Margin="0,0,10,0"
+					Click="OnSaveClick"/>
+		</StackPanel>
+
+		<!-- Таблиця -->
+		<DataGrid Grid.Row="2" Name="PopulationGrid"
+				  x:DataType="local:PopulationRow"
+				  Margin="0,5"
+				  Background="White"
+				  Foreground="Black"
+				  IsReadOnly="True"
+				  AutoGenerateColumns="False"
+				  GridLinesVisibility="All"
+				  BorderThickness="1"
+				  BorderBrush="Gray"
+				  HeadersVisibility="Column">
+			<DataGrid.Styles>
+				<Style Selector="DataGridRow">
+					<Style.Animations/>
+				</Style>
+			</DataGrid.Styles>
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Рік" Binding="{Binding Year}" Width="100"/>
+			</DataGrid.Columns>
+		</DataGrid>
+
+	</Grid>
+</Window>

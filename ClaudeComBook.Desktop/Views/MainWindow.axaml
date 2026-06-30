@@ -51,14 +51,14 @@
 				</StackPanel>
 			</Button>
 
-			<!-- Населені пункти -->
+			<!-- Кількість населення -->
 			<Button Margin="15" Background="#FFE4E8" CornerRadius="15"
 					HorizontalContentAlignment="Center"
-					Click="OnVillagesClick">
-				    
+					Click="OnPopulationClick">
+
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/village.png"/>
-					<TextBlock Text="Населені пункти" FontFamily="Comic Sans MS" Foreground="Black"
+					<TextBlock Text="Кількість населення" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
@@ -84,12 +84,13 @@
 				</StackPanel>
 			</Button>
 
-			<!-- Початок роботи -->
+			<!-- Населені пункти та вулиці -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center">
+					HorizontalContentAlignment="Center"
+					Click="OnVillagesStreetsClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/start.png"/>
-					<TextBlock Text="Початок роботи" FontFamily="Comic Sans MS" Foreground="Black"
+					<TextBlock Text="Населені пункти та вулиці" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>

@@ -60,10 +60,10 @@ public class PopulationSnapshotRepository : IPopulationSnapshotRepository
         using var conn = _db.CreateConnection();
         return await conn.ExecuteScalarAsync<int>(
             @"INSERT INTO population_snapshot 
-              (settlement_name, year, population, created_at)
-              VALUES
-              (@Settlemet_name, @Year, @Population, @Created_at);
-              SELECT LAST_INSERT_ID();", populationSnapshot);
+          (settlement_name, year, population, created_at)
+          VALUES
+          (@SettlementName, @Year, @Population, @CreatedAt);
+          SELECT LAST_INSERT_ID();", populationSnapshot);
     }
 
     public async Task<bool> UpdateAsync(PopulationSnapshot populationSnapshot)

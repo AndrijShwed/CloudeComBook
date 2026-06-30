@@ -128,4 +128,7 @@ public class ApiService
         };
         await _http.PostAsJsonAsync("/api/villagestreets/rename", request);
     }
+
+    public async Task<List<PopulationSnapshot>?> GetPopulationSnapshotsAsync() =>
+    await _http.GetFromJsonAsync<List<PopulationSnapshot>>("/api/populationsnapshots");
 }
