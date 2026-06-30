@@ -222,6 +222,7 @@ public class PersonRepository : IPersonRepository
           JOIN villagestreet vs ON p.villagestreetId = vs.id
           JOIN villages v ON vs.villageId = v.id
           WHERE p.status IS NULL OR p.status != 'помер'
+          AND p.registr = 'так'
           GROUP BY v.name");
 
         return result.ToDictionary(r => r.Village, r => r.Count);
