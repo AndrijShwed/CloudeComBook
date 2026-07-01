@@ -134,7 +134,6 @@ public partial class PopulationView : Window
         }
 
         await _api.SavePopulationSnapshotAsync(currentRow, _villageNames);
-        await _api.Upd(currentRow, _villageNames);
 
         var msg = MsBox.Avalonia.MessageBoxManager
             .GetMessageBoxStandard("Успіх", "Дані збережено!");
