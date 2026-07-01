@@ -131,4 +131,28 @@ public class ApiService
 
     public async Task<List<PopulationSnapshot>?> GetPopulationSnapshotsAsync() =>
     await _http.GetFromJsonAsync<List<PopulationSnapshot>>("/api/populationsnapshots");
+    public async Task<Dictionary<string, int>?> GetCurrentPopulationAsync() =>
+    await _http.GetFromJsonAsync<Dictionary<string, int>>("/api/people/population-by-village");
+
+    public async Task SavePopulationSnapshotAsync(PopulationRow row, List<string> villages)
+    {
+        var currentYear = System.DateTime.Now.Year;
+        foreach (var village in villages)
+        {
+            var population = row.VillagePopulations.GetValueOrDefault(village, 0);
+            var response = await _http.PostAsJsonAsync("/api/populationsnapshots", new
+            {
+                settlementName = village,
+                year = currentYear,
+                population,
+                createdAt = System.DateTime.Now
+            });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"{response.StatusCode}: {error}");
+            }
+        }
+    }
 }

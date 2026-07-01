@@ -58,6 +58,7 @@ public partial class PopulationView : Window
         }
 
         PopulationGrid.ItemsSource = rows;
+        _rows = rows;
     }
 
     private void BuildColumns()
@@ -89,17 +90,70 @@ public partial class PopulationView : Window
         });
     }
 
-    private void OnRefreshClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private List<PopulationRow> _rows = new();
+
+    private async void OnRefreshClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        LoadData();
+        var currentPopulation = await _api.GetCurrentPopulationAsync();
+        if (currentPopulation == null) return;
+
+        var currentYear = System.DateTime.Now.Year;
+        var currentRow = _rows.FirstOrDefault(r => r.Year == currentYear);
+
+        if (currentRow != null)
+        {
+            foreach (var village in _villageNames)
+                currentRow.VillagePopulations[village] = currentPopulation.GetValueOrDefault(village, 0);
+            currentRow.Total = currentRow.VillagePopulations.Values.Sum();
+        }
+        else
+        {
+            var newRow = new PopulationRow { Year = currentYear };
+            foreach (var village in _villageNames)
+                newRow.VillagePopulations[village] = currentPopulation.GetValueOrDefault(village, 0);
+            newRow.Total = newRow.VillagePopulations.Values.Sum();
+            _rows.Add(newRow);
+            _rows = _rows.OrderBy(r => r.Year).ToList();
+        }
+
+        PopulationGrid.ItemsSource = null;
+        PopulationGrid.ItemsSource = _rows;
     }
 
     private async void OnSaveClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        var currentYear = System.DateTime.Now.Year;
+        var currentRow = _rows.FirstOrDefault(r => r.Year == currentYear);
+
+        if (currentRow == null)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка", "Спочатку натисніть Оновити!");
+            await err.ShowAsync();
+            return;
+        }
+
+        await _api.SavePopulationSnapshotAsync(currentRow, _villageNames);
+        await _api.Upd(currentRow, _villageNames);
+
         var msg = MsBox.Avalonia.MessageBoxManager
-            .GetMessageBoxStandard("Інфо", "Функція збереження буде додана пізніше");
+            .GetMessageBoxStandard("Успіх", "Дані збережено!");
         await msg.ShowAsync();
+
+        LoadData();
     }
+
+    //private void OnRefreshClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    //{
+    //    LoadData();
+    //}
+
+    //private async void OnSaveClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    //{
+    //    var msg = MsBox.Avalonia.MessageBoxManager
+    //        .GetMessageBoxStandard("Інфо", "Функція збереження буде додана пізніше");
+    //    await msg.ShowAsync();
+    //}
 
     private void OnHomeClick(object sender, Avalonia.Input.TappedEventArgs e)
     {

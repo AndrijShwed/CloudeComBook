@@ -57,13 +57,22 @@ public class PopulationSnapshotRepository : IPopulationSnapshotRepository
 
     public async Task<int> CreateAsync(PopulationSnapshot populationSnapshot)
     {
-        using var conn = _db.CreateConnection();
-        return await conn.ExecuteScalarAsync<int>(
-            @"INSERT INTO population_snapshot 
+        try 
+        {
+            using var conn = _db.CreateConnection();
+            return await conn.ExecuteScalarAsync<int>(
+                 @"INSERT INTO population_snapshot 
           (settlement_name, year, population, created_at)
           VALUES
           (@SettlementName, @Year, @Population, @CreatedAt);
           SELECT LAST_INSERT_ID();", populationSnapshot);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+
     }
 
     public async Task<bool> UpdateAsync(PopulationSnapshot populationSnapshot)

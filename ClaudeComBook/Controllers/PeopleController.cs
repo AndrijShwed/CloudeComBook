@@ -69,4 +69,11 @@ public class PeopleController : ControllerBase
         var ok = await _repo.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
     }
+
+    [HttpGet("population-by-village")]
+    public async Task<IActionResult> GetPopulationByVillage()
+    {
+        var result = await _repo.GetPopulationByVillageAsync();
+        return Ok(result);
+    }
 }
