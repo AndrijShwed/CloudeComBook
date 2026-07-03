@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.HouseholdsView"
+        Title="Домогосподарства"
+        WindowState="Maximized"
+        Background="#8B0000">
+
+	<Grid RowDefinitions="Auto,*">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Домогосподарства" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Кнопки меню -->
+		<UniformGrid Grid.Row="1" Columns="3" Margin="40">
+
+			<!-- Додати будинок -->
+			<Button Margin="15" Background="White" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnAddHouseClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/add_house.png"/>
+					<TextBlock Text="Додати будинок" FontFamily="Comic Sans MS"
+							   Foreground="Black" FontSize="16" FontStyle="Italic"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+			<!-- Пошук -->
+			<Button Margin="15" Background="White" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnSearchHouseClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/search_house.png"/>
+					<TextBlock Text="Пошук за адресою&#10;редагування та видалення"
+							   FontFamily="Comic Sans MS"
+							   Foreground="Black" FontSize="16" FontStyle="Italic"
+							   TextAlignment="Center"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+			<!-- Дані по площі -->
+			<Button Margin="15" Background="White" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnAreaClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/area_house.png"/>
+					<TextBlock Text="Дані по площі" FontFamily="Comic Sans MS"
+							   Foreground="Black" FontSize="16" FontStyle="Italic"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+			<!-- По кількості кімнат -->
+			<Button Margin="15" Background="#FF8C00" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnRoomsClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/rooms_house.png"/>
+					<TextBlock Text="По кількості кімнат" FontFamily="Comic Sans MS"
+							   Foreground="White" FontSize="16" FontStyle="Italic"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+		</UniformGrid>
+	</Grid>
+</Window>

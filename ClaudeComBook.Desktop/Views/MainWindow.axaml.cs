@@ -35,5 +35,11 @@ namespace ClaudeComBook.Desktop.Views
             window.Show();
             this.Hide();
         }
+        private void OnHouseholdsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new HouseholdsView(this);
+            window.Show();
+            this.Hide();
+        }
     }
 }

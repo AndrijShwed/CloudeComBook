@@ -21,7 +21,8 @@
 
 			<!-- Домогосподарства -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center">
+					HorizontalContentAlignment="Center"
+					Click="OnHouseholdsClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="90" Height="90" Source="/Assets/house.png"/>
 					<TextBlock Text="Домогосподарства" FontFamily="Comic Sans MS" Foreground="Black"
