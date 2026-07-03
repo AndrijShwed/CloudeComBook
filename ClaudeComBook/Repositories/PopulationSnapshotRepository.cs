@@ -95,5 +95,24 @@ public class PopulationSnapshotRepository : IPopulationSnapshotRepository
             "DELETE FROM population_snapshot WHERE id = @id", new { id });
         return rows > 0;
     }
+    public async Task<bool> ExistsForYearAndVillageAsync(int year, string settlementName)
+    {
+        using var conn = _db.CreateConnection();
+        var count = await conn.ExecuteScalarAsync<int>(
+            "SELECT COUNT(*) FROM population_snapshot WHERE year = @year AND settlement_name = @settlementName",
+            new { year, settlementName });
+        return count > 0;
+    }
+
+    public async Task<bool> UpdateByYearAndVillageAsync(int year, string settlementName, int population)
+    {
+        using var conn = _db.CreateConnection();
+        var rows = await conn.ExecuteAsync(
+            @"UPDATE population_snapshot 
+          SET population = @population, created_at = @createdAt
+          WHERE year = @year AND settlement_name = @settlementName",
+            new { year, settlementName, population, createdAt = DateTime.Now });
+        return rows > 0;
+    }
 }
 

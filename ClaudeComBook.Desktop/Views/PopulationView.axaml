@@ -10,15 +10,15 @@
 
 		<!-- Хлібні крихти -->
 		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-			<TextBlock Text="Головна" FontSize="13" Cursor="Hand" Tapped="OnHomeClick"/>
-			<TextBlock Text=" / " FontSize="13"/>
-			<TextBlock Text="Населені_Пункти" FontSize="13" FontWeight="Bold" FontStyle="Italic"/>
+			<TextBlock Text="Головна" FontSize="13" Foreground="Black" Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="Black" FontSize="13"/>
+			<TextBlock Text="Кількість населення" FontSize="13" Foreground="Black" FontWeight="Bold" FontStyle="Italic"/>
 		</StackPanel>
 
 		<!-- Кнопки -->
 		<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
 			<Button Content="Оновити"
-					Background="#FF8A65" Foreground="White"
+					Background="DarkBlue" Foreground="White"
 					FontFamily="Comic Sans MS" FontSize="14" FontWeight="Bold"
 					Padding="20,8" Margin="0,0,10,0"
 					Click="OnRefreshClick"/>

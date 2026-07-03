@@ -10,5 +10,7 @@ namespace ClaudeComBook.API.Repositories.Interfaces
         Task<int> CreateAsync(PopulationSnapshot populationsnapshot);
         Task<bool> UpdateAsync(PopulationSnapshot populationSnapshot);
         Task<bool> DeleteAsync(int id);
+        Task<bool> ExistsForYearAndVillageAsync(int year, string settlementName);
+        Task<bool> UpdateByYearAndVillageAsync(int year, string settlementName, int population);
     }
 }

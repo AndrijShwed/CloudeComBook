@@ -140,19 +140,13 @@ public class ApiService
         foreach (var village in villages)
         {
             var population = row.VillagePopulations.GetValueOrDefault(village, 0);
-            var response = await _http.PostAsJsonAsync("/api/populationsnapshots", new
+            await _http.PostAsJsonAsync("/api/populationsnapshots/upsert", new
             {
                 settlementName = village,
                 year = currentYear,
                 population,
                 createdAt = System.DateTime.Now
             });
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"{response.StatusCode}: {error}");
-            }
         }
     }
 }

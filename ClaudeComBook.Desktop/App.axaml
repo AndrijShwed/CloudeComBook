@@ -22,7 +22,7 @@
 		</Style>
 		<!-- Звичайний стан -->
 		<Style Selector="TextBox /template/ ScrollViewer">
-			<Setter Property="Foreground" Value="Black"/>
+			<Setter Property="Foreground" Value="White"/>
 		</Style>
 
 		<!-- Наведення мишки -->

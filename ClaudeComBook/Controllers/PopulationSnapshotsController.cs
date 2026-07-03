@@ -48,4 +48,19 @@ public class PopulationSnapshotsController : ControllerBase
         var ok = await _repo.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
     }
+
+    [HttpPost("upsert")]
+    public async Task<IActionResult> Upsert([FromBody] PopulationSnapshot snapshot)
+    {
+        var exists = await _repo.ExistsForYearAndVillageAsync(
+            snapshot.Year ?? 0, snapshot.SettlementName ?? "");
+
+        if (exists)
+            await _repo.UpdateByYearAndVillageAsync(
+                snapshot.Year ?? 0, snapshot.SettlementName ?? "", snapshot.Population ?? 0);
+        else
+            await _repo.CreateAsync(snapshot);
+
+        return Ok();
+    }
 }
