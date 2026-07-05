@@ -149,4 +149,14 @@ public class ApiService
             });
         }
     }
+    public async Task CreateHouseAsync(House house)
+    {
+        await _http.PostAsJsonAsync("/api/houses", house);
+    }
+    public async Task<bool> HouseExistsAsync(int villageStreetId, string numbOfHouse)
+    {
+        var result = await _http.GetFromJsonAsync<bool>(
+            $"/api/houses/exists?villageStreetId={villageStreetId}&numbOfHouse={Uri.EscapeDataString(numbOfHouse)}");
+        return result;
+    }
 }

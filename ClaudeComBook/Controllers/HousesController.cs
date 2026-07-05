@@ -52,4 +52,13 @@ public class HousesController : ControllerBase
         var ok = await _repo.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
     }
+
+    [HttpGet("exists")]
+    public async Task<IActionResult> Exists(
+    [FromQuery] int villageStreetId,
+    [FromQuery] string numbOfHouse)
+    {
+        var exists = await _repo.ExistsAsync(villageStreetId, numbOfHouse);
+        return Ok(exists);
+    }
 }

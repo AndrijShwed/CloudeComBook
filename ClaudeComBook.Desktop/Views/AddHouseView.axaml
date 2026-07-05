@@ -1,0 +1,107 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.AddHouseView"
+        Title="Домогосподарства"
+        WindowState="Maximized"
+        Background="#8B0000">
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Домогосподарства" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHouseholdsClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Додати" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Поля -->
+		<Grid Grid.Row="1" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
+
+			<!-- Колонка 1 -->
+			<StackPanel Grid.Column="0" Grid.Row="0" Margin="10,5">
+				<TextBlock Foreground="White" FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16">
+					<Run Text="Населений_пункт"/>
+					<Run Text="*" Foreground="Red"/>
+				</TextBlock>
+				<ComboBox Name="VillageBox" HorizontalAlignment="Stretch" Margin="0,5,0,0"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="1" Margin="10,5">
+				<TextBlock Foreground="White" FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16">
+					<Run Text="Вулиця"/>
+					<Run Text="*" Foreground="Red"/>
+				</TextBlock>
+				<ComboBox Name="StreetBox" HorizontalAlignment="Stretch" Margin="0,5,0,0"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="2" Margin="10,5">
+				<TextBlock Foreground="White" FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16">
+					<Run Text="Ном_буд"/>
+					<Run Text="*" Foreground="Red"/>
+				</TextBlock>
+				<TextBox Name="HouseNumberBox" Background="White" Foreground="Black"
+						 Width="150" HorizontalAlignment="Left" Margin="0,5,0,0"/>
+			</StackPanel>
+
+			<!-- Колонка 2 -->
+			<StackPanel Grid.Column="1" Grid.Row="0" Margin="10,5">
+				<TextBlock Foreground="White" FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16">
+					<Run Text="Прізвище_власника"/>
+					<Run Text="*" Foreground="Red"/>
+				</TextBlock>
+				<TextBox Name="LastNameBox" Background="White" Foreground="Black" Margin="0,5,0,0"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="1" Margin="10,5">
+				<TextBlock Foreground="White" FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16">
+					<Run Text="Ім'я"/>
+					<Run Text="*" Foreground="Red"/>
+				</TextBlock>
+				<TextBox Name="FirstNameBox" Background="White" Foreground="Black" Margin="0,5,0,0"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="2" Margin="10,5">
+				<TextBlock Text="Побатькові" Foreground="White"
+						   FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16"/>
+				<TextBox Name="SurnameBox" Background="White" Foreground="Black" Margin="0,5,0,0"/>
+			</StackPanel>
+
+			<!-- Колонка 3 -->
+			<StackPanel Grid.Column="2" Grid.Row="0" Margin="10,5">
+				<TextBlock Text="Загальна площа" Foreground="White"
+						   FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16"/>
+				<TextBox Name="TotalAreaBox" Background="White" Foreground="Black"
+						 Width="200" HorizontalAlignment="Left" Margin="0,5,0,0"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="2" Grid.Row="1" Margin="10,5">
+				<TextBlock Text="Житлова площа" Foreground="White"
+						   FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16"/>
+				<TextBox Name="LivingAreaBox" Background="White" Foreground="Black"
+						 Width="200" HorizontalAlignment="Left" Margin="0,5,0,0"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="2" Grid.Row="2" Margin="10,5">
+				<TextBlock Text="Кількість кімнат" Foreground="White"
+						   FontFamily="Comic Sans MS" FontStyle="Italic" FontSize="16"/>
+				<TextBox Name="RoomsBox" Background="White" Foreground="Black"
+						 Width="200" HorizontalAlignment="Left" Margin="0,5,0,0"/>
+			</StackPanel>
+
+		</Grid>
+
+		<!-- Кнопка збереження -->
+		<Button Grid.Row="2" Content="Зберегти в таблицю"
+				Background="#E8603C" Foreground="White"
+				FontFamily="Comic Sans MS" FontSize="18"
+				FontStyle="Italic" FontWeight="Bold"
+				Padding="30,12" Margin="10,20,0,0"
+				CornerRadius="20"
+				Click="OnSaveClick"/>
+
+	</Grid>
+</Window>

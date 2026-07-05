@@ -85,4 +85,14 @@ public class HouseRepository : IHouseRepository
             "DELETE FROM houses WHERE idhouses = @id", new { id });
         return rows > 0;
     }
+    public async Task<bool> ExistsAsync(int villageStreetId, string numbOfHouse)
+    {
+        using var conn = _db.CreateConnection();
+        var count = await conn.ExecuteScalarAsync<int>(
+            @"SELECT COUNT(*) FROM houses 
+          WHERE villagestreetId = @villageStreetId 
+          AND numb_of_house = @numbOfHouse",
+            new { villageStreetId, numbOfHouse });
+        return count > 0;
+    }
 }

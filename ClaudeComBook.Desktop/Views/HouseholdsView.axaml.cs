@@ -4,7 +4,7 @@ namespace ClaudeComBook.Desktop.Views;
 
 public partial class HouseholdsView : Window
 {
-    private readonly Window _previousWindow;
+    public readonly Window _previousWindow;
     private bool _manualClose = false;
 
     public HouseholdsView(Window previousWindow)
@@ -22,7 +22,9 @@ public partial class HouseholdsView : Window
 
     private void OnAddHouseClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Пізніше
+        var window = new AddHouseView(this);
+        window.Show();
+        this.Hide();
     }
 
     private void OnSearchHouseClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
