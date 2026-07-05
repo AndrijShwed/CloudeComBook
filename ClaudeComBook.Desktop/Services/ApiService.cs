@@ -191,4 +191,13 @@ public class ApiService
     {
         await _http.PutAsJsonAsync($"/api/houses/{house.IdHouses}", house);
     }
+    public class VillageAreaData
+    {
+        public string Village { get; set; } = "";
+        public decimal TotalArea { get; set; }
+        public decimal LivingArea { get; set; }
+    }
+
+    public async Task<List<VillageAreaData>?> GetAreaByVillageAsync() =>
+        await _http.GetFromJsonAsync<List<VillageAreaData>>("/api/houses/area-by-village");
 }

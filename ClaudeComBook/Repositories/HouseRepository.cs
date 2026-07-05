@@ -131,4 +131,17 @@ public class HouseRepository : IHouseRepository
                       ORDER BY v.name, s.name, h.numb_of_house",
                     new { villageId, streetId, houseNumber, lastName, name, surname });
     }
+    public async Task<IEnumerable<(string Village, decimal TotalArea, decimal LivingArea)>> GetAreaByVillageAsync()
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<(string Village, decimal TotalArea, decimal LivingArea)>(
+            @"SELECT v.name AS Village, 
+            SUM(h.totalArea) AS TotalArea,
+            SUM(h.livingArea) AS LivingArea
+          FROM houses h
+          LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
+          LEFT JOIN villages v ON vs.villageId = v.id
+          GROUP BY v.name
+          ORDER BY v.name");
+    }
 }

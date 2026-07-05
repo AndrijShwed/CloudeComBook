@@ -71,4 +71,11 @@ public class HousesController : ControllerBase
         var exists = await _repo.ExistsAsync(villageStreetId, numbOfHouse);
         return Ok(exists);
     }
+
+    [HttpGet("area-by-village")]
+    public async Task<IActionResult> GetAreaByVillage()
+    {
+        var result = await _repo.GetAreaByVillageAsync();
+        return Ok(result.Select(r => new { r.Village, r.TotalArea, r.LivingArea }));
+    }
 }
