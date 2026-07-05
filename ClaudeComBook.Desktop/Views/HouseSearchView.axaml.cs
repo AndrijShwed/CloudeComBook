@@ -133,12 +133,12 @@ public partial class HouseSearchView : Window
 
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
-        //if (HousesGrid.SelectedItem is House house)
-        //{
-        //    var window = new HouseEditView(house, this);
-        //    window.Show();
-        //    this.Hide();
-        //}
+        if (HousesGrid.SelectedItem is House house)
+        {
+            var window = new HouseEditView(house, this);
+            window.Show();
+            this.Hide();
+        }
     }
 
     private void OnHomeClick(object sender, Avalonia.Input.TappedEventArgs e)

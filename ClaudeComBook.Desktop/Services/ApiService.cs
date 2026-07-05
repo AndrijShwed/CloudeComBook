@@ -187,4 +187,8 @@ public class ApiService
     {
         await _http.DeleteAsync($"/api/houses/{id}");
     }
+    public async Task UpdateHouseAsync(House house)
+    {
+        await _http.PutAsJsonAsync($"/api/houses/{house.IdHouses}", house);
+    }
 }
