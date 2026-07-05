@@ -11,4 +11,6 @@ public class House
     public decimal? TotalArea { get; set; }
     public decimal? LivingArea { get; set; }
     public int? TotalOfRooms { get; set; }
+    public string? VillageName { get; set; }
+    public string? StreetName { get; set; }
 }

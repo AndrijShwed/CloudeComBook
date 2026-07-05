@@ -95,4 +95,40 @@ public class HouseRepository : IHouseRepository
             new { villageStreetId, numbOfHouse });
         return count > 0;
     }
+    public async Task<IEnumerable<House>> SearchAsync(
+    int? villageId = null,
+    int? streetId = null,
+    string? houseNumber = null,
+    string? lastName = null,
+    string? name = null,
+    string? surname = null)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<House>(
+                    @"SELECT 
+                        h.idhouses AS IdHouses,
+                        h.villagestreetId AS VillageStreetId,
+                        h.numb_of_house AS NumbOfHouse,
+                        h.lastname AS LastName,
+                        h.name AS Name,
+                        h.surname AS Surname,
+                        h.totalArea AS TotalArea,
+                        h.livingArea AS LivingArea,
+                        h.total_of_rooms AS TotalOfRooms,
+                        v.name AS VillageName,
+                        s.name AS StreetName
+                      FROM houses h
+                      LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
+                      LEFT JOIN villages v ON vs.villageId = v.id
+                      LEFT JOIN streets s ON vs.streetId = s.id
+                      WHERE
+                        (@villageId IS NULL OR vs.villageId = @villageId)
+                        AND (@streetId IS NULL OR vs.streetId = @streetId)
+                        AND (@houseNumber IS NULL OR h.numb_of_house = @houseNumber)
+                        AND (@lastName IS NULL OR h.lastname LIKE CONCAT('%', @lastName, '%'))
+                        AND (@name IS NULL OR h.name LIKE CONCAT('%', @name, '%'))
+                        AND (@surname IS NULL OR h.surname LIKE CONCAT('%', @surname, '%'))
+                      ORDER BY v.name, s.name, h.numb_of_house",
+                    new { villageId, streetId, houseNumber, lastName, name, surname });
+    }
 }

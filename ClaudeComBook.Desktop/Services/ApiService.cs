@@ -159,4 +159,32 @@ public class ApiService
             $"/api/houses/exists?villageStreetId={villageStreetId}&numbOfHouse={Uri.EscapeDataString(numbOfHouse)}");
         return result;
     }
+    public async Task<List<House>?> GetHousesByVillageStreetAsync(int villageStreetId) =>
+    await _http.GetFromJsonAsync<List<House>>($"/api/houses/by-villagestreet/{villageStreetId}");
+
+    public async Task<List<House>?> SearchHousesAsync(
+        int? villageId = null,
+        int? streetId = null,
+        string? houseNumber = null,
+        string? lastName = null,
+        string? name = null,
+        string? surname = null)
+    {
+        var query = new System.Collections.Generic.List<string>();
+        if (villageId.HasValue) query.Add($"villageId={villageId}");
+        if (streetId.HasValue) query.Add($"streetId={streetId}");
+        if (!string.IsNullOrEmpty(houseNumber)) query.Add($"houseNumber={Uri.EscapeDataString(houseNumber)}");
+        if (!string.IsNullOrEmpty(lastName)) query.Add($"lastName={Uri.EscapeDataString(lastName)}");
+        if (!string.IsNullOrEmpty(name)) query.Add($"name={Uri.EscapeDataString(name)}");
+        if (!string.IsNullOrEmpty(surname)) query.Add($"surname={Uri.EscapeDataString(surname)}");
+
+        var url = "/api/houses/search";
+        if (query.Count > 0) url += "?" + string.Join("&", query);
+        return await _http.GetFromJsonAsync<List<House>>(url);
+    }
+
+    public async Task DeleteHouseAsync(int id)
+    {
+        await _http.DeleteAsync($"/api/houses/{id}");
+    }
 }

@@ -1,0 +1,98 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ClaudeComBook.Desktop.Models"
+        x:Class="ClaudeComBook.Desktop.Views.HouseSearchView"
+        Title="Домогосподарства_Пошук"
+        WindowState="Maximized"
+        Background="#8B0000">
+
+	<Grid RowDefinitions="Auto,Auto,Auto,*" Margin="10">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Домогосподарства" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHouseholdsClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Домогосподарства_Пошук" Foreground="White"
+					   FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Фільтри -->
+		<Grid Grid.Row="1" ColumnDefinitions="*,*,Auto,*,*,*" Margin="0,5">
+			<ComboBox Grid.Column="0" Name="VillageBox"
+					  PlaceholderText="Населений пункт" Margin="5,0"/>
+			<ComboBox Grid.Column="1" Name="StreetBox"
+					  PlaceholderText="Вулиця" Margin="5,0"/>
+			<ComboBox Grid.Column="2" Name="HouseNumberBox"
+					  PlaceholderText="Номер будинку" Margin="5,0" Width="120"/>
+			<TextBox Grid.Column="3" Name="LastNameBox"
+					 PlaceholderText="Прізвище" Margin="5,0"/>
+			<TextBox Grid.Column="4" Name="FirstNameBox"
+					 PlaceholderText="Ім'я" Margin="5,0"/>
+			<TextBox Grid.Column="5" Name="SurnameBox"
+					 PlaceholderText="Побатькові" Margin="5,0"/>
+		</Grid>
+
+		<!-- Кнопки і лічильник -->
+		<Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,*" Margin="0,5">
+			<StackPanel Grid.Column="0" Orientation="Horizontal"
+						VerticalAlignment="Center" Margin="5,0">
+				<TextBlock Text="К-сть" Foreground="White" VerticalAlignment="Center" Margin="0,0,5,0"/>
+				<TextBlock Name="CountText" Text="0" Foreground="Black"
+						   Background="White" Padding="5,2" VerticalAlignment="Center"
+						   MinWidth="50" TextAlignment="Center"/>
+			</StackPanel>
+			<Button Grid.Column="1" Content="Знайти"
+					Background="#FF9800" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14" FontStyle="Italic"
+					FontWeight="Bold" Padding="20,8" Margin="10,0"
+					CornerRadius="15" Click="OnSearchClick"/>
+			<Button Grid.Column="2" Content="Очистити"
+					Background="#FF9800" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14" FontStyle="Italic"
+					FontWeight="Bold" Padding="20,8" Margin="5,0"
+					CornerRadius="15" Click="OnClearClick"/>
+		</Grid>
+
+		<!-- Таблиця -->
+		<DataGrid Grid.Row="3" Name="HousesGrid"
+				  x:DataType="local:House"
+				  DoubleTapped="OnRowDoubleTapped"
+				  Margin="0,5"
+				  Background="#ADD8E6"
+				  Foreground="Black"
+				  IsReadOnly="True"
+				  AutoGenerateColumns="False"
+				  GridLinesVisibility="All"
+				  HeadersVisibility="Column">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Id" Binding="{Binding IdHouses}" Width="60"/>
+				<DataGridTextColumn Header="Населений пункт" Binding="{Binding VillageName}" Width="150"/>
+				<DataGridTextColumn Header="Вулиця" Binding="{Binding StreetName}" Width="150"/>
+				<DataGridTextColumn Header="Номер будинку" Binding="{Binding NumbOfHouse}" Width="120"/>
+				<DataGridTextColumn Header="Прізвище" Binding="{Binding LastName}" Width="120"/>
+				<DataGridTextColumn Header="Ім'я" Binding="{Binding Name}" Width="100"/>
+				<DataGridTextColumn Header="Побатькові" Binding="{Binding Surname}" Width="120"/>
+				<DataGridTextColumn Header="Загальна площа, м.кв." Binding="{Binding TotalArea}" Width="150"/>
+				<DataGridTextColumn Header="Житлова площа, м.кв" Binding="{Binding LivingArea}" Width="150"/>
+				<DataGridTextColumn Header="Кількість кімнат" Binding="{Binding TotalOfRooms}" Width="130"/>
+				<DataGridTemplateColumn Header="Видалити" Width="100">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="local:House">
+							<Button Content="Видалити"
+									Background="#8B0000"
+									Foreground="White"
+									FontWeight="Bold"
+									Padding="5,3"
+									Click="OnDeleteClick"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+
+	</Grid>
+</Window>
