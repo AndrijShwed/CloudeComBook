@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -67,6 +68,7 @@ public partial class HouseSearchView : Window
         var houses = await _api.GetHousesByVillageStreetAsync(vs.Id);
         var numbers = houses?.Select(h => h.NumbOfHouse).Distinct().OrderBy(n => n).ToList();
         HouseNumberBox.ItemsSource = numbers;
+        HouseNumberBox.SelectedIndex = -1;
     }
 
     private void OnNameTextChanged(object? sender, TextChangedEventArgs e)

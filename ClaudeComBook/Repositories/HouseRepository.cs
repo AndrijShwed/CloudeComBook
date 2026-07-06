@@ -28,24 +28,22 @@ public class HouseRepository : IHouseRepository
     public async Task<IEnumerable<House>> GetByVillageStreetIdAsync(int villageStreetId)
     {
         using var conn = _db.CreateConnection();
-        return await conn.QueryAsync<House>(
-            @"SELECT * FROM houses 
-              WHERE villagestreetId = @villageStreetId 
-              ORDER BY numb_of_house",
-            new { villageStreetId });
-    }
 
-    public async Task<IEnumerable<House>> SearchAsync(string query)
-    {
-        using var conn = _db.CreateConnection();
         return await conn.QueryAsync<House>(
-            @"SELECT * FROM houses 
-              WHERE numb_of_house LIKE @q
-              OR lastname LIKE @q
-              OR name LIKE @q
-              ORDER BY numb_of_house
-              LIMIT 50",
-            new { q = $"%{query}%" });
+            @"SELECT
+            idhouses AS IdHouses,
+            villagestreetId AS VillageStreetId,
+            numb_of_house AS NumbOfHouse,
+            lastname AS LastName,
+            name AS Name,
+            surname AS Surname,
+            totalArea AS TotalArea,
+            livingArea AS LivingArea,
+            total_of_rooms AS TotalOfRooms
+          FROM houses
+          WHERE villagestreetId = @villageStreetId
+          ORDER BY numb_of_house",
+            new { villageStreetId });
     }
 
     public async Task<int> CreateAsync(House house)
