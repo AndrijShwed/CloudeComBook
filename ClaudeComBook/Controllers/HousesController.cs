@@ -78,4 +78,11 @@ public class HousesController : ControllerBase
         var result = await _repo.GetAreaByVillageAsync();
         return Ok(result.Select(r => new { r.Village, r.TotalArea, r.LivingArea }));
     }
+
+    [HttpGet("rooms-by-village")]
+    public async Task<IActionResult> GetRoomsByVillage()
+    {
+        var result = await _repo.GetRoomCountByVillageAsync();
+        return Ok(result);
+    }
 }

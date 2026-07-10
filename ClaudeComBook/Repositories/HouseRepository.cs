@@ -142,4 +142,30 @@ public class HouseRepository : IHouseRepository
           GROUP BY v.name
           ORDER BY v.name");
     }
+    public async Task<IEnumerable<dynamic>> GetRoomCountByVillageAsync()
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync(
+            @"SELECT 
+            v.name AS Village,
+            SUM(CASE WHEN h.total_of_rooms = 1 THEN 1 ELSE 0 END) AS OneRoom,
+            SUM(CASE WHEN h.total_of_rooms = 2 THEN 1 ELSE 0 END) AS TwoRooms,
+            SUM(CASE WHEN h.total_of_rooms = 3 THEN 1 ELSE 0 END) AS ThreeRooms,
+            SUM(CASE WHEN h.total_of_rooms = 4 THEN 1 ELSE 0 END) AS FourRooms,
+            SUM(CASE WHEN h.total_of_rooms = 5 THEN 1 ELSE 0 END) AS FiveRooms,
+            SUM(CASE WHEN h.total_of_rooms = 6 THEN 1 ELSE 0 END) AS SixRooms,
+            SUM(CASE WHEN h.total_of_rooms > 6 THEN 1 ELSE 0 END) AS MoreThanSix,
+            SUM(CASE WHEN h.total_of_rooms = 1 THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN h.total_of_rooms = 2 THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN h.total_of_rooms = 3 THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN h.total_of_rooms = 4 THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN h.total_of_rooms = 5 THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN h.total_of_rooms = 6 THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN h.total_of_rooms > 6 THEN 1 ELSE 0 END) AS Total
+          FROM houses h
+          LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
+          LEFT JOIN villages v ON vs.villageId = v.id
+          GROUP BY v.name
+          ORDER BY v.name");
+    }
 }

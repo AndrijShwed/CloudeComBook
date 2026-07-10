@@ -43,7 +43,9 @@ public partial class HouseholdsView : Window
 
     private void OnRoomsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Пізніше
+        var window = new HouseRoomsView(this);
+        window.Show();
+        this.Hide();
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

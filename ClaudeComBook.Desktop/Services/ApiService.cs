@@ -200,4 +200,19 @@ public class ApiService
 
     public async Task<List<VillageAreaData>?> GetAreaByVillageAsync() =>
         await _http.GetFromJsonAsync<List<VillageAreaData>>("/api/houses/area-by-village");
+    public class VillageRoomsData
+    {
+        public string Village { get; set; } = "";
+        public int OneRoom { get; set; }
+        public int TwoRooms { get; set; }
+        public int ThreeRooms { get; set; }
+        public int FourRooms { get; set; }
+        public int FiveRooms { get; set; }
+        public int SixRooms { get; set; }
+        public int MoreThanSix { get; set; }
+        public int Total { get; set; }
+    }
+
+    public async Task<List<VillageRoomsData>?> GetRoomsByVillageAsync() =>
+        await _http.GetFromJsonAsync<List<VillageRoomsData>>("/api/houses/rooms-by-village");
 }
