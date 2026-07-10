@@ -1,0 +1,48 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.EnterprisesView"
+        Title="Підприємства"
+        Background="#FF7043">
+
+	<Grid RowDefinitions="Auto,*">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Підприємства" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Кнопки меню -->
+		<UniformGrid Grid.Row="1" Columns="2" Margin="80">
+
+			<!-- Додати -->
+			<Button Margin="30" Background="White" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnAddClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/enterprise.png"/>
+					<TextBlock Text="Додати" FontFamily="Comic Sans MS"
+							   Foreground="Black" FontSize="18" FontStyle="Italic"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+			<!-- Пошук Редагування Видалення -->
+			<Button Margin="30" Background="#FFF9C4" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnSearchClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/search.png"/>
+					<TextBlock Text="Пошук Редагування Видалення"
+							   FontFamily="Comic Sans MS"
+							   Foreground="Black" FontSize="18" FontStyle="Italic"
+							   TextWrapping="Wrap" TextAlignment="Center"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+		</UniformGrid>
+	</Grid>
+</Window>

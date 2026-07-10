@@ -44,7 +44,8 @@
 
 			<!-- Підприємства -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center">
+					HorizontalContentAlignment="Center"
+					Click="OnEnterprisesClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/enterprise.png"/>
 					<TextBlock Text="Підприємства" FontFamily="Comic Sans MS" Foreground="Black"

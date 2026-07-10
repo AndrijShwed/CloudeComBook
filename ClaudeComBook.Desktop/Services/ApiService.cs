@@ -215,4 +215,36 @@ public class ApiService
 
     public async Task<List<VillageRoomsData>?> GetRoomsByVillageAsync() =>
         await _http.GetFromJsonAsync<List<VillageRoomsData>>("/api/houses/rooms-by-village");
+
+    public async Task CreateEnterpriseAsync(Enterprise enterprise)
+    {
+        await _http.PostAsJsonAsync("/api/enterprises", enterprise);
+    }
+    public async Task<List<Enterprise>?> SearchEnterprisesAsync(
+    string? name = null,
+    string? owner = null,
+    int? villageId = null,
+    int? streetId = null,
+    string? houseNumber = null)
+    {
+        var query = new System.Collections.Generic.List<string>();
+        if (!string.IsNullOrEmpty(name)) query.Add($"name={Uri.EscapeDataString(name)}");
+        if (!string.IsNullOrEmpty(owner)) query.Add($"owner={Uri.EscapeDataString(owner)}");
+        if (villageId.HasValue) query.Add($"villageId={villageId}");
+        if (streetId.HasValue) query.Add($"streetId={streetId}");
+        if (!string.IsNullOrEmpty(houseNumber)) query.Add($"houseNumber={Uri.EscapeDataString(houseNumber)}");
+
+        var url = "/api/enterprises/search";
+        if (query.Count > 0) url += "?" + string.Join("&", query);
+        return await _http.GetFromJsonAsync<List<Enterprise>>(url);
+    }
+
+    public async Task DeleteEnterpriseAsync(int id)
+    {
+        await _http.DeleteAsync($"/api/enterprises/{id}");
+    }
+    public async Task UpdateEnterpriseAsync(Enterprise enterprise)
+    {
+        await _http.PutAsJsonAsync($"/api/enterprises/{enterprise.Id}", enterprise);
+    }
 }

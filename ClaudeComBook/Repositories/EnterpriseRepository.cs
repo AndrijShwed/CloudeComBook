@@ -80,5 +80,36 @@ namespace ClaudeComBook.API.Repositories
               WHERE id=@Id", enterprise);
             return rows > 0;
         }
+        public async Task<IEnumerable<Enterprise>> SearchAsync(
+            string? name = null,
+            string? owner = null,
+            int? villageId = null,
+            int? streetId = null,
+            string? houseNumber = null)
+        {
+            using var conn = _db.CreateConnection();
+            return await conn.QueryAsync<Enterprise>(
+                @"SELECT 
+            e.id AS Id,
+            e.name AS Name,
+            e.owner AS Owner,
+            e.employeesnumber AS EmployeesNumber,
+            e.villagestreetId AS VillageStreetId,
+            e.housenumber AS HouseNumber,
+            v.name AS VillageName,
+            s.name AS StreetName
+          FROM enterprises e
+          LEFT JOIN villagestreet vs ON e.villagestreetId = vs.id
+          LEFT JOIN villages v ON vs.villageId = v.id
+          LEFT JOIN streets s ON vs.streetId = s.id
+          WHERE
+            (@name IS NULL OR e.name LIKE CONCAT('%', @name, '%'))
+            AND (@owner IS NULL OR e.owner LIKE CONCAT('%', @owner, '%'))
+            AND (@villageId IS NULL OR vs.villageId = @villageId)
+            AND (@streetId IS NULL OR vs.streetId = @streetId)
+            AND (@houseNumber IS NULL OR e.housenumber = @houseNumber)
+          ORDER BY e.name",
+                new { name, owner, villageId, streetId, houseNumber });
+        }
     }
 }

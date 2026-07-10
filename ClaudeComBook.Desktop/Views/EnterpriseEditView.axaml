@@ -1,0 +1,77 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.EnterpriseEditView"
+        Title="Редагування підприємства"
+        Width="800" Height="500"
+        WindowStartupLocation="CenterScreen"
+        Background="#8B0000">
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+			<TextBlock Text="Підприємства пошук" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnBackClick2"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Редагування" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Поля -->
+		<Grid Grid.Row="1" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
+
+			<!-- Колонка 1 -->
+			<StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
+				<TextBlock Text="Населений пункт" Foreground="White" Margin="0,0,0,3"/>
+				<ComboBox Name="VillageBox" HorizontalAlignment="Stretch"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="1" Margin="5">
+				<TextBlock Text="Вулиця" Foreground="White" Margin="0,0,0,3"/>
+				<ComboBox Name="StreetBox" HorizontalAlignment="Stretch"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="2" Margin="5">
+				<TextBlock Text="Номер будинку" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="HouseNumberBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<!-- Колонка 2 -->
+			<StackPanel Grid.Column="1" Grid.Row="0" Margin="5">
+				<TextBlock Text="Назва підприємства" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="NameBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="1" Margin="5">
+				<TextBlock Text="Кількість працівників" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="EmployeesBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="2" Margin="5">
+				<TextBlock Text="ПІП власника" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="OwnerBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+		</Grid>
+
+		<!-- Кнопки -->
+		<StackPanel Grid.Row="2" Orientation="Horizontal"
+					HorizontalAlignment="Right" Margin="0,20,0,0">
+			<Button Content="Зберегти зміни"
+					Background="Yellow" Foreground="Black"
+					FontFamily="Comic Sans MS" FontSize="14"
+					FontWeight="Bold" Padding="20,10" Margin="10,0"
+					Click="OnSaveClick"/>
+			<Button Content="Повернутись"
+					Background="#4CAF50" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14"
+					FontWeight="Bold" Padding="20,10" Margin="0,0,10,0"
+					Click="OnBackClick"/>
+			<Button Content="Видалити"
+					Background="Red" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14"
+					FontWeight="Bold" Padding="20,10"
+					Click="OnDeleteClick"/>
+		</StackPanel>
+
+	</Grid>
+</Window>

@@ -11,5 +11,11 @@ namespace ClaudeComBook.API.Repositories.Interfaces
         Task<int> CreateAsync(Enterprise house);
         Task<bool> UpdateAsync(Enterprise house);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<Enterprise>> SearchAsync(
+            string? name = null,
+            string? owner = null,
+            int? villageId = null,
+            int? streetId = null,
+            string? houseNumber = null);
     }
 }

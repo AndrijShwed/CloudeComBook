@@ -28,8 +28,16 @@ public class EnterprisesController: ControllerBase
         Ok(await _repo.GetByVillageStreetIdAsync(villageStreetId));
 
     [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] string q) =>
-        Ok(await _repo.SearchAsync(q));
+    public async Task<IActionResult> Search(
+    [FromQuery] string? name = null,
+    [FromQuery] string? owner = null,
+    [FromQuery] int? villageId = null,
+    [FromQuery] int? streetId = null,
+    [FromQuery] string? houseNumber = null)
+    {
+        var result = await _repo.SearchAsync(name, owner, villageId, streetId, houseNumber);
+        return Ok(result);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Enterprise enterprise)

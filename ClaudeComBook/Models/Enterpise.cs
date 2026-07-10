@@ -1,4 +1,4 @@
-﻿namespace ClaudeComBook.API.Models;
+﻿namespace ClaudeComBook.Desktop.Models;
 
 public class Enterprise
 {

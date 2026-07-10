@@ -136,11 +136,11 @@ public class HouseRepository : IHouseRepository
             @"SELECT v.name AS Village, 
             SUM(h.totalArea) AS TotalArea,
             SUM(h.livingArea) AS LivingArea
-          FROM houses h
-          LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
-          LEFT JOIN villages v ON vs.villageId = v.id
-          GROUP BY v.name
-          ORDER BY v.name");
+            FROM houses h
+            LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
+            LEFT JOIN villages v ON vs.villageId = v.id
+            GROUP BY v.name
+            ORDER BY v.name");
     }
     public async Task<IEnumerable<dynamic>> GetRoomCountByVillageAsync()
     {
