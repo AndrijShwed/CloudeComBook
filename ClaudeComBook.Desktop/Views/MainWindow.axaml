@@ -78,7 +78,8 @@
 
 			<!-- Худоба та птиця -->
 			<Button Margin="15" Background="#FFF3E0" CornerRadius="15"
-					HorizontalContentAlignment="Center">
+					HorizontalContentAlignment="Center"
+					Click="OnAnimalsClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/animals.png"/>
 					<TextBlock Text="Худоба та птиця" FontFamily="Comic Sans MS" Foreground="Black"

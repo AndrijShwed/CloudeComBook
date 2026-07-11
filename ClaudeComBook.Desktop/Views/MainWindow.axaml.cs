@@ -47,5 +47,11 @@ namespace ClaudeComBook.Desktop.Views
             window.Show();
             this.Hide();
         }
+        private void OnAnimalsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new AnimalsView(this);
+            window.Show();
+            this.Hide();
+        }
     }
 }

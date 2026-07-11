@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.AnimalsView"
+        Title="Худоба та птиця"
+        WindowState="Maximized"
+        Background="#2E7D32">
+
+	<Grid RowDefinitions="Auto,*">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Худоба та птиця" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Кнопки меню -->
+		<UniformGrid Grid.Row="1" Columns="2" Margin="40">
+
+			<!-- Додати -->
+			<Button Margin="30" Background="#FFF8E1" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnAddClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/animals.png"/>
+					<TextBlock Text="Додати" FontFamily="Comic Sans MS"
+							   Foreground="Black" FontSize="18" FontStyle="Italic"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+			<!-- Пошук Редагування Видалення -->
+			<Button Margin="30" Background="#E3F2FD" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnSearchClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/search.png"/>
+					<TextBlock Text="Пошук Редагування Видалення"
+							   FontFamily="Comic Sans MS"
+							   Foreground="Black" FontSize="18" FontStyle="Italic"
+							   TextWrapping="Wrap" TextAlignment="Center"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+			<!-- Статистика -->
+			<Button Margin="30" Background="#E8F5E9" CornerRadius="15"
+					HorizontalContentAlignment="Center"
+					Click="OnStatisticsClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="150" Source="/Assets/statistics.png"/>
+					<TextBlock Text="Статистика" FontFamily="Comic Sans MS"
+							   Foreground="Black" FontSize="18" FontStyle="Italic"
+							   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+
+		</UniformGrid>
+	</Grid>
+</Window>
