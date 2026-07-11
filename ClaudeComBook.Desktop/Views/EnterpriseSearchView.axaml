@@ -5,6 +5,11 @@
         Title="Підприємства пошук"
         WindowState="Maximized"
         Background="#8B0000">
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
 
 	<Grid RowDefinitions="Auto,Auto,Auto,*" Margin="10">
 
@@ -81,10 +86,10 @@
 				  HeadersVisibility="Column">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Номер" Binding="{Binding Id}" Width="80"/>
-				<DataGridTextColumn Header="ПІБ власника" Binding="{Binding Owner}" Width="200"/>
-				<DataGridTextColumn Header="Назва п-ства" Binding="{Binding Name}" Width="200"/>
+				<DataGridTextColumn Header="ПІБ власника" Binding="{Binding Owner}" Width="300"/>
+				<DataGridTextColumn Header="Назва п-ства" Binding="{Binding Name}" Width="300"/>
 				<DataGridTextColumn Header="Нас. пункт" Binding="{Binding VillageName}" Width="150"/>
-				<DataGridTextColumn Header="Вулиця" Binding="{Binding StreetName}" Width="150"/>
+				<DataGridTextColumn Header="Вулиця" Binding="{Binding StreetName}" Width="200"/>
 				<DataGridTextColumn Header="Номер буд." Binding="{Binding HouseNumber}" Width="100"/>
 				<DataGridTextColumn Header="К-сть працівників" Binding="{Binding EmployeesNumber}" Width="130"/>
 				<DataGridTemplateColumn Header="Видалити" Width="100">

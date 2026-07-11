@@ -4,6 +4,11 @@
         Title="Додати підприємство"
         WindowState="Maximized"
         Background="#8B0000">
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
 
 	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
 
