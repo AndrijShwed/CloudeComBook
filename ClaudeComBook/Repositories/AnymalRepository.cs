@@ -116,4 +116,23 @@ public class AnymalRepository : IAnymalRepository
           ORDER BY lastname, name",
             new { lastName, name, surname, village });
     }
+    public async Task<IEnumerable<dynamic>> GetStatisticsByVillageAsync()
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync(
+            @"SELECT 
+            village AS Village,
+            SUM(covs) AS Covs,
+            SUM(pigs) AS Pigs,
+            SUM(sheeps) AS Sheeps,
+            SUM(goats) AS Goats,
+            SUM(horses) AS Horses,
+            SUM(birds) AS Birds,
+            SUM(rabbits) AS Rabbits,
+            SUM(beeses) AS Beeses,
+            SUM(anymals) AS Anymals
+          FROM anymals
+          GROUP BY village
+          ORDER BY village");
+    }
 }

@@ -16,5 +16,6 @@ namespace ClaudeComBook.API.Repositories.Interfaces
             string? name = null,
             string? surname = null,
             string? village = null);
+        Task<IEnumerable<dynamic>> GetStatisticsByVillageAsync();
     }
 }

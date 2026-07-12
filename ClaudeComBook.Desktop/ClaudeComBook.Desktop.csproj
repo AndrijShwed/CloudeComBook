@@ -33,7 +33,7 @@
     <AvaloniaResource Update="Assets\add_person.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </AvaloniaResource>
-    <AvaloniaResource Update="Assets\animals.png">
+    <AvaloniaResource Update="Assets\anymals.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </AvaloniaResource>
     <AvaloniaResource Update="Assets\area_house.png">

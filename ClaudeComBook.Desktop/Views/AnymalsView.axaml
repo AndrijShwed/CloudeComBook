@@ -23,7 +23,7 @@
 					HorizontalContentAlignment="Center"
 					Click="OnAddClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="150" Height="150" Source="/Assets/animals.png"/>
+					<Image Width="150" Height="150" Source="/Assets/anymals.png"/>
 					<TextBlock Text="Додати" FontFamily="Comic Sans MS"
 							   Foreground="Black" FontSize="18" FontStyle="Italic"
 							   HorizontalAlignment="Center" Margin="0,8,0,0"/>

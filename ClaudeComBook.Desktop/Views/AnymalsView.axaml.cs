@@ -35,7 +35,9 @@ public partial class AnymalsView : Window
     }
     private void OnStatisticsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Пізніше
+        var window = new AnymalStatisticsView(this);
+        window.Show();
+        this.Hide();
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

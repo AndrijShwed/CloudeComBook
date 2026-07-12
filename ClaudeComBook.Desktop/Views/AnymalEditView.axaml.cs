@@ -31,7 +31,7 @@ public partial class AnymalEditView : Window
         LastNameBox.Text = _anymal.LastName;
         FirstNameBox.Text = _anymal.Name;
         SurnameBox.Text = _anymal.Surname;
-        AnymalsBox.Text = _anymal.Anymals;
+        AnymalsBox.Text = _anymal.Anymals?.ToString();
         CovsBox.Text = _anymal.Covs?.ToString();
         PigsBox.Text = _anymal.Pigs?.ToString();
         SheepsBox.Text = _anymal.Sheeps?.ToString();
@@ -57,7 +57,7 @@ public partial class AnymalEditView : Window
         _anymal.Name = FirstNameBox.Text;
         _anymal.Surname = SurnameBox.Text;
         _anymal.Village = selectedVillage?.Name ?? _anymal.Village;
-        _anymal.Anymals = AnymalsBox.Text;
+        _anymal.Anymals = int.TryParse(AnymalsBox.Text, out var anymals) ? anymals : 0;
         _anymal.Covs = int.TryParse(CovsBox.Text, out var covs) ? covs : 0;
         _anymal.Pigs = int.TryParse(PigsBox.Text, out var pigs) ? pigs : 0;
         _anymal.Sheeps = int.TryParse(SheepsBox.Text, out var sheeps) ? sheeps : 0;

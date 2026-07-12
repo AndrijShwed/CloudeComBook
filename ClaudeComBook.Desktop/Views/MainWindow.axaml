@@ -81,7 +81,7 @@
 					HorizontalContentAlignment="Center"
 					Click="OnAnimalsClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="150" Height="90" Source="/Assets/animals.png"/>
+					<Image Width="150" Height="90" Source="/Assets/anymals.png"/>
 					<TextBlock Text="Худоба та птиця" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>

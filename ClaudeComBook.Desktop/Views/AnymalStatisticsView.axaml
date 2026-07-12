@@ -1,0 +1,56 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ClaudeComBook.Desktop.Views"
+        x:Class="ClaudeComBook.Desktop.Views.AnymalStatisticsView"
+        Title="Статистика худоби та птиці"
+        WindowState="Maximized"
+        Background="#2E7D32">
+
+	<Grid RowDefinitions="Auto,Auto,*" Margin="10">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Худоба та птиця" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnAnymalsClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Статистика" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Кнопка -->
+		<Button Grid.Row="1" Content="Оновити дані"
+				Background="#E8603C" Foreground="White"
+				FontFamily="Comic Sans MS" FontSize="16"
+				FontStyle="Italic" FontWeight="Bold"
+				Padding="25,10" Margin="0,5,0,10"
+				CornerRadius="15"
+				Click="OnRefreshClick"/>
+
+		<!-- Таблиця -->
+		<DataGrid Grid.Row="2" Name="StatisticsGrid"
+				  x:DataType="local:AnymalStatRow"
+				  Margin="0,5"
+				  Background="#FFA500"
+				  Foreground="Black"
+				  IsReadOnly="True"
+				  AutoGenerateColumns="False"
+				  GridLinesVisibility="All"
+				  HeadersVisibility="Column">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Населений пункт" Binding="{Binding Village}" Width="150"/>
+				<DataGridTextColumn Header="ВРХ" Binding="{Binding Anymals}" Width="100"/>
+				<DataGridTextColumn Header="Корови" Binding="{Binding Covs}" Width="100"/>
+				<DataGridTextColumn Header="Свині" Binding="{Binding Pigs}" Width="100"/>
+				<DataGridTextColumn Header="Вівці" Binding="{Binding Sheeps}" Width="100"/>
+				<DataGridTextColumn Header="Кози" Binding="{Binding Goats}" Width="100"/>
+				<DataGridTextColumn Header="Коні" Binding="{Binding Horses}" Width="100"/>
+				<DataGridTextColumn Header="Птиця" Binding="{Binding Birds}" Width="100"/>
+				<DataGridTextColumn Header="Кролі" Binding="{Binding Rabbits}" Width="100"/>
+				<DataGridTextColumn Header="Бджоли" Binding="{Binding Beeses}" Width="100"/>
+			</DataGrid.Columns>
+		</DataGrid>
+
+	</Grid>
+</Window>

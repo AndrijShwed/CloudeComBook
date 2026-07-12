@@ -70,4 +70,11 @@ public class AnymalsController : ControllerBase
         var result = await _repo.SearchAsync(lastName, name, surname, village);
         return Ok(result);
     }
+
+    [HttpGet("statistics")]
+    public async Task<IActionResult> GetStatistics()
+    {
+        var result = await _repo.GetStatisticsByVillageAsync();
+        return Ok(result);
+    }
 }

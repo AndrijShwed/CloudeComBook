@@ -91,7 +91,7 @@ public partial class AddAnymalView : Window
             Name = FirstNameBox.Text,
             Surname = SurnameBox.Text,
             Village = selectedVillage.Name,
-            Anymals = AnymalsBox.Text,
+            Anymals = int.TryParse(AnymalsBox.Text, out var anymals) ? anymals : 0,
             Covs = int.TryParse(CovsBox.Text, out var covs) ? covs : 0,
             Pigs = int.TryParse(PigsBox.Text, out var pigs) ? pigs : 0,
             Sheeps = int.TryParse(SheepsBox.Text, out var sheeps) ? sheeps : 0,

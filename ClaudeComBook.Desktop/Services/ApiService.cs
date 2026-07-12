@@ -295,4 +295,20 @@ public class ApiService
     {
         await _http.PutAsJsonAsync($"/api/anymals/{anymal.AnymalsId}", anymal);
     }
+    public class AnymalStatData
+    {
+        public string Village { get; set; } = "";
+        public int Covs { get; set; }
+        public int Pigs { get; set; }
+        public int Sheeps { get; set; }
+        public int Goats { get; set; }
+        public int Horses { get; set; }
+        public int Birds { get; set; }
+        public int Rabbits { get; set; }
+        public int Beeses { get; set; }
+        public int Anymals { get; set; }
+    }
+
+    public async Task<List<AnymalStatData>?> GetAnymalStatisticsAsync() =>
+        await _http.GetFromJsonAsync<List<AnymalStatData>>("/api/anymals/statistics");
 }

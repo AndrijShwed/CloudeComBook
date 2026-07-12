@@ -7,7 +7,7 @@ public class Anymal
     public string? Name { get; set; }
     public string? Surname { get; set; }
     public string? Village { get; set; }
-    public string? Anymals { get; set; }
+    public int? Anymals { get; set; }
     public int? Covs { get; set; }
     public int? Pigs { get; set; }
     public int? Sheeps { get; set; }
