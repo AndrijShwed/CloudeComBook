@@ -247,4 +247,16 @@ public class ApiService
     {
         await _http.PutAsJsonAsync($"/api/enterprises/{enterprise.Id}", enterprise);
     }
+    public async Task<bool> EnterpriseExistsByNameAsync(string name)
+    {
+        return await _http.GetFromJsonAsync<bool>(
+            $"/api/enterprises/exists?name={Uri.EscapeDataString(name)}");
+    }
+    public async Task<bool> PersonExistsAsync(string lastName, string name, string? surname, DateTime? dateOfBirth)
+    {
+        var query = $"lastName={Uri.EscapeDataString(lastName)}&name={Uri.EscapeDataString(name)}";
+        if (!string.IsNullOrEmpty(surname)) query += $"&surname={Uri.EscapeDataString(surname)}";
+        if (dateOfBirth.HasValue) query += $"&dateOfBirth={dateOfBirth.Value:yyyy-MM-dd}";
+        return await _http.GetFromJsonAsync<bool>($"/api/people/exists?{query}");
+    }
 }

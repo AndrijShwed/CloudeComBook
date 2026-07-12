@@ -17,5 +17,6 @@ namespace ClaudeComBook.API.Repositories.Interfaces
             int? villageId = null,
             int? streetId = null,
             string? houseNumber = null);
+        Task<bool> ExistsByNameAsync(string name);
     }
 }

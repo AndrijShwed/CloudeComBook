@@ -55,6 +55,15 @@ public partial class AddEnterpriseView : Window
             await err.ShowAsync();
             return;
         }
+        var exists = await _api.EnterpriseExistsByNameAsync(NameBox.Text);
+        if (exists)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка",
+                    $"Підприємство з назвою \"{NameBox.Text}\" вже існує!");
+            await err.ShowAsync();
+            return;
+        }
         if (VillageBox.SelectedItem == null)
         {
             var err = MsBox.Avalonia.MessageBoxManager

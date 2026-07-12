@@ -3,6 +3,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
+using System;
 using System.Linq;
 
 namespace ClaudeComBook.Desktop.Views;
@@ -203,6 +204,28 @@ public partial class PersonEditView : Window
                 .GetMessageBoxStandard("Помилка", "Номер будинку є обов'язковим полем!");
             await err.ShowAsync();
             return;
+        }
+
+        if (_isAddMode)
+        {
+            DateTime? dobirth = null;
+            if (System.DateTime.TryParseExact(DateOfBirthBox.Text, "dd.MM.yyyy",
+                null, System.Globalization.DateTimeStyles.None, out var dobParsed))
+                dobirth = dobParsed;
+
+            var exists = await _api.PersonExistsAsync(
+                LastNameBox.Text!, FirstNameBox.Text!, SurnameBox.Text, dobirth);
+
+            if (exists)
+            {
+                var confirm = MsBox.Avalonia.MessageBoxManager
+                    .GetMessageBoxStandard("Увага",
+                        $"Особа {LastNameBox.Text} {FirstNameBox.Text} {SurnameBox.Text} вже існує!\nВи бажаєте все одно додати?",
+                        MsBox.Avalonia.Enums.ButtonEnum.YesNo);
+                var result = await confirm.ShowAsync();
+                if (result != MsBox.Avalonia.Enums.ButtonResult.Yes)
+                    return;
+            }
         }
 
         // Отримуємо villageStreetId

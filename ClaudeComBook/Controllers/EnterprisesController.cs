@@ -60,5 +60,12 @@ public class EnterprisesController: ControllerBase
         var ok = await _repo.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
     }
+
+    [HttpGet("exists")]
+    public async Task<IActionResult> Exists([FromQuery] string name)
+    {
+        var exists = await _repo.ExistsByNameAsync(name);
+        return Ok(exists);
+    }
 }
 

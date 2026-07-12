@@ -111,5 +111,13 @@ namespace ClaudeComBook.API.Repositories
           ORDER BY e.name",
                 new { name, owner, villageId, streetId, houseNumber });
         }
+        public async Task<bool> ExistsByNameAsync(string name)
+        {
+            using var conn = _db.CreateConnection();
+            var count = await conn.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM enterprises WHERE name = @name",
+                new { name });
+            return count > 0;
+        }
     }
 }

@@ -227,4 +227,16 @@ public class PersonRepository : IPersonRepository
 
         return result.ToDictionary(r => r.Village, r => r.Count);
     }
+    public async Task<bool> ExistsAsync(string lastName, string name, string? surname, DateTime? dateOfBirth)
+    {
+        using var conn = _db.CreateConnection();
+        var count = await conn.ExecuteScalarAsync<int>(
+            @"SELECT COUNT(*) FROM people 
+          WHERE lastname = @lastName 
+          AND name = @name
+          AND (@surname IS NULL OR surname = @surname)
+          AND (@dateOfBirth IS NULL OR date_of_birth = @dateOfBirth)",
+            new { lastName, name, surname, dateOfBirth });
+        return count > 0;
+    }
 }

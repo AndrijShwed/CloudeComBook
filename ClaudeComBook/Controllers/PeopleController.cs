@@ -76,4 +76,15 @@ public class PeopleController : ControllerBase
         var result = await _repo.GetPopulationByVillageAsync();
         return Ok(result);
     }
+
+    [HttpGet("exists")]
+    public async Task<IActionResult> Exists(
+    [FromQuery] string lastName,
+    [FromQuery] string name,
+    [FromQuery] string? surname = null,
+    [FromQuery] DateTime? dateOfBirth = null)
+    {
+        var exists = await _repo.ExistsAsync(lastName, name, surname, dateOfBirth);
+        return Ok(exists);
+    }
 }
