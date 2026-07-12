@@ -2,12 +2,12 @@ using Avalonia.Controls;
 
 namespace ClaudeComBook.Desktop.Views;
 
-public partial class AnimalsView : Window
+public partial class AnymalsView : Window
 {
     public readonly Window _previousWindow;
     private bool _manualClose = false;
 
-    public AnimalsView(Window previousWindow)
+    public AnymalsView(Window previousWindow)
     {
         InitializeComponent();
         _previousWindow = previousWindow;
@@ -22,14 +22,17 @@ public partial class AnimalsView : Window
 
     private void OnAddClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Пізніше
+        var window = new AddAnimalView(this);
+        window.Show();
+        this.Hide();
     }
 
     private void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Пізніше
+        var window = new AnimalSearchView(this);
+        window.Show();
+        this.Hide();
     }
-
     private void OnStatisticsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         // Пізніше

@@ -76,4 +76,16 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </AvaloniaResource>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\AddAnymalView.axaml.cs">
+      <DependentUpon>AddAnymalView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\AnymalsView.axaml.cs">
+      <DependentUpon>AnymalsView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\AnymalSearchView.axaml.cs">
+      <DependentUpon>AnymalSearchView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

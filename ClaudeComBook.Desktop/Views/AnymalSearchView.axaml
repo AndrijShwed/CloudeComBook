@@ -1,0 +1,118 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ClaudeComBook.Desktop.Models"
+        x:Class="ClaudeComBook.Desktop.Views.AnimalSearchView"
+        Title="ХудобаТаПтицяПошук"
+        WindowState="Maximized"
+        Background="#2E7D32">
+
+	<Grid RowDefinitions="Auto,Auto,Auto,*" Margin="10">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="ХудобаТаПтиця" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnAnimalsClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Вікно пошуку" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Панель пошуку -->
+		<Border Grid.Row="1" Margin="0,5" BorderBrush="Gray"
+				BorderThickness="1" CornerRadius="5" Padding="10">
+			<Grid RowDefinitions="Auto,Auto,Auto">
+
+				<!-- Рядок 1: ПІБ і кнопки -->
+				<Grid Grid.Row="0" ColumnDefinitions="Auto,*,*,*,*" Margin="0,5">
+					<StackPanel Grid.Column="0" Margin="0,0,10,0">
+						<Button Content="Пошук"
+								Background="#8BC34A" Foreground="Black"
+								FontWeight="Bold" Padding="15,8" Margin="0,0,0,5"
+								CornerRadius="10" Click="OnSearchClick"/>
+						<Button Content="Очистити поля"
+								Background="#FFA000" Foreground="Black"
+								FontWeight="Bold" Padding="15,8"
+								CornerRadius="10" Click="OnClearClick"/>
+					</StackPanel>
+					<TextBox Grid.Column="1" Name="LastNameBox"
+							 PlaceholderText="Прізвище" Margin="5,0"/>
+					<TextBox Grid.Column="2" Name="FirstNameBox"
+							 PlaceholderText="Ім'я" Margin="5,0"/>
+					<TextBox Grid.Column="3" Name="SurnameBox"
+							 PlaceholderText="Побатькові" Margin="5,0"/>
+					<ComboBox Grid.Column="4" Name="VillageBox"
+							  PlaceholderText="Виберіть населений пункт" Margin="5,0"/>
+				</Grid>
+
+				<!-- Рядок 2: Чекбокси -->
+				<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5">
+					<CheckBox Name="CovsCheck" Content="Корови" Foreground="White" Margin="5,0"/>
+					<CheckBox Name="HorsesCheck" Content="Коні" Foreground="White" Margin="5,0"/>
+					<CheckBox Name="PigsCheck" Content="Свині" Foreground="White" Margin="5,0"/>
+					<CheckBox Name="SheepsCheck" Content="Вівці" Foreground="White" Margin="5,0"/>
+					<CheckBox Name="GoatsCheck" Content="Кози" Foreground="White" Margin="5,0"/>
+					<CheckBox Name="BirdsCheck" Content="Птиця" Foreground="White" Margin="5,0"/>
+					<CheckBox Name="RabbitsCheck" Content="Кролі" Foreground="White" Margin="5,0"/>
+					<CheckBox Name="BeesesCheck" Content="Бджоли" Foreground="White" Margin="5,0"/>
+				</StackPanel>
+
+			</Grid>
+		</Border>
+
+		<!-- Лічильник -->
+		<StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,5">
+			<TextBlock Text="Результат пошуку : " Foreground="White" VerticalAlignment="Center"/>
+			<TextBlock Name="ResultCount" Text="0" Background="White" Foreground="Black"
+					   Padding="10,3" MinWidth="60" TextAlignment="Center"
+					   VerticalAlignment="Center" Margin="5,0"/>
+			<TextBlock Text=" записів" Foreground="White" VerticalAlignment="Center"/>
+			<Button Content="Очистити таблицю" Background="#00BCD4" Foreground="White"
+					FontWeight="Bold" Padding="15,8" Margin="20,0,0,0"
+					Click="OnClearTableClick"/>
+		</StackPanel>
+
+		<!-- Таблиця -->
+		<DataGrid Grid.Row="3" Name="AnimalsGrid"
+				  x:DataType="local:Anymal"
+				  DoubleTapped="OnRowDoubleTapped"
+				  Margin="0,5"
+				  Background="#FFA500"
+				  Foreground="Black"
+				  IsReadOnly="True"
+				  AutoGenerateColumns="False"
+				  GridLinesVisibility="All"
+				  HeadersVisibility="Column">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Номер" Binding="{Binding AnymalsId}" Width="80"/>
+				<DataGridTextColumn Header="Прізвище" Binding="{Binding LastName}" Width="130"/>
+				<DataGridTextColumn Header="Ім'я" Binding="{Binding Name}" Width="100"/>
+				<DataGridTextColumn Header="Побатькові" Binding="{Binding Surname}" Width="130"/>
+				<DataGridTextColumn Header="Населений пункт" Binding="{Binding Village}" Width="140"/>
+				<DataGridTextColumn Header="ВРХ" Binding="{Binding Anymals}" Width="80"/>
+				<DataGridTextColumn Header="Корови" Binding="{Binding Covs}" Width="80"/>
+				<DataGridTextColumn Header="Свині" Binding="{Binding Pigs}" Width="80"/>
+				<DataGridTextColumn Header="Вівці" Binding="{Binding Sheeps}" Width="80"/>
+				<DataGridTextColumn Header="Кози" Binding="{Binding Goats}" Width="80"/>
+				<DataGridTextColumn Header="Коні" Binding="{Binding Horses}" Width="80"/>
+				<DataGridTextColumn Header="Птиця" Binding="{Binding Birds}" Width="80"/>
+				<DataGridTextColumn Header="Кролі" Binding="{Binding Rabbits}" Width="80"/>
+				<DataGridTextColumn Header="Бджоли" Binding="{Binding Beeses}" Width="80"/>
+				<DataGridTemplateColumn Header="Видалити" Width="100">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="local:Anymal">
+							<Button Content="Видалити"
+									Background="#8B0000"
+									Foreground="White"
+									FontWeight="Bold"
+									Padding="5,3"
+									Click="OnDeleteClick"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+
+	</Grid>
+</Window>

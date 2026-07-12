@@ -259,4 +259,36 @@ public class ApiService
         if (dateOfBirth.HasValue) query += $"&dateOfBirth={dateOfBirth.Value:yyyy-MM-dd}";
         return await _http.GetFromJsonAsync<bool>($"/api/people/exists?{query}");
     }
+    public async Task<bool> AnimalExistsAsync(string lastName, string name, string? surname, string village)
+    {
+        var query = $"lastName={Uri.EscapeDataString(lastName)}&name={Uri.EscapeDataString(name)}&village={Uri.EscapeDataString(village)}";
+        if (!string.IsNullOrEmpty(surname)) query += $"&surname={Uri.EscapeDataString(surname)}";
+        return await _http.GetFromJsonAsync<bool>($"/api/anymals/exists?{query}");
+    }
+
+    public async Task CreateAnimalAsync(Anymal anymal)
+    {
+        await _http.PostAsJsonAsync("/api/anymals", anymal);
+    }
+    public async Task<List<Anymal>?> SearchAnimalsAsync(
+    string? lastName = null,
+    string? name = null,
+    string? surname = null,
+    string? village = null)
+    {
+        var query = new System.Collections.Generic.List<string>();
+        if (!string.IsNullOrEmpty(lastName)) query.Add($"lastName={Uri.EscapeDataString(lastName)}");
+        if (!string.IsNullOrEmpty(name)) query.Add($"name={Uri.EscapeDataString(name)}");
+        if (!string.IsNullOrEmpty(surname)) query.Add($"surname={Uri.EscapeDataString(surname)}");
+        if (!string.IsNullOrEmpty(village)) query.Add($"village={Uri.EscapeDataString(village)}");
+
+        var url = "/api/anymals/search";
+        if (query.Count > 0) url += "?" + string.Join("&", query);
+        return await _http.GetFromJsonAsync<List<Anymal>>(url);
+    }
+
+    public async Task DeleteAnimalAsync(int id)
+    {
+        await _http.DeleteAsync($"/api/anymals/{id}");
+    }
 }

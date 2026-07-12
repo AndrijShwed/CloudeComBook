@@ -23,9 +23,9 @@ public class AnymalsController : ControllerBase
         return item == null ? NotFound() : Ok(item);
     }
 
-    [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] string q) =>
-        Ok(await _repo.SearchAsync(q));
+    //[HttpGet("search")]
+    //public async Task<IActionResult> Search([FromQuery] string q) =>
+    //    Ok(await _repo.SearchAsync(q));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Anymal anymal)
@@ -47,5 +47,27 @@ public class AnymalsController : ControllerBase
     {
         var ok = await _repo.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
+    }
+
+    [HttpGet("exists")]
+    public async Task<IActionResult> Exists(
+    [FromQuery] string lastName,
+    [FromQuery] string name,
+    [FromQuery] string village,
+    [FromQuery] string? surname = null)
+    {
+        var exists = await _repo.ExistsAsync(lastName, name, surname, village);
+        return Ok(exists);
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search(
+    [FromQuery] string? lastName = null,
+    [FromQuery] string? name = null,
+    [FromQuery] string? surname = null,
+    [FromQuery] string? village = null)
+    {
+        var result = await _repo.SearchAsync(lastName, name, surname, village);
+        return Ok(result);
     }
 }

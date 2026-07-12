@@ -72,4 +72,48 @@ public class AnymalRepository : IAnymalRepository
             "DELETE FROM anymals WHERE anymalsId = @id", new { id });
         return rows > 0;
     }
+    public async Task<bool> ExistsAsync(string lastName, string name, string? surname, string village)
+    {
+        using var conn = _db.CreateConnection();
+        var count = await conn.ExecuteScalarAsync<int>(
+            @"SELECT COUNT(*) FROM anymals 
+          WHERE lastname = @lastName 
+          AND name = @name
+          AND village = @village
+          AND (@surname IS NULL OR surname = @surname)",
+            new { lastName, name, surname, village });
+        return count > 0;
+    }
+    public async Task<IEnumerable<Anymal>> SearchAsync(
+    string? lastName = null,
+    string? name = null,
+    string? surname = null,
+    string? village = null)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<Anymal>(
+            @"SELECT 
+            anymalsId AS AnymalsId,
+            lastname AS LastName,
+            name AS Name,
+            surname AS Surname,
+            village AS Village,
+            anymals AS Anymals,
+            covs AS Covs,
+            pigs AS Pigs,
+            sheeps AS Sheeps,
+            goats AS Goats,
+            horses AS Horses,
+            birds AS Birds,
+            rabbits AS Rabbits,
+            beeses AS Beeses
+          FROM anymals
+          WHERE
+            (@lastName IS NULL OR lastname LIKE CONCAT('%', @lastName, '%'))
+            AND (@name IS NULL OR name LIKE CONCAT('%', @name, '%'))
+            AND (@surname IS NULL OR surname LIKE CONCAT('%', @surname, '%'))
+            AND (@village IS NULL OR village = @village)
+          ORDER BY lastname, name",
+            new { lastName, name, surname, village });
+    }
 }

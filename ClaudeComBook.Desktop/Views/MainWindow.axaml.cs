@@ -49,7 +49,7 @@ namespace ClaudeComBook.Desktop.Views
         }
         private void OnAnimalsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            var window = new AnimalsView(this);
+            var window = new AnymalsView(this);
             window.Show();
             this.Hide();
         }
