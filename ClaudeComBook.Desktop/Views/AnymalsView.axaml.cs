@@ -22,14 +22,14 @@ public partial class AnymalsView : Window
 
     private void OnAddClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        var window = new AddAnimalView(this);
+        var window = new AddAnymalView(this);
         window.Show();
         this.Hide();
     }
 
     private void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        var window = new AnimalSearchView(this);
+        var window = new AnymalSearchView(this);
         window.Show();
         this.Hide();
     }

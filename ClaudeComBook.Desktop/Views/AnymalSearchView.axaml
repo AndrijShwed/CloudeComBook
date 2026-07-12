@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="using:ClaudeComBook.Desktop.Models"
-        x:Class="ClaudeComBook.Desktop.Views.AnimalSearchView"
+        x:Class="ClaudeComBook.Desktop.Views.AnymalSearchView"
         Title="ХудобаТаПтицяПошук"
         WindowState="Maximized"
         Background="#2E7D32">
@@ -74,7 +74,7 @@
 		</StackPanel>
 
 		<!-- Таблиця -->
-		<DataGrid Grid.Row="3" Name="AnimalsGrid"
+		<DataGrid Grid.Row="3" Name="AnymalsGrid"
 				  x:DataType="local:Anymal"
 				  DoubleTapped="OnRowDoubleTapped"
 				  Margin="0,5"

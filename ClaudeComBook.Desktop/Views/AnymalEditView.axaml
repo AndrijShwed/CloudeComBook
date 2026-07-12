@@ -1,0 +1,124 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.AnymalEditView"
+        Title="Редагування худоби та птиці"
+        Width="800" Height="550"
+        WindowStartupLocation="CenterScreen"
+        Background="#2E7D32">
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+			<TextBlock Text="Вікно пошуку" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnBackClick2"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Редагування" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Поля -->
+		<Grid Grid.Row="1" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+
+			<!-- Колонка 1 -->
+			<StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
+				<TextBlock Text="Прізвище" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="LastNameBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="1" Margin="5">
+				<TextBlock Text="Ім'я" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="FirstNameBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="2" Margin="5">
+				<TextBlock Text="Побатькові" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="SurnameBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="3" Margin="5">
+				<TextBlock Text="Населений пункт" Foreground="White" Margin="0,0,0,3"/>
+				<ComboBox Name="VillageBox" HorizontalAlignment="Stretch"/>
+			</StackPanel>
+
+			<!-- Колонка 2 -->
+			<StackPanel Grid.Column="1" Grid.Row="0" Margin="5">
+				<TextBlock Text="ВРХ" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="AnymalsBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="1" Margin="5">
+				<TextBlock Text="Корови" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="CovsBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="2" Margin="5">
+				<TextBlock Text="Свині" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="PigsBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="3" Margin="5">
+				<TextBlock Text="Вівці" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="SheepsBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="4" Margin="5">
+				<TextBlock Text="Кози" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="GoatsBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<!-- Колонка 3 -->
+			<StackPanel Grid.Column="2" Grid.Row="0" Margin="5">
+				<TextBlock Text="Коні" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="HorsesBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="2" Grid.Row="1" Margin="5">
+				<TextBlock Text="Птиця" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="BirdsBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="2" Grid.Row="2" Margin="5">
+				<TextBlock Text="Кролі" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="RabbitsBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="2" Grid.Row="3" Margin="5">
+				<TextBlock Text="Бджоли" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="BeesesBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+		</Grid>
+
+		<!-- Кнопки -->
+		<StackPanel Grid.Row="2" Orientation="Horizontal"
+					HorizontalAlignment="Right" Margin="0,20,0,0">
+			<Button Content="Зберегти зміни"
+					Background="Yellow" Foreground="Black"
+					FontFamily="Comic Sans MS" FontSize="14"
+					FontWeight="Bold" Padding="20,10" Margin="10,0"
+					Click="OnSaveClick"/>
+			<Button Content="Повернутись"
+					Background="#4CAF50" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14"
+					FontWeight="Bold" Padding="20,10" Margin="0,0,10,0"
+					Click="OnBackClick"/>
+			<Button Content="Видалити"
+					Background="Red" Foreground="White"
+					FontFamily="Comic Sans MS" FontSize="14"
+					FontWeight="Bold" Padding="20,10"
+					Click="OnDeleteClick"/>
+		</StackPanel>
+
+	</Grid>
+</Window>

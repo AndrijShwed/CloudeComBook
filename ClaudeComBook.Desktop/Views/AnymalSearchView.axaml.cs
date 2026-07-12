@@ -6,13 +6,13 @@ using System.Linq;
 
 namespace ClaudeComBook.Desktop.Views;
 
-public partial class AnimalSearchView : Window
+public partial class AnymalSearchView : Window
 {
     private readonly Window _previousWindow;
     private readonly ApiService _api = new();
     private bool _manualClose = false;
 
-    public AnimalSearchView(Window previousWindow)
+    public AnymalSearchView(Window previousWindow)
     {
         InitializeComponent();
         _previousWindow = previousWindow;
@@ -47,16 +47,16 @@ public partial class AnimalSearchView : Window
     {
         var selectedVillage = VillageBox.SelectedItem as Village;
 
-        var animals = await _api.SearchAnimalsAsync(
+        var anymals = await _api.SearchAnymalsAsync(
             lastName: string.IsNullOrEmpty(LastNameBox.Text) ? null : LastNameBox.Text,
             name: string.IsNullOrEmpty(FirstNameBox.Text) ? null : FirstNameBox.Text,
             surname: string.IsNullOrEmpty(SurnameBox.Text) ? null : SurnameBox.Text,
             village: selectedVillage?.Name);
 
         // Фільтруємо по чекбоксах
-        if (animals != null)
+        if (anymals != null)
         {
-            var filtered = animals.AsEnumerable();
+            var filtered = anymals.AsEnumerable();
             if (CovsCheck.IsChecked == true) filtered = filtered.Where(a => a.Covs > 0);
             if (HorsesCheck.IsChecked == true) filtered = filtered.Where(a => a.Horses > 0);
             if (PigsCheck.IsChecked == true) filtered = filtered.Where(a => a.Pigs > 0);
@@ -67,7 +67,7 @@ public partial class AnimalSearchView : Window
             if (BeesesCheck.IsChecked == true) filtered = filtered.Where(a => a.Beeses > 0);
 
             var result = filtered.ToList();
-            AnimalsGrid.ItemsSource = result;
+            AnymalsGrid.ItemsSource = result;
             ResultCount.Text = result.Count.ToString();
         }
     }
@@ -90,7 +90,7 @@ public partial class AnimalSearchView : Window
 
     private void OnClearTableClick(object sender, RoutedEventArgs e)
     {
-        AnimalsGrid.ItemsSource = null;
+        AnymalsGrid.ItemsSource = null;
         ResultCount.Text = "0";
     }
 
@@ -106,7 +106,7 @@ public partial class AnimalSearchView : Window
 
             if (result == MsBox.Avalonia.Enums.ButtonResult.Yes)
             {
-                await _api.DeleteAnimalAsync(animal.AnymalsId);
+                await _api.DeleteAnymalAsync(animal.AnymalsId);
                 OnSearchClick(null, null);
             }
         }
@@ -114,12 +114,12 @@ public partial class AnimalSearchView : Window
 
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
-        //if (AnimalsGrid.SelectedItem is Anymal animal)
-        //{
-        //    var window = new AnimalEditView(animal, this);
-        //    window.Show();
-        //    this.Hide();
-        //}
+        if (AnymalsGrid.SelectedItem is Anymal anymal)
+        {
+            var window = new AnymalEditView(anymal, this);
+            window.Show();
+            this.Hide();
+        }
     }
 
     private void OnHomeClick(object sender, Avalonia.Input.TappedEventArgs e)

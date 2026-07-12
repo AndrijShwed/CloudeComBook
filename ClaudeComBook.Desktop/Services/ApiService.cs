@@ -259,18 +259,18 @@ public class ApiService
         if (dateOfBirth.HasValue) query += $"&dateOfBirth={dateOfBirth.Value:yyyy-MM-dd}";
         return await _http.GetFromJsonAsync<bool>($"/api/people/exists?{query}");
     }
-    public async Task<bool> AnimalExistsAsync(string lastName, string name, string? surname, string village)
+    public async Task<bool> AnymalExistsAsync(string lastName, string name, string? surname, string village)
     {
         var query = $"lastName={Uri.EscapeDataString(lastName)}&name={Uri.EscapeDataString(name)}&village={Uri.EscapeDataString(village)}";
         if (!string.IsNullOrEmpty(surname)) query += $"&surname={Uri.EscapeDataString(surname)}";
         return await _http.GetFromJsonAsync<bool>($"/api/anymals/exists?{query}");
     }
 
-    public async Task CreateAnimalAsync(Anymal anymal)
+    public async Task CreateAnymalAsync(Anymal anymal)
     {
         await _http.PostAsJsonAsync("/api/anymals", anymal);
     }
-    public async Task<List<Anymal>?> SearchAnimalsAsync(
+    public async Task<List<Anymal>?> SearchAnymalsAsync(
     string? lastName = null,
     string? name = null,
     string? surname = null,
@@ -287,8 +287,12 @@ public class ApiService
         return await _http.GetFromJsonAsync<List<Anymal>>(url);
     }
 
-    public async Task DeleteAnimalAsync(int id)
+    public async Task DeleteAnymalAsync(int id)
     {
         await _http.DeleteAsync($"/api/anymals/{id}");
+    }
+    public async Task UpdateAnymalAsync(Anymal anymal)
+    {
+        await _http.PutAsJsonAsync($"/api/anymals/{anymal.AnymalsId}", anymal);
     }
 }

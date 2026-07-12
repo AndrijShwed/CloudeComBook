@@ -6,13 +6,13 @@ using MsBox.Avalonia.Base;
 
 namespace ClaudeComBook.Desktop.Views;
 
-public partial class AddAnimalView : Window
+public partial class AddAnymalView : Window
 {
     private readonly Window _previousWindow;
     private readonly ApiService _api = new();
     private bool _manualClose = false;
 
-    public AddAnimalView(Window previousWindow)
+    public AddAnymalView(Window previousWindow)
     {
         InitializeComponent();
         _previousWindow = previousWindow;
@@ -70,7 +70,7 @@ public partial class AddAnimalView : Window
         }
 
         // Перевірка дублювання
-        var exists = await _api.AnimalExistsAsync(
+        var exists = await _api.AnymalExistsAsync(
             LastNameBox.Text, FirstNameBox.Text, SurnameBox.Text, selectedVillage.Name);
 
         if (exists)
@@ -102,7 +102,7 @@ public partial class AddAnimalView : Window
             Beeses = int.TryParse(BeesesBox.Text, out var beeses) ? beeses : 0
         };
 
-        await _api.CreateAnimalAsync(animal);
+        await _api.CreateAnymalAsync(animal);
 
         var msg = MsBox.Avalonia.MessageBoxManager
             .GetMessageBoxStandard("Успіх", "Запис додано!");
@@ -127,13 +127,13 @@ public partial class AddAnimalView : Window
     private void OnHomeClick(object sender, Avalonia.Input.TappedEventArgs e)
     {
         _manualClose = true;
-        if (_previousWindow is AnymalsView animalsView)
-            animalsView._previousWindow.Show();
+        if (_previousWindow is AnymalsView anymalsView)
+            anymalsView._previousWindow.Show();
         _previousWindow.Close();
         Close();
     }
 
-    private void OnAnimalsClick(object sender, Avalonia.Input.TappedEventArgs e)
+    private void OnAnymalsClick(object sender, Avalonia.Input.TappedEventArgs e)
     {
         _previousWindow.Show();
         Close();

@@ -1,6 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="ClaudeComBook.Desktop.Views.AddAnimalView"
+        x:Class="ClaudeComBook.Desktop.Views.AddAnymalView"
         Title="Додати худобу та птицю"
         WindowState="Maximized"
         Background="#2E7D32">
@@ -18,7 +18,7 @@
 					   Cursor="Hand" Tapped="OnHomeClick"/>
 			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
 			<TextBlock Text="Худоба та птиця" Foreground="White" FontSize="13"
-					   Cursor="Hand" Tapped="OnAnimalsClick"/>
+					   Cursor="Hand" Tapped="OnAnymalsClick"/>
 			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
 			<TextBlock Text="Додати" Foreground="White" FontSize="13" FontWeight="Bold"/>
 		</StackPanel>
