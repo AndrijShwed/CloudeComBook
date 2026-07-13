@@ -53,5 +53,11 @@ namespace ClaudeComBook.Desktop.Views
             window.Show();
             this.Hide();
         }
+        private void OnLandClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new LandView(this);
+            window.Show();
+            this.Hide();
+        }
     }
 }

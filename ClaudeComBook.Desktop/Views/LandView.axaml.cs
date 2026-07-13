@@ -1,13 +1,39 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
-namespace ClaudeComBook.Desktop;
+namespace ClaudeComBook.Desktop.Views;
 
 public partial class LandView : Window
 {
-    public LandView()
+    public readonly Window _previousWindow;
+    private bool _manualClose = false;
+
+    public LandView(Window previousWindow)
     {
         InitializeComponent();
+        _previousWindow = previousWindow;
+    }
+
+    private void OnHomeClick(object sender, Avalonia.Input.TappedEventArgs e)
+    {
+        _manualClose = true;
+        _previousWindow.Show();
+        Close();
+    }
+
+    private void OnAddClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Пізніше
+    }
+
+    private void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        // Пізніше
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        if (!_manualClose)
+            _previousWindow.Show();
+        base.OnClosing(e);
     }
 }

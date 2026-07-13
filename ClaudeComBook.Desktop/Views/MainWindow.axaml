@@ -110,7 +110,8 @@
 
 			<!-- Земля -->
 			<Button Margin="15" Background="#E8F5E9" CornerRadius="15"
-					HorizontalContentAlignment="Center">
+					HorizontalContentAlignment="Center"
+					Click="OnLandClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/land.png"/>
 					<TextBlock Text="Земля" FontFamily="Comic Sans MS" Foreground="Black"
