@@ -311,4 +311,16 @@ public class ApiService
 
     public async Task<List<AnymalStatData>?> GetAnymalStatisticsAsync() =>
         await _http.GetFromJsonAsync<List<AnymalStatData>>("/api/anymals/statistics");
+    public async Task CreatePlotAsync(Plot plot)
+    {
+       var response =  await _http.PostAsJsonAsync("/api/plot", plot);
+
+        var text = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception(
+                $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}\n\n{text}");
+        }
+    }
 }

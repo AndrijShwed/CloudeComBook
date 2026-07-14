@@ -2,7 +2,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ClaudeComBook.Desktop.Views.LandView"
         Title="Земля"
-        WindowState="Maximized"
         Background="#8B0000">
 
 	<Grid RowDefinitions="Auto,*">

@@ -1,7 +1,8 @@
-﻿using Dapper;
-using ClaudeComBook.API.Data;
+﻿using ClaudeComBook.API.Data;
 using ClaudeComBook.API.Models;
 using ClaudeComBook.API.Repositories.Interfaces;
+using Dapper;
+using System.Text.Json;
 
 namespace ClaudeComBook.API.Repositories;
 
@@ -42,15 +43,16 @@ public class PlotRepository : IPlotRepository
 
     public async Task<int> CreateAsync(Plot plot)
     {
-        using var conn = _db.CreateConnection();
+            using var conn = _db.CreateConnection();
         return await conn.ExecuteScalarAsync<int>(
             @"INSERT INTO plot 
               (fullname, village, street, housenumb, fieldnumber, plottype, plotnumber,
                plotarea, cadastr, tenant, url)
               VALUES
-              (@fullname, @village, @street, @housenumber, @fieldnumber, @plottype, @plotnumber,
-               @plotarea, @cadastr, @tenant, @url);
+              (@FullName, @Village, @Street, @HouseNumb, @FieldNumber, @PlotType, @PlotNumber,
+               @PlotArea, @Cadastr, @Tenant, @Url);
               SELECT LAST_INSERT_ID();", plot);
+
     }
 
     public async Task<bool> UpdateAsync(Plot plot)
