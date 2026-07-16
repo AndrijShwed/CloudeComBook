@@ -24,11 +24,6 @@ public class PlotController : ControllerBase
         return item == null ? NotFound() : Ok(item);
     }
 
-
-    [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] string q) =>
-        Ok(await _repo.SearchAsync(q));
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Plot plot)
     {
@@ -49,6 +44,24 @@ public class PlotController : ControllerBase
     {
         var ok = await _repo.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search(
+    [FromQuery] string? fullName = null,
+    [FromQuery] string? village = null,
+    [FromQuery] string? street = null,
+    [FromQuery] string? houseNumb = null,
+    [FromQuery] string? fieldNumber = null,
+    [FromQuery] string? plotType = null,
+    [FromQuery] string? plotNumber = null,
+    [FromQuery] string? tenant = null,
+    [FromQuery] string? cadastr = null)
+    {
+        var result = await _repo.SearchAsync(
+            fullName, village, street, houseNumb,
+            fieldNumber, plotType, plotNumber, tenant, cadastr);
+        return Ok(result);
     }
 }
 

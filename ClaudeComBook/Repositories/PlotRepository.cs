@@ -82,5 +82,43 @@ public class PlotRepository : IPlotRepository
             "DELETE FROM plot WHERE id = @id", new { id });
         return rows > 0;
     }
+    public async Task<IEnumerable<Plot>> SearchAsync(
+    string? fullName = null,
+    string? village = null,
+    string? street = null,
+    string? houseNumb = null,
+    string? fieldNumber = null,
+    string? plotType = null,
+    string? plotNumber = null,
+    string? tenant = null,
+    string? cadastr = null)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<Plot>(
+            @"SELECT * FROM plot
+          WHERE
+            (@fullName IS NULL OR fullname LIKE CONCAT('%', @fullName, '%'))
+            AND (@village IS NULL OR village LIKE CONCAT('%', @village, '%'))
+            AND (@street IS NULL OR street LIKE CONCAT('%', @street, '%'))
+            AND (@houseNumb IS NULL OR housenumb = @houseNumb)
+            AND (@fieldNumber IS NULL OR fieldnumber LIKE CONCAT('%', @fieldNumber, '%'))
+            AND (@plotType IS NULL OR plottype LIKE CONCAT('%', @plotType, '%'))
+            AND (@plotNumber IS NULL OR plotnumber LIKE CONCAT('%', @plotNumber, '%'))
+            AND (@tenant IS NULL OR tenant LIKE CONCAT('%', @tenant, '%'))
+            AND (@cadastr IS NULL OR cadastr LIKE CONCAT('%', @cadastr, '%'))
+          ORDER BY fullname",
+            new
+            {
+                fullName,
+                village,
+                street,
+                houseNumb,
+                fieldNumber,
+                plotType,
+                plotNumber,
+                tenant,
+                cadastr
+            });
+    }
 }
 
