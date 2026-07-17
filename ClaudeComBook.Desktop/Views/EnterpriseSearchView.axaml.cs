@@ -62,15 +62,11 @@ public partial class EnterpriseSearchView : Window
 
         var houses = await _api.GetHousesByVillageStreetAsync(vs.Id);
         var numbers = houses?
-           .Select(h => h.NumbOfHouse)
-           .Distinct()
-           .OrderBy(n =>
-           {
-               var match = Regex.Match(n ?? "", @"^\d+");
-               return match.Success ? int.Parse(match.Value) : int.MaxValue;
-           })
-           .ThenBy(n => n)
-           .ToList();
+             .Select(h => h.NumbOfHouse)
+             .Where(n => !string.IsNullOrWhiteSpace(n))
+             .Distinct()
+             .OrderBy(n => n, new HouseNumberComparer())
+             .ToList();
         HouseNumberBox.ItemsSource = numbers;
         HouseNumberBox.SelectedIndex = -1;
     }
