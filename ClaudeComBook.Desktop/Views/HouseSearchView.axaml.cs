@@ -5,6 +5,7 @@ using ClaudeComBook.Desktop.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ClaudeComBook.Desktop.Views;
 
@@ -66,7 +67,16 @@ public partial class HouseSearchView : Window
         if (vs == null) return;
 
         var houses = await _api.GetHousesByVillageStreetAsync(vs.Id);
-        var numbers = houses?.Select(h => h.NumbOfHouse).Distinct().OrderBy(n => n).ToList();
+        var numbers = houses?
+           .Select(h => h.NumbOfHouse)
+           .Distinct()
+           .OrderBy(n =>
+           {
+               var match = Regex.Match(n ?? "", @"^\d+");
+               return match.Success ? int.Parse(match.Value) : int.MaxValue;
+           })
+           .ThenBy(n => n)
+           .ToList();
         HouseNumberBox.ItemsSource = numbers;
         HouseNumberBox.SelectedIndex = -1;
     }
