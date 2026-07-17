@@ -29,7 +29,9 @@ public partial class LandView : Window
 
     private void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Пізніше
+        var window = new LandSearchView(this);
+        window.Show();
+        this.Hide();
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

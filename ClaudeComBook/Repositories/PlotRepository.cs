@@ -71,7 +71,7 @@ public class PlotRepository : IPlotRepository
               cadastr=@Cadastr,
               tenant=@Tenant,
               url=@Url
-              WHERE idhouses=@IdHouses", plot);
+              WHERE id=@Id", plot);
         return rows > 0;
     }
 
