@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.LoginView"
+        Title="ClaudeComBook - Авторизація"
+        Width="400" Height="400"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        Background="#8B0000">
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="30">
+
+		<!-- Заголовок -->
+		<StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,20,0,30">
+			<TextBlock Text="ClaudeComBook" FontFamily="Comic Sans MS"
+					   FontSize="24" FontWeight="Bold" Foreground="White"
+					   HorizontalAlignment="Center"/>
+			<TextBlock Text="Система обліку громади" FontFamily="Comic Sans MS"
+					   FontSize="14" Foreground="LightYellow"
+					   HorizontalAlignment="Center" Margin="0,5,0,0"/>
+		</StackPanel>
+
+		<!-- Поля -->
+		<StackPanel Grid.Row="1" Spacing="15">
+			<StackPanel>
+				<TextBlock Text="Логін" Foreground="White" FontSize="14" Margin="0,0,0,5"/>
+				<TextBox Name="LoginBox" Background="White" Foreground="Black"
+						 FontSize="14" Padding="8"/>
+			</StackPanel>
+			<StackPanel>
+				<TextBlock Text="Пароль" Foreground="White" FontSize="14" Margin="0,0,0,5"/>
+				<Grid ColumnDefinitions="*,Auto">
+					<TextBox Grid.Column="0" Name="PasswordBox" Background="White" Foreground="Black"
+							 FontSize="14" Padding="8" PasswordChar="*"/>
+					<Button Grid.Column="1" Name="ShowPasswordBtn"
+							Content="👁" FontSize="16"
+							Background="Transparent" Foreground="White"
+							Padding="8,0" Margin="5,0,0,0"
+							Click="OnShowPasswordClick"/>
+				</Grid>
+			</StackPanel>
+			<TextBlock Name="ErrorText" Foreground="Yellow" FontSize="13"
+					   IsVisible="False" TextWrapping="Wrap"/>
+		</StackPanel>
+
+		<!-- Кнопка -->
+		<Button Grid.Row="2" Content="Увійти"
+				Background="#4CAF50" Foreground="White"
+				FontFamily="Comic Sans MS" FontSize="16"
+				FontWeight="Bold"
+				HorizontalContentAlignment="Center"
+				HorizontalAlignment="Stretch"
+				Padding="0,12" Margin="0,30,0,20"
+				Click="OnLoginClick"/>
+
+	</Grid>
+</Window>

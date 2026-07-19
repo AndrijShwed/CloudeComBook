@@ -311,4 +311,20 @@ public class ApiService
 
     public async Task<List<AnymalStatData>?> GetAnymalStatisticsAsync() =>
         await _http.GetFromJsonAsync<List<AnymalStatData>>("/api/anymals/statistics");
+    public async Task<UserInfo?> LoginAsync(string login, string password)
+    {
+        try
+        {
+            var response = await _http.PostAsJsonAsync("/api/auth/login",
+                new { login, password });
+
+            if (!response.IsSuccessStatusCode) return null;
+
+            return await response.Content.ReadFromJsonAsync<UserInfo>();
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

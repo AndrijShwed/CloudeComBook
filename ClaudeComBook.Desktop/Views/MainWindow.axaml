@@ -98,7 +98,7 @@
 				</StackPanel>
 			</Button>
 
-			<!-- Експорт Excel to DB -->
+			<!-- Експорт Excel to DB 
 			<Button Margin="15" Background="White" CornerRadius="15"
 					HorizontalContentAlignment="Center">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
@@ -106,7 +106,7 @@
 					<TextBlock Text="Експорт Excel to DB" FontFamily="Comic Sans MS" Foreground="Black"
 							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
-			</Button>
+			</Button> -->
 
 			<!-- Земля -->
 			<Button Margin="15" Background="#E8F5E9" CornerRadius="15"

@@ -21,6 +21,7 @@ builder.Services.AddScoped<IAnymalRepository, AnymalRepository>();
 builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
 builder.Services.AddScoped<IPlotRepository, PlotRepository>();
 builder.Services.AddScoped<IPopulationSnapshotRepository, PopulationSnapshotRepository>(); builder.Services.AddHostedService<PopulationSnapshotService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
