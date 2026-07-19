@@ -50,8 +50,10 @@
 							  PlaceholderText="Населений пункт" Margin="5,0"/>
 					<ComboBox Grid.Column="1" Name="StreetBox"
 							  PlaceholderText="Вулиця" Margin="5,0"/>
-					<TextBox Grid.Column="2" Name="HouseBox"
-							 Watermark="Номер будинку" Margin="5,0"/>
+					<!--<TextBox Grid.Column="2" Name="HouseBox"
+							 Watermark="Номер будинку" Margin="5,0"/> -->
+					<ComboBox Grid.Column="2" Name="HouseNumberBox"
+					         PlaceholderText="Номер будинку" Margin="5,0" Width="120"/>
 					<ComboBox Grid.Column="3" Name="StatusBox"
                               PlaceholderText="Статус" Margin="5,0">
 						<ComboBoxItem Content="помер"/>

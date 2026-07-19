@@ -2,29 +2,23 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace ClaudeComBook.Desktop.Views;
 
-public partial class HouseSearchView : Window
+public partial class LandSearchView : Window
 {
     private readonly Window _previousWindow;
     private readonly ApiService _api = new();
     private bool _manualClose = false;
 
-    public HouseSearchView(Window previousWindow)
+    public LandSearchView(Window previousWindow)
     {
         InitializeComponent();
         _previousWindow = previousWindow;
         LoadComboBoxes();
         VillageBox.SelectionChanged += OnVillageChanged;
-        StreetBox.SelectionChanged += OnStreetChanged;
-        LastNameBox.TextChanged += OnNameTextChanged;
-        FirstNameBox.TextChanged += OnNameTextChanged;
-        SurnameBox.TextChanged += OnNameTextChanged;
+        FullNameBox.TextChanged += OnNameTextChanged;
     }
 
     private async void LoadComboBoxes()
@@ -52,41 +46,6 @@ public partial class HouseSearchView : Window
         StreetBox.ItemsSource = filteredStreets;
         StreetBox.DisplayMemberBinding = new Avalonia.Data.Binding("Name");
         StreetBox.SelectedIndex = -1;
-        HouseNumberBox.ItemsSource = null;
-    }
-
-    private async void OnStreetChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (VillageBox.SelectedItem is not Village village) return;
-        if (StreetBox.SelectedItem is not Street street) return;
-
-        var villageStreets = await _api.GetVillageStreetsAsync();
-        var vs = villageStreets?.FirstOrDefault(v =>
-            v.VillageId == village.Id && v.StreetId == street.Id);
-
-        if (vs == null) return;
-
-        var houses = await _api.GetHousesByVillageStreetAsync(vs.Id);
-        //var numbers = houses?
-        //   .Select(h => h.NumbOfHouse)
-        //   .Distinct()
-        //   .OrderBy(n =>
-        //   {
-        //       var match = Regex.Match(n ?? "", @"^\d+");
-        //       return match.Success ? int.Parse(match.Value) : int.MaxValue;
-        //   })
-        //   .ThenBy(n => n)
-        //   .ToList();
-
-        var numbers = houses?
-            .Select(h => h.NumbOfHouse)
-            .Where(n => !string.IsNullOrWhiteSpace(n))
-            .Distinct()
-            .OrderBy(n => n, new HouseNumberComparer())
-            .ToList();
-
-        HouseNumberBox.ItemsSource = numbers;
-        HouseNumberBox.SelectedIndex = -1;
     }
 
     private void OnNameTextChanged(object? sender, TextChangedEventArgs e)
@@ -107,45 +66,56 @@ public partial class HouseSearchView : Window
     {
         var selectedVillage = VillageBox.SelectedItem as Village;
         var selectedStreet = StreetBox.SelectedItem as Street;
-        var houseNumber = HouseNumberBox.SelectedItem as string;
 
-        var houses = await _api.SearchHousesAsync(
-            villageId: selectedVillage?.Id,
-            streetId: selectedStreet?.Id,
-            houseNumber: houseNumber,
-            lastName: string.IsNullOrEmpty(LastNameBox.Text) ? null : LastNameBox.Text,
-            name: string.IsNullOrEmpty(FirstNameBox.Text) ? null : FirstNameBox.Text,
-            surname: string.IsNullOrEmpty(SurnameBox.Text) ? null : SurnameBox.Text);
+        var plots = await _api.SearchPlotsAsync(
+            fullName: string.IsNullOrEmpty(FullNameBox.Text) ? null : FullNameBox.Text,
+            village: selectedVillage?.Name,
+            street: selectedStreet?.Name,
+            houseNumb: string.IsNullOrEmpty(HouseNumberBox.Text) ? null : HouseNumberBox.Text,
+            fieldNumber: string.IsNullOrEmpty(FieldNumberBox.Text) ? null : FieldNumberBox.Text,
+            plotType: string.IsNullOrEmpty(PlotTypeBox.Text) ? null : PlotTypeBox.Text,
+            plotNumber: string.IsNullOrEmpty(PlotNumberBox.Text) ? null : PlotNumberBox.Text,
+            tenant: string.IsNullOrEmpty(TenantBox.Text) ? null : TenantBox.Text,
+            cadastr: string.IsNullOrEmpty(CadastrBox.Text) ? null : CadastrBox.Text);
 
-        HousesGrid.ItemsSource = houses;
-        CountText.Text = houses?.Count.ToString() ?? "0";
+        LandGrid.ItemsSource = plots;
+        CountText.Text = plots?.Count.ToString() ?? "0";
+        TotalAreaText.Text = plots?.Sum(p => p.PlotArea ?? 0).ToString("F4") ?? "0";
     }
 
     private void OnClearClick(object sender, RoutedEventArgs e)
     {
+        FullNameBox.Text = "";
         VillageBox.SelectedIndex = -1;
         StreetBox.SelectedIndex = -1;
-        HouseNumberBox.SelectedIndex = -1;
-        LastNameBox.Text = "";
-        FirstNameBox.Text = "";
-        SurnameBox.Text = "";
-        HousesGrid.ItemsSource = null;
+        HouseNumberBox.Text = "";
+        FieldNumberBox.Text = "";
+        PlotTypeBox.Text = "";
+        PlotNumberBox.Text = "";
+        TenantBox.Text = "";
+        CadastrBox.Text = "";
+    }
+
+    private void OnClearTableClick(object sender, RoutedEventArgs e)
+    {
+        LandGrid.ItemsSource = null;
         CountText.Text = "0";
+        TotalAreaText.Text = "0";
     }
 
     private async void OnDeleteClick(object sender, RoutedEventArgs e)
     {
-        if (sender is Button btn && btn.DataContext is House house)
+        if (sender is Button btn && btn.DataContext is Plot plot)
         {
             var msg = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandard("Підтвердження",
-                    $"Ви дійсно хочете видалити будинок \"{house.NumbOfHouse}\" на вулиці \"{house.StreetName}\"?",
+                    $"Ви дійсно хочете видалити ділянку \"{plot.FullName}\" - {plot.Cadastr}?",
                     MsBox.Avalonia.Enums.ButtonEnum.YesNo);
             var result = await msg.ShowAsync();
 
             if (result == MsBox.Avalonia.Enums.ButtonResult.Yes)
             {
-                await _api.DeleteHouseAsync(house.IdHouses);
+                await _api.DeletePlotAsync(plot.Id);
                 OnSearchClick(null, null);
             }
         }
@@ -153,9 +123,9 @@ public partial class HouseSearchView : Window
 
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
-        if (HousesGrid.SelectedItem is House house)
+        if (LandGrid.SelectedItem is Plot plot)
         {
-            var window = new HouseEditView(house, this);
+            var window = new LandEditView(plot, this);
             window.Show();
             this.Hide();
         }
@@ -164,13 +134,13 @@ public partial class HouseSearchView : Window
     private void OnHomeClick(object sender, Avalonia.Input.TappedEventArgs e)
     {
         _manualClose = true;
-        if (_previousWindow is HouseholdsView householdsView)
-            householdsView._previousWindow.Show();
+        if (_previousWindow is LandView landView)
+            landView._previousWindow.Show();
         _previousWindow.Close();
         Close();
     }
 
-    private void OnHouseholdsClick(object sender, Avalonia.Input.TappedEventArgs e)
+    private void OnLandClick(object sender, Avalonia.Input.TappedEventArgs e)
     {
         _previousWindow.Show();
         Close();

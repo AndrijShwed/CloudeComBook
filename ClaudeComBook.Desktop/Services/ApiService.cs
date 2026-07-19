@@ -311,20 +311,51 @@ public class ApiService
 
     public async Task<List<AnymalStatData>?> GetAnymalStatisticsAsync() =>
         await _http.GetFromJsonAsync<List<AnymalStatData>>("/api/anymals/statistics");
-    public async Task<UserInfo?> LoginAsync(string login, string password)
+    public async Task CreatePlotAsync(Plot plot)
     {
-        try
-        {
-            var response = await _http.PostAsJsonAsync("/api/auth/login",
-                new { login, password });
+       var response =  await _http.PostAsJsonAsync("/api/plot", plot);
 
-            if (!response.IsSuccessStatusCode) return null;
+        var text = await response.Content.ReadAsStringAsync();
 
-            return await response.Content.ReadFromJsonAsync<UserInfo>();
-        }
-        catch
+        if (!response.IsSuccessStatusCode)
         {
-            return null;
+            throw new Exception(
+                $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}\n\n{text}");
         }
+    }
+    public async Task<List<Plot>?> SearchPlotsAsync(
+    string? fullName = null,
+    string? village = null,
+    string? street = null,
+    string? houseNumb = null,
+    string? fieldNumber = null,
+    string? plotType = null,
+    string? plotNumber = null,
+    string? tenant = null,
+    string? cadastr = null)
+    {
+        var query = new System.Collections.Generic.List<string>();
+        if (!string.IsNullOrEmpty(fullName)) query.Add($"fullName={Uri.EscapeDataString(fullName)}");
+        if (!string.IsNullOrEmpty(village)) query.Add($"village={Uri.EscapeDataString(village)}");
+        if (!string.IsNullOrEmpty(street)) query.Add($"street={Uri.EscapeDataString(street)}");
+        if (!string.IsNullOrEmpty(houseNumb)) query.Add($"houseNumb={Uri.EscapeDataString(houseNumb)}");
+        if (!string.IsNullOrEmpty(fieldNumber)) query.Add($"fieldNumber={Uri.EscapeDataString(fieldNumber)}");
+        if (!string.IsNullOrEmpty(plotType)) query.Add($"plotType={Uri.EscapeDataString(plotType)}");
+        if (!string.IsNullOrEmpty(plotNumber)) query.Add($"plotNumber={Uri.EscapeDataString(plotNumber)}");
+        if (!string.IsNullOrEmpty(tenant)) query.Add($"tenant={Uri.EscapeDataString(tenant)}");
+        if (!string.IsNullOrEmpty(cadastr)) query.Add($"cadastr={Uri.EscapeDataString(cadastr)}");
+
+        var url = "/api/plot/search";
+        if (query.Count > 0) url += "?" + string.Join("&", query);
+        return await _http.GetFromJsonAsync<List<Plot>>(url);
+    }
+
+    public async Task DeletePlotAsync(int id)
+    {
+        await _http.DeleteAsync($"/api/plot/{id}");
+    }
+    public async Task UpdatePlotAsync(Plot plot)
+    {
+        await _http.PutAsJsonAsync($"/api/plot/{plot.Id}", plot);
     }
 }

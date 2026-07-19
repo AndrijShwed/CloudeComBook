@@ -1,0 +1,103 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.AddLandView"
+        Title="Додати земельну ділянку"
+        WindowState="Maximized"
+        Background="#8B0000">
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Земля" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnLandClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Додати" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Поля -->
+		<Grid Grid.Row="1" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto">
+
+			<!-- Колонка 1 -->
+			<StackPanel Grid.Column="0" Grid.Row="0" Margin="10,5">
+				<TextBlock Foreground="White" FontSize="15" Margin="0,0,0,3">
+					<Run Text="ПІБ власника"/>
+					<Run Text=" *" Foreground="Red"/>
+				</TextBlock>
+				<TextBox Name="FullNameBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="1" Margin="10,5">
+				<TextBlock Foreground="White" FontSize="15" Margin="0,0,0,3">
+					<Run Text="Населений пункт"/>
+					<Run Text=" *" Foreground="Red"/>
+				</TextBlock>
+				<ComboBox Name="VillageBox" HorizontalAlignment="Stretch"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="2" Margin="10,5">
+				<TextBlock Text="Вулиця" Foreground="White" FontSize="15" Margin="0,0,0,3"/>
+				<ComboBox Name="StreetBox" HorizontalAlignment="Stretch"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="0" Grid.Row="3" Margin="10,5">
+				<TextBlock Text="Номер будинку" Foreground="White" FontSize="15" Margin="0,0,0,3"/>
+				<TextBox Name="HouseNumberBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<!-- Колонка 2 -->
+			<StackPanel Grid.Column="1" Grid.Row="0" Margin="10,5">
+				<TextBlock Text="Тип земельної ділянки" Foreground="White" FontSize="15" Margin="0,0,0,3"/>
+				<TextBox Name="PlotTypeBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="1" Margin="10,5">
+				<TextBlock Text="Номер поля" Foreground="White" FontSize="15" Margin="0,0,0,3"/>
+				<TextBox Name="FieldNumberBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="2" Margin="10,5">
+				<TextBlock Text="Номер земельної ділянки" Foreground="White" FontSize="15" Margin="0,0,0,3"/>
+				<TextBox Name="PlotNumberBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1" Grid.Row="3" Margin="10,5">
+				<TextBlock Text="Площа" Foreground="White" FontSize="15" Margin="0,0,0,3"/>
+				<TextBox Name="PlotAreaBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<!-- Колонка 3 -->
+			<StackPanel Grid.Column="2" Grid.Row="0" Margin="10,5">
+				<TextBlock Foreground="White" FontSize="15" Margin="0,0,0,3">
+					<Run Text="Кадастровий номер"/>
+					<Run Text=" (напр. 4621580600:05:004:1048)" Foreground="LightYellow" FontSize="11"/>
+				</TextBlock>
+				<TextBox Name="CadastrBox" Background="White" Foreground="Black"
+						 MaxLength="22"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="2" Grid.Row="1" Margin="10,5">
+				<TextBlock Text="Орендар" Foreground="White" FontSize="15" Margin="0,0,0,3"/>
+				<TextBox Name="TenantBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="2" Grid.Row="2" Margin="10,5">
+				<TextBlock Text="Посилання на кадастрову карту" Foreground="White" FontSize="15" Margin="0,0,0,3"/>
+				<TextBox Name="UrlBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+		</Grid>
+
+		<!-- Кнопка збереження -->
+		<Button Grid.Row="2" Content="Зберегти"
+				Background="#E8603C" Foreground="White"
+				FontSize="16" FontWeight="Bold"
+				Padding="30,10" Margin="10,20,0,0"
+				CornerRadius="5"
+				Click="OnSaveClick"/>
+
+	</Grid>
+</Window>

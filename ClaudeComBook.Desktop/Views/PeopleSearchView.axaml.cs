@@ -1,11 +1,12 @@
 using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
-using System.Threading.Tasks;
 using System.Linq;
-using Avalonia.Controls;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ClaudeComBook.Desktop.Views;
 
@@ -26,6 +27,7 @@ public partial class PeopleSearchView : Window
         SurnameBox.TextChanged += OnNameTextChanged;
 
         VillageBox.SelectionChanged += OnVillageChanged;
+        StreetBox.SelectionChanged += OnStreetChanged;
 
         PeopleGrid.LoadingRow += OnLoadingRow;
         _previousWindow = previousWindow;
@@ -78,6 +80,28 @@ public partial class PeopleSearchView : Window
         StreetBox.DisplayMemberBinding = new Avalonia.Data.Binding("Name");
         StreetBox.SelectedIndex = -1;
     }
+
+    private async void OnStreetChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (VillageBox.SelectedItem is not Village village) return;
+        if (StreetBox.SelectedItem is not Street street) return;
+
+        var villageStreets = await _api.GetVillageStreetsAsync();
+        var vs = villageStreets?.FirstOrDefault(v =>
+            v.VillageId == village.Id && v.StreetId == street.Id);
+
+        if (vs == null) return;
+
+        var houses = await _api.GetHousesByVillageStreetAsync(vs.Id);
+        var numbers = houses?
+            .Select(h => h.NumbOfHouse)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Distinct()
+            .OrderBy(n => n, new HouseNumberComparer())
+            .ToList();
+        HouseNumberBox.ItemsSource = numbers;
+        HouseNumberBox.SelectedIndex = -1;
+    }
     private void OnNameTextChanged(object? sender, TextChangedEventArgs e)
     {
         if (sender is TextBox box && !string.IsNullOrEmpty(box.Text))
@@ -106,6 +130,11 @@ public partial class PeopleSearchView : Window
         var streets = await _api.GetStreetsAsync();
         StreetBox.ItemsSource = streets;
         StreetBox.DisplayMemberBinding = new Avalonia.Data.Binding("Name");
+
+        var numbers = await _api.GetStreetsAsync();
+        StreetBox.ItemsSource = streets;
+        StreetBox.DisplayMemberBinding = new Avalonia.Data.Binding("Name");
+
     }
 
     public async void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -172,7 +201,7 @@ public partial class PeopleSearchView : Window
             registr: registr,
             villageId: selectedVillage?.Id,
             streetId: selectedStreet?.Id,
-            houseNumb: string.IsNullOrEmpty(HouseBox.Text) ? null : HouseBox.Text,
+            houseNumb: string.IsNullOrEmpty(HouseNumberBox.Text) ? null : HouseNumberBox.Text,
             ageFrom: string.IsNullOrEmpty(AgeFromBox.Text) ? null : ageFrom,
             ageTo: string.IsNullOrEmpty(AgeToBox.Text) ? null : ageTo,
             statusYear: statusYear
@@ -187,7 +216,7 @@ public partial class PeopleSearchView : Window
         LastNameBox.Text = "";
         FirstNameBox.Text = "";
         SurnameBox.Text = "";
-        HouseBox.Text = "";
+        HouseNumberBox.SelectedIndex = -1;
         AgeFromBox.Text = "";
         AgeToBox.Text = "";
         SexBox.SelectedIndex = -1;

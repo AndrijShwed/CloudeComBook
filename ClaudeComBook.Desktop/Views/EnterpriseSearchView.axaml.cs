@@ -3,6 +3,7 @@ using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ClaudeComBook.Desktop.Views;
 
@@ -18,6 +19,7 @@ public partial class EnterpriseSearchView : Window
         _previousWindow = previousWindow;
         LoadComboBoxes();
         VillageBox.SelectionChanged += OnVillageChanged;
+        StreetBox.SelectionChanged += OnStreetChanged;
     }
 
     private async void LoadComboBoxes()
@@ -47,6 +49,27 @@ public partial class EnterpriseSearchView : Window
         StreetBox.SelectedIndex = -1;
     }
 
+    private async void OnStreetChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (VillageBox.SelectedItem is not Village village) return;
+        if (StreetBox.SelectedItem is not Street street) return;
+
+        var villageStreets = await _api.GetVillageStreetsAsync();
+        var vs = villageStreets?.FirstOrDefault(v =>
+            v.VillageId == village.Id && v.StreetId == street.Id);
+
+        if (vs == null) return;
+
+        var houses = await _api.GetHousesByVillageStreetAsync(vs.Id);
+        var numbers = houses?
+             .Select(h => h.NumbOfHouse)
+             .Where(n => !string.IsNullOrWhiteSpace(n))
+             .Distinct()
+             .OrderBy(n => n, new HouseNumberComparer())
+             .ToList();
+        HouseNumberBox.ItemsSource = numbers;
+        HouseNumberBox.SelectedIndex = -1;
+    }
     public async void OnSearchClick(object? sender, RoutedEventArgs? e)
     {
         var selectedVillage = VillageBox.SelectedItem as Village;

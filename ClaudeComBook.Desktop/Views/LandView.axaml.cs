@@ -22,12 +22,16 @@ public partial class LandView : Window
 
     private void OnAddClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Пізніше
+        var window = new AddLandView(this);
+        window.Show();
+        this.Hide();
     }
 
     private void OnSearchClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Пізніше
+        var window = new LandSearchView(this);
+        window.Show();
+        this.Hide();
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

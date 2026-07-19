@@ -1,0 +1,128 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ClaudeComBook.Desktop.Models"
+        x:Class="ClaudeComBook.Desktop.Views.LandSearchView"
+        Title="Пошук земельних ділянок"
+        WindowState="Maximized"
+        Background="#8B0000">
+
+	<Grid RowDefinitions="Auto,Auto,Auto,*" Margin="10">
+
+		<!-- Хлібні крихти -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,8">
+			<TextBlock Text="Головна" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnHomeClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Земля" Foreground="White" FontSize="13"
+					   Cursor="Hand" Tapped="OnLandClick"/>
+			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
+			<TextBlock Text="Пошук" Foreground="White" FontSize="13" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Панель пошуку -->
+		<Border Grid.Row="1" Margin="0,5" BorderBrush="Gray"
+				BorderThickness="1" CornerRadius="5" Padding="10">
+			<Grid RowDefinitions="Auto,Auto,Auto">
+
+				<!-- Рядок 1 -->
+				<Grid Grid.Row="0" ColumnDefinitions="*,*,*,*" Margin="0,5">
+					<TextBox Grid.Column="0" Name="FullNameBox"
+							 PlaceholderText="ПІБ власника" Margin="5,0"/>
+					<ComboBox Grid.Column="1" Name="VillageBox"
+							  PlaceholderText="Населений пункт" Margin="5,0"/>
+					<ComboBox Grid.Column="2" Name="StreetBox"
+							  PlaceholderText="Вулиця" Margin="5,0"/>
+					<TextBox Grid.Column="3" Name="HouseNumberBox"
+							 PlaceholderText="Номер будинку" Margin="5,0"/>
+				</Grid>
+
+				<!-- Рядок 2 -->
+				<Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*" Margin="0,5">
+					<TextBox Grid.Column="0" Name="FieldNumberBox"
+							 PlaceholderText="Номер поля" Margin="5,0"/>
+					<TextBox Grid.Column="1" Name="PlotTypeBox"
+							 PlaceholderText="Тип ділянки" Margin="5,0"/>
+					<TextBox Grid.Column="2" Name="PlotNumberBox"
+							 PlaceholderText="Номер ділянки" Margin="5,0"/>
+					<TextBox Grid.Column="3" Name="TenantBox"
+							 PlaceholderText="Орендар" Margin="5,0"/>
+					<TextBox Grid.Column="4" Name="CadastrBox"
+							 PlaceholderText="Кадастровий номер" Margin="5,0"/>
+				</Grid>
+
+				<!-- Рядок 3: Кнопки -->
+				<Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,*" Margin="0,5">
+					<Button Grid.Column="0" Content="Пошук"
+							Background="#4CAF50" Foreground="White"
+							FontWeight="Bold" Padding="20,8" Margin="5,0"
+							Click="OnSearchClick"/>
+					<Button Grid.Column="1" Content="Очистити поля"
+							Background="#FF9800" Foreground="White"
+							FontWeight="Bold" Padding="20,8" Margin="5,0"
+							Click="OnClearClick"/>
+				</Grid>
+			</Grid>
+		</Border>
+
+		<!-- Лічильник -->
+		<Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto" Margin="0,5">
+			<TextBlock Grid.Column="0" Text="Кількість ділянок: "
+					   Foreground="White" VerticalAlignment="Center"/>
+			<TextBlock Grid.Column="1" Name="CountText" Text="0"
+					   Background="White" Foreground="Black"
+					   Padding="10,3" MinWidth="60" TextAlignment="Center"
+					   VerticalAlignment="Center" Margin="5,0"/>
+			<TextBlock Grid.Column="2" Text="   Загальна площа: "
+					   Foreground="White" VerticalAlignment="Center"/>
+			<TextBlock Grid.Column="3" Name="TotalAreaText" Text="0"
+					   Background="White" Foreground="Black"
+					   Padding="10,3" MinWidth="80" TextAlignment="Center"
+					   VerticalAlignment="Center" Margin="5,0"/>
+			<TextBlock Grid.Column="4" Text=" га"
+					   Foreground="White" VerticalAlignment="Center"/>
+			<Button Grid.Column="7" Content="Очистити таблицю"
+					Background="#00BCD4" Foreground="White"
+					FontWeight="Bold" Padding="15,8"
+					Click="OnClearTableClick"/>
+		</Grid>
+
+		<!-- Таблиця -->
+		<DataGrid Grid.Row="3" Name="LandGrid"
+				  x:DataType="local:Plot"
+				  DoubleTapped="OnRowDoubleTapped"
+				  Margin="0,5"
+				  Background="White"
+				  Foreground="Black"
+				  IsReadOnly="True"
+				  AutoGenerateColumns="False"
+				  GridLinesVisibility="All"
+				  HeadersVisibility="Column">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="№" Binding="{Binding Id}" Width="60"/>
+				<DataGridTextColumn Header="ПІБ власника" Binding="{Binding FullName}" Width="180"/>
+				<DataGridTextColumn Header="Населений пункт" Binding="{Binding Village}" Width="140"/>
+				<DataGridTextColumn Header="Вулиця" Binding="{Binding Street}" Width="130"/>
+				<DataGridTextColumn Header="Ном. буд." Binding="{Binding HouseNumb}" Width="90"/>
+				<DataGridTextColumn Header="Тип ділянки" Binding="{Binding PlotType}" Width="120"/>
+				<DataGridTextColumn Header="Номер поля" Binding="{Binding FieldNumber}" Width="110"/>
+				<DataGridTextColumn Header="Номер ділянки" Binding="{Binding PlotNumber}" Width="120"/>
+				<DataGridTextColumn Header="Площа" Binding="{Binding PlotArea}" Width="90"/>
+				<DataGridTextColumn Header="Кадастровий номер" Binding="{Binding Cadastr}" Width="170"/>
+				<DataGridTextColumn Header="Орендар" Binding="{Binding Tenant}" Width="150"/>
+				<DataGridTemplateColumn Header="Видалити" Width="100">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="local:Plot">
+							<Button Content="Видалити"
+									Background="#8B0000"
+									Foreground="White"
+									FontWeight="Bold"
+									Padding="5,3"
+									Click="OnDeleteClick"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+
+	</Grid>
+</Window>
