@@ -7,118 +7,118 @@
         Width="900" Height="650"
         Background="#64C8E8">
 
-	<Grid RowDefinitions="Auto,*">
+	<Grid RowDefinitions="Auto,*,Auto">
 
 		<!-- Верхня панель з іменем користувача -->
-		<TextBlock Grid.Row="0"
-				   Text="llabelUser"
-				   HorizontalAlignment="Right"
-				   Margin="0,10,20,0"
-				   FontSize="14"/>
+		<Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,5">
+			<TextBlock Grid.Column="1" Name="UserLabel"
+                       Text="llabelUser"
+                       VerticalAlignment="Center"
+                       Margin="0,0,15,0"
+                       FontSize="14"/>
+			<Button Grid.Column="2" Name="UsersBtn"
+                    Content="👥 Користувачі"
+                    Background="#3F51B5" Foreground="White"
+                    FontSize="13" Padding="10,5"
+                    Margin="0,0,20,0"
+                    IsVisible="False"
+                    Click="OnUsersClick"/>
+		</Grid>
 
 		<!-- Сітка кнопок 3x3 -->
 		<UniformGrid Grid.Row="1" Columns="3" Margin="40">
-
 			<!-- Домогосподарства -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center"
-					Click="OnHouseholdsClick">
+                    HorizontalContentAlignment="Center"
+                    Click="OnHouseholdsClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="90" Height="90" Source="/Assets/house.png"/>
 					<TextBlock Text="Домогосподарства" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
-
 			<!-- Населення -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center"
-				    Click="OnPeopleClick">
+                    HorizontalContentAlignment="Center"
+                    Click="OnPeopleClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="155" Height="90" Source="/Assets/people.png"/>
 					<TextBlock Text="Населення" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"
-							   />
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
-
 			<!-- Підприємства -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center"
-					Click="OnEnterprisesClick">
+                    HorizontalContentAlignment="Center"
+                    Click="OnEnterprisesClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/enterprise.png"/>
 					<TextBlock Text="Підприємства" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
-
 			<!-- Кількість населення -->
 			<Button Margin="15" Background="#FFE4E8" CornerRadius="15"
-					HorizontalContentAlignment="Center"
-					Click="OnPopulationClick">
-
+                    HorizontalContentAlignment="Center"
+                    Click="OnPopulationClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/village.png"/>
 					<TextBlock Text="Кількість населення" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
-
 			<!-- Заміна назви вулиці -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center"
-					Click="OnRenameStreetClick">
+                    HorizontalContentAlignment="Center"
+                    Click="OnRenameStreetClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="90" Height="90" Source="/Assets/street.png"/>
 					<TextBlock Text="Заміна назви вулиці" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
-
 			<!-- Худоба та птиця -->
 			<Button Margin="15" Background="#FFF3E0" CornerRadius="15"
-					HorizontalContentAlignment="Center"
-					Click="OnAnimalsClick">
+                    HorizontalContentAlignment="Center"
+                    Click="OnAnimalsClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/anymals.png"/>
 					<TextBlock Text="Худоба та птиця" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
-
 			<!-- Населені пункти та вулиці -->
 			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center"
-					Click="OnVillagesStreetsClick">
+                    HorizontalContentAlignment="Center"
+                    Click="OnVillagesStreetsClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/start.png"/>
 					<TextBlock Text="Населені пункти та вулиці" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
-
-			<!-- Експорт Excel to DB 
-			<Button Margin="15" Background="White" CornerRadius="15"
-					HorizontalContentAlignment="Center">
-				<StackPanel HorizontalAlignment="Center" Margin="10">
-					<Image Width="90" Height="90" Source="/Assets/excel.png"/>
-					<TextBlock Text="Експорт Excel to DB" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-				</StackPanel>
-			</Button> -->
-
 			<!-- Земля -->
 			<Button Margin="15" Background="#E8F5E9" CornerRadius="15"
-					HorizontalContentAlignment="Center"
-					Click="OnLandClick">
+                    HorizontalContentAlignment="Center"
+                    Click="OnLandClick">
 				<StackPanel HorizontalAlignment="Center" Margin="10">
 					<Image Width="150" Height="90" Source="/Assets/land.png"/>
 					<TextBlock Text="Земля" FontFamily="Comic Sans MS" Foreground="Black"
-							   FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 				</StackPanel>
 			</Button>
-
 		</UniformGrid>
+
+		<!-- Нижня панель для адміна -->
+		<StackPanel Grid.Row="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,5,20,10">
+			<Button Name="AdminPanelBtn"
+                    Content="⚙ Адмін панель"
+                    Background="#F44336" Foreground="White"
+                    FontSize="13" Padding="10,5"
+                    IsVisible="False"
+                    Click="OnAdminPanelClick"/>
+		</StackPanel>
+
 	</Grid>
 </Window>

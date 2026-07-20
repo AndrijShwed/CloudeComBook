@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ClaudeComBook.Desktop.Models"
+        x:Class="ClaudeComBook.Desktop.Views.UsersManagementView"
+        Title="Управління користувачами"
+        WindowState="Maximized"
+        Background="#3F51B5">
+
+	<Grid RowDefinitions="Auto,Auto,*" Margin="20">
+
+		<!-- Заголовок -->
+		<StackPanel Grid.Row="0" Orientation="Horizontal"
+					HorizontalAlignment="Left" Margin="0,0,0,20">
+			<TextBlock Text="Управління користувачами"
+					   Foreground="White" FontSize="22"
+					   FontWeight="Bold" FontFamily="Comic Sans MS"/>
+		</StackPanel>
+
+		<!-- Кнопка додати -->
+		<Button Grid.Row="1" Content="+ Додати користувача"
+				Background="#4CAF50" Foreground="White"
+				FontSize="14" FontWeight="Bold"
+				Padding="15,8" Margin="0,0,0,15"
+				HorizontalAlignment="Left"
+				Click="OnAddUserClick"/>
+
+		<!-- Таблиця -->
+		<DataGrid Grid.Row="2" Name="UsersGrid"
+				  x:DataType="local:UserModel"
+				  Background="White"
+				  Foreground="Black"
+				  IsReadOnly="True"
+				  AutoGenerateColumns="False"
+				  GridLinesVisibility="All"
+				  HeadersVisibility="Column">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+				<DataGridTextColumn Header="Логін" Binding="{Binding Login}" Width="150"/>
+				<DataGridTextColumn Header="ПІБ" Binding="{Binding FullName}" Width="200"/>
+				<DataGridTextColumn Header="Роль" Binding="{Binding Role}" Width="100"/>
+				<DataGridTextColumn Header="Активний" Binding="{Binding IsActiveText}" Width="100"/>
+				<DataGridTextColumn Header="Створено" Binding="{Binding CreatedAt}" Width="150"/>
+				<DataGridTemplateColumn Header="Дії" Width="200">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="local:UserModel">
+							<StackPanel Orientation="Horizontal">
+								<Button Content="Блокувати/Розблокувати"
+										Background="#FF9800" Foreground="White"
+										FontSize="11" Padding="5,3" Margin="2,0"
+										Click="OnToggleActiveClick"/>
+								<Button Content="Видалити"
+										Background="#F44336" Foreground="White"
+										FontSize="11" Padding="5,3" Margin="2,0"
+										Click="OnDeleteUserClick"/>
+							</StackPanel>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+
+	</Grid>
+</Window>

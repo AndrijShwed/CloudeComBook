@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using ClaudeComBook.Desktop.Services;
 
 namespace ClaudeComBook.Desktop.Views
 {
@@ -7,6 +8,28 @@ namespace ClaudeComBook.Desktop.Views
         public MainWindow()
         {
             InitializeComponent();
+            UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
+
+            // Показуємо кнопки тільки для адміна
+            if (AppSession.IsAdmin)
+            {
+                UsersBtn.IsVisible = true;
+                AdminPanelBtn.IsVisible = true;
+            }
+        }
+
+        private void OnUsersClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            //var window = new UsersManagementView(this);
+            //window.Show();
+            //this.Hide();
+        }
+
+        private void OnAdminPanelClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            //var window = new UsersManagementView(this);
+            //window.Show();
+            //this.Hide();
         }
 
         private void OnVillagesStreetsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
