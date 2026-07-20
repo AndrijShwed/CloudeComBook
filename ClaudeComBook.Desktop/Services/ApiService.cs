@@ -358,4 +358,20 @@ public class ApiService
     {
         await _http.PutAsJsonAsync($"/api/plot/{plot.Id}", plot);
     }
+    public async Task<UserInfo?> LoginAsync(string login, string password)
+    {
+        try
+        {
+            var response = await _http.PostAsJsonAsync("/api/auth/login",
+                new { login, password });
+
+            if (!response.IsSuccessStatusCode) return null;
+
+            return await response.Content.ReadFromJsonAsync<UserInfo>();
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
