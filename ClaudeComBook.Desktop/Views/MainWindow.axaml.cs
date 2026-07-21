@@ -20,16 +20,16 @@ namespace ClaudeComBook.Desktop.Views
 
         private void OnUsersClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            //var window = new UsersManagementView(this);
-            //window.Show();
-            //this.Hide();
+            var window = new UsersManagementView(this);
+            window.Show();
+            this.Hide();
         }
 
         private void OnAdminPanelClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            //var window = new UsersManagementView(this);
-            //window.Show();
-            //this.Hide();
+            var window = new UsersManagementView(this);
+            window.Show();
+            this.Hide();
         }
 
         private void OnVillagesStreetsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)

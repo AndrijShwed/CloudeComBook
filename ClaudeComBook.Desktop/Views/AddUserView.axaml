@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.AddUserView"
+        Title="Додати користувача"
+        Width="400" Height="450"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        Background="#3F51B5">
+
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="25">
+
+		<TextBlock Grid.Row="0" Text="Додати користувача"
+				   Foreground="White" FontSize="20"
+				   FontWeight="Bold" FontFamily="Comic Sans MS"
+				   Margin="0,0,0,20"/>
+
+		<StackPanel Grid.Row="1" Spacing="15">
+			<StackPanel>
+				<TextBlock Text="Логін" Foreground="White" FontSize="14" Margin="0,0,0,5"/>
+				<TextBox Name="LoginBox" Background="White" Foreground="Black"
+						 FontSize="14" Padding="8"/>
+			</StackPanel>
+			<StackPanel>
+				<TextBlock Text="ПІБ" Foreground="White" FontSize="14" Margin="0,0,0,5"/>
+				<TextBox Name="FullNameBox" Background="White" Foreground="Black"
+						 FontSize="14" Padding="8"/>
+			</StackPanel>
+			<StackPanel>
+				<TextBlock Text="Пароль" Foreground="White" FontSize="14" Margin="0,0,0,5"/>
+				<Grid ColumnDefinitions="*,Auto">
+					<TextBox Grid.Column="0" Name="PasswordBox" Background="White" Foreground="Black"
+							 FontSize="14" Padding="8" PasswordChar="*"/>
+					<Button Grid.Column="1" Name="ShowPasswordBtn"
+							Content="👁" FontSize="16"
+							Background="Transparent" Foreground="White"
+							Padding="8,0" Margin="5,0,0,0"
+							Click="OnShowPasswordClick"/>
+				</Grid>
+			</StackPanel>
+			<StackPanel>
+				<TextBlock Text="Роль" Foreground="White" FontSize="14" Margin="0,0,0,5"/>
+				<ComboBox Name="RoleBox" HorizontalAlignment="Stretch">
+					<ComboBoxItem Content="admin"/>
+					<ComboBoxItem Content="user"/>
+					<ComboBoxItem Content="reader"/>
+				</ComboBox>
+			</StackPanel>
+			<TextBlock Name="ErrorText" Foreground="Yellow" FontSize="13"
+					   IsVisible="False" TextWrapping="Wrap"/>
+		</StackPanel>
+
+		<StackPanel Grid.Row="2" Orientation="Horizontal"
+					HorizontalAlignment="Right" Margin="0,20,0,0">
+			<Button Content="Зберегти"
+					Background="#4CAF50" Foreground="White"
+					FontSize="14" FontWeight="Bold"
+					Padding="20,10" Margin="0,0,10,0"
+					Click="OnSaveClick"/>
+			<Button Content="Скасувати"
+					Background="#F44336" Foreground="White"
+					FontSize="14" FontWeight="Bold"
+					Padding="20,10"
+					Click="OnCancelClick"/>
+		</StackPanel>
+
+	</Grid>
+</Window>

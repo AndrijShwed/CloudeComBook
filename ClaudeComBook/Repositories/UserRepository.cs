@@ -38,7 +38,15 @@ public class UserRepository : IUserRepository
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<User>(
-            "SELECT * FROM users ORDER BY login");
+            @"SELECT 
+            id AS Id,
+            login AS Login,
+            password_hash AS PasswordHash,
+            full_name AS FullName,
+            role AS Role,
+            is_active AS IsActive,
+            created_at AS CreatedAt
+          FROM users ORDER BY login");
     }
 
     public async Task<int> CreateAsync(User user)

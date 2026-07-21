@@ -374,4 +374,31 @@ public class ApiService
             return null;
         }
     }
+    public async Task<List<UserModel>?> GetUsersAsync() =>
+    await _http.GetFromJsonAsync<List<UserModel>>("/api/auth/users");
+
+    public async Task ToggleUserActiveAsync(int id, bool isActive)
+    {
+        await _http.PutAsJsonAsync($"/api/auth/users/{id}/toggle", isActive);
+    }
+
+    public async Task DeleteUserAsync(int id)
+    {
+        await _http.DeleteAsync($"/api/auth/users/{id}");
+    }
+    public async Task<UserModel?> RegisterUserAsync(string login, string password,
+    string? fullName, string? role)
+    {
+        try
+        {
+            var response = await _http.PostAsJsonAsync("/api/auth/register",
+                new { login, password, fullName, role });
+            if (!response.IsSuccessStatusCode) return null;
+            return await response.Content.ReadFromJsonAsync<UserModel>();
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

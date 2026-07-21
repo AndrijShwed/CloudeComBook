@@ -36,11 +36,11 @@
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
 				<DataGridTextColumn Header="Логін" Binding="{Binding Login}" Width="150"/>
-				<DataGridTextColumn Header="ПІБ" Binding="{Binding FullName}" Width="200"/>
+				<DataGridTextColumn Header="ПІБ" Binding="{Binding FullName}" Width="300"/>
 				<DataGridTextColumn Header="Роль" Binding="{Binding Role}" Width="100"/>
 				<DataGridTextColumn Header="Активний" Binding="{Binding IsActiveText}" Width="100"/>
-				<DataGridTextColumn Header="Створено" Binding="{Binding CreatedAt}" Width="150"/>
-				<DataGridTemplateColumn Header="Дії" Width="200">
+				<DataGridTextColumn Header="Створено" Binding="{Binding CreatedAt}" Width="180"/>
+				<DataGridTemplateColumn Header="Дії" Width="220">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="local:UserModel">
 							<StackPanel Orientation="Horizontal">
