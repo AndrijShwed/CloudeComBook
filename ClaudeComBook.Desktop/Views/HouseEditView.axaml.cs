@@ -19,6 +19,7 @@ public partial class HouseEditView : Window
         _house = house;
         _previousWindow = previousWindow;
         LoadData();
+        DeleteBtn.IsVisible = AppSession.IsAdmin;
     }
 
     private async void LoadData()

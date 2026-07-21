@@ -99,18 +99,6 @@
 				<DataGridTextColumn Header="Птиця" Binding="{Binding Birds}" Width="80"/>
 				<DataGridTextColumn Header="Кролі" Binding="{Binding Rabbits}" Width="80"/>
 				<DataGridTextColumn Header="Бджоли" Binding="{Binding Beeses}" Width="80"/>
-				<DataGridTemplateColumn Header="Видалити" Width="100">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate x:DataType="local:Anymal">
-							<Button Content="Видалити"
-									Background="#8B0000"
-									Foreground="White"
-									FontWeight="Bold"
-									Padding="5,3"
-									Click="OnDeleteClick"/>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
 			</DataGrid.Columns>
 		</DataGrid>
 

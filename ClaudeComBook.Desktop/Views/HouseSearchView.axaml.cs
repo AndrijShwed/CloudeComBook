@@ -67,17 +67,6 @@ public partial class HouseSearchView : Window
         if (vs == null) return;
 
         var houses = await _api.GetHousesByVillageStreetAsync(vs.Id);
-        //var numbers = houses?
-        //   .Select(h => h.NumbOfHouse)
-        //   .Distinct()
-        //   .OrderBy(n =>
-        //   {
-        //       var match = Regex.Match(n ?? "", @"^\d+");
-        //       return match.Success ? int.Parse(match.Value) : int.MaxValue;
-        //   })
-        //   .ThenBy(n => n)
-        //   .ToList();
-
         var numbers = houses?
             .Select(h => h.NumbOfHouse)
             .Where(n => !string.IsNullOrWhiteSpace(n))
@@ -153,6 +142,8 @@ public partial class HouseSearchView : Window
 
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
+
+        if (!AppSession.IsUser) return;
         if (HousesGrid.SelectedItem is House house)
         {
             var window = new HouseEditView(house, this);

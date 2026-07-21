@@ -100,6 +100,13 @@ public partial class VillageStreetsView : Window
 
     private async void OnDeleteClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        if (!AppSession.IsAdmin)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Доступ заборонено", "Тільки адміністратор може видаляти записи!");
+            await err.ShowAsync();
+            return;
+        }
         if (sender is Button btn && btn.DataContext is VillageStreet vs)
         {
             var msg = MsBox.Avalonia.MessageBoxManager
@@ -158,6 +165,13 @@ public partial class VillageStreetsView : Window
 
     private async void OnReplaceFileClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        if (!AppSession.IsUser)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Доступ заборонено", "У вас немає прав для цієї дії!");
+            await err.ShowAsync();
+            return;
+        }
         if (sender is Button btn && btn.DataContext is VillageStreet vs)
         {
             var dialog = new Avalonia.Platform.Storage.FilePickerOpenOptions

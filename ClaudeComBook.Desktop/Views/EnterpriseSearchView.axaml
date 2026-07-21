@@ -92,18 +92,6 @@
 				<DataGridTextColumn Header="Вулиця" Binding="{Binding StreetName}" Width="200"/>
 				<DataGridTextColumn Header="Номер буд." Binding="{Binding HouseNumber}" Width="100"/>
 				<DataGridTextColumn Header="К-сть працівників" Binding="{Binding EmployeesNumber}" Width="130"/>
-				<DataGridTemplateColumn Header="Видалити" Width="100">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate x:DataType="local:Enterprise">
-							<Button Content="Видалити"
-									Background="#8B0000"
-									Foreground="White"
-									FontWeight="Bold"
-									Padding="5,3"
-									Click="OnDeleteClick"/>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
 			</DataGrid.Columns>
 		</DataGrid>
 

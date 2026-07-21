@@ -109,18 +109,6 @@
 				<DataGridTextColumn Header="Площа" Binding="{Binding PlotArea}" Width="90"/>
 				<DataGridTextColumn Header="Кадастровий номер" Binding="{Binding Cadastr}" Width="170"/>
 				<DataGridTextColumn Header="Орендар" Binding="{Binding Tenant}" Width="150"/>
-				<DataGridTemplateColumn Header="Видалити" Width="100">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate x:DataType="local:Plot">
-							<Button Content="Видалити"
-									Background="#8B0000"
-									Foreground="White"
-									FontWeight="Bold"
-									Padding="5,3"
-									Click="OnDeleteClick"/>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
 			</DataGrid.Columns>
 		</DataGrid>
 

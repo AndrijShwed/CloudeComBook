@@ -114,6 +114,7 @@ public partial class AnymalSearchView : Window
 
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
+        if (!AppSession.IsUser) return;
         if (AnymalsGrid.SelectedItem is Anymal anymal)
         {
             var window = new AnymalEditView(anymal, this);

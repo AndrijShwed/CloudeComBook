@@ -25,6 +25,7 @@ public partial class PersonEditView : Window
         DateOfBirthBox.AddHandler(TextInputEvent, OnDateInput, RoutingStrategies.Tunnel);
         DateOfBirthBox.TextChanged += OnDateOfBirthTextChanged;
         LoadData();
+        DeleteBtn.IsVisible = AppSession.IsAdmin;
     }
 
     // Режим додавання

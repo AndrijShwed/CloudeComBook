@@ -79,18 +79,6 @@
 				<DataGridTextColumn Header="Загальна площа, м.кв." Binding="{Binding TotalArea}" Width="150"/>
 				<DataGridTextColumn Header="Житлова площа, м.кв" Binding="{Binding LivingArea}" Width="150"/>
 				<DataGridTextColumn Header="Кількість кімнат" Binding="{Binding TotalOfRooms}" Width="130"/>
-				<DataGridTemplateColumn Header="Видалити" Width="100">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate x:DataType="local:House">
-							<Button Content="Видалити"
-									Background="#8B0000"
-									Foreground="White"
-									FontWeight="Bold"
-									Padding="5,3"
-									Click="OnDeleteClick"/>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
 			</DataGrid.Columns>
 		</DataGrid>
 

@@ -45,8 +45,15 @@ namespace ClaudeComBook.Desktop.Views
             this.Hide();
         }
 
-        private void OnRenameStreetClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private async void OnRenameStreetClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
+            if (!AppSession.IsAdmin)
+            {
+                var err = MsBox.Avalonia.MessageBoxManager
+                    .GetMessageBoxStandard("Доступ заборонено", "Тільки адміністратор може змінювати назву вулиці!");
+                await err.ShowAsync();
+                return;
+            }
             var window = new RenameStreetView(this);
             window.Show();
             this.Hide();

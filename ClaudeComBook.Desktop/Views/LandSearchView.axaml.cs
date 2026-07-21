@@ -123,6 +123,7 @@ public partial class LandSearchView : Window
 
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
+        if (!AppSession.IsUser) return;
         if (LandGrid.SelectedItem is Plot plot)
         {
             var window = new LandEditView(plot, this);

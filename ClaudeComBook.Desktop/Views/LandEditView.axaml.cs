@@ -19,6 +19,7 @@ public partial class LandEditView : Window
         _plot = plot;
         _previousWindow = previousWindow;
         LoadData();
+        DeleteBtn.IsVisible = AppSession.IsAdmin;
         CadastrBox.TextChanged += OnCadastrChanged;
     }
 

@@ -20,6 +20,7 @@ public partial class AnymalEditView : Window
         _anymal = anymal;
         _previousWindow = previousWindow;
         LoadData();
+        DeleteBtn.IsVisible = AppSession.IsAdmin;
     }
 
     private async void LoadData()

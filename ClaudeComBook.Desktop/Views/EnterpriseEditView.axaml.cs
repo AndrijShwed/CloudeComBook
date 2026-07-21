@@ -19,6 +19,7 @@ public partial class EnterpriseEditView : Window
         _enterprise = enterprise;
         _previousWindow = previousWindow;
         LoadData();
+        DeleteBtn.IsVisible = AppSession.IsAdmin;
     }
 
     private async void LoadData()

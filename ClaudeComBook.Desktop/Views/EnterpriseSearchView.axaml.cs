@@ -121,6 +121,7 @@ public partial class EnterpriseSearchView : Window
 
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
+        if (!AppSession.IsUser) return;
         if (EnterprisesGrid.SelectedItem is Enterprise enterprise)
         {
             var window = new EnterpriseEditView(enterprise, this);

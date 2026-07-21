@@ -241,6 +241,8 @@ public partial class PeopleSearchView : Window
 
     private void OnRowDoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
     {
+        if (!AppSession.IsUser) return; // Reader не може редагувати
+
         if (PeopleGrid.SelectedItem is Person person)
         {
             var window = new PersonEditView(person, this);
