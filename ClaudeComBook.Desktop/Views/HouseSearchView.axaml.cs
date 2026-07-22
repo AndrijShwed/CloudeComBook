@@ -18,6 +18,7 @@ public partial class HouseSearchView : Window
     public HouseSearchView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadComboBoxes();
         VillageBox.SelectionChanged += OnVillageChanged;

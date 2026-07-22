@@ -11,6 +11,7 @@ public partial class LandView : Window
     public LandView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
     }
 

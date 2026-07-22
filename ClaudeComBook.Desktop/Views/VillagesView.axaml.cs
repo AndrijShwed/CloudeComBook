@@ -11,6 +11,7 @@ public partial class VillagesView : Window
     public VillagesView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadData();
     }

@@ -17,6 +17,7 @@ public partial class PopulationView : Window
     public PopulationView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         PopulationGrid.LoadingRow += OnLoadingRow;
         LoadData();

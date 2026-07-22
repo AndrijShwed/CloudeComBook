@@ -18,6 +18,7 @@ public partial class PersonEditView : Window
     public PersonEditView(Person person, Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _person = person;
         _previousWindow = previousWindow;
         MDateBox.AddHandler(TextInputEvent, OnDateInput, RoutingStrategies.Tunnel);
@@ -35,6 +36,7 @@ public partial class PersonEditView : Window
         _person = new Person();
         _previousWindow = previousWindow;
         _isAddMode = true;
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         MDateBox.AddHandler(TextInputEvent, OnDateInput, RoutingStrategies.Tunnel);
         MDateBox.TextChanged += OnMDateTextChanged;
         DateOfBirthBox.AddHandler(TextInputEvent, OnDateInput, RoutingStrategies.Tunnel);

@@ -17,6 +17,7 @@ public partial class AnymalEditView : Window
     public AnymalEditView(Anymal anymal, Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _anymal = anymal;
         _previousWindow = previousWindow;
         LoadData();

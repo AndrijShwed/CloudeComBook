@@ -14,6 +14,9 @@
 			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
 			<TextBlock Text="Домогосподарства" Foreground="White" FontSize="13" FontWeight="Bold"/>
 		</StackPanel>
+		<TextBlock Name="UserLabel" HorizontalAlignment="Right"
+               VerticalAlignment="Center" Foreground="White"
+               FontSize="13" Margin="0,0,15,0"/>
 
 		<!-- Кнопки меню -->
 		<UniformGrid Grid.Row="1" Columns="3" Margin="40">

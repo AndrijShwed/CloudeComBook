@@ -18,6 +18,7 @@ public partial class PeopleSearchView : Window
     public PeopleSearchView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         LoadComboBoxes();
         AgeFromBox.AddHandler(TextInputEvent, OnAgeInput, RoutingStrategies.Tunnel);
         AgeToBox.AddHandler(TextInputEvent, OnAgeInput, RoutingStrategies.Tunnel);

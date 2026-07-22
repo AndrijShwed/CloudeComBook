@@ -15,6 +15,7 @@ public partial class AddAnymalView : Window
     public AddAnymalView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadData();
         LastNameBox.TextChanged += OnNameTextChanged;

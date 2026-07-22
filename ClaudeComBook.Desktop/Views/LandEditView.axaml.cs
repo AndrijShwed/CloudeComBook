@@ -16,6 +16,7 @@ public partial class LandEditView : Window
     public LandEditView(Plot plot, Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _plot = plot;
         _previousWindow = previousWindow;
         LoadData();

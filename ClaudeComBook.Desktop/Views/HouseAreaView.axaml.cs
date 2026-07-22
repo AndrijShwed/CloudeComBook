@@ -16,6 +16,7 @@ public partial class HouseAreaView : Window
     public HouseAreaView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadData();
     }

@@ -64,7 +64,25 @@ public class AuthController : ControllerBase
         var ok = await _repo.SetActiveAsync(id, isActive);
         return ok ? NoContent() : NotFound();
     }
+
+    [HttpPut("users/{id}")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+    {
+        var user = await _repo.GetByIdAsync(id);
+        if (user == null) return NotFound();
+
+        user.Login = request.Login;
+        user.FullName = request.FullName;
+        user.Role = request.Role;
+
+        if (!string.IsNullOrEmpty(request.Password))
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+        var ok = await _repo.UpdateAsync(user);
+        return ok ? NoContent() : BadRequest();
+    }
 }
 
 public record LoginRequest(string Login, string Password);
 public record RegisterRequest(string Login, string Password, string? FullName, string? Role);
+public record UpdateUserRequest(string Login, string? FullName, string Role, string? Password);

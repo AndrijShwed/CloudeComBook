@@ -15,6 +15,7 @@ public partial class AnymalStatisticsView : Window
     public AnymalStatisticsView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadData();
         StatisticsGrid.LoadingRow += OnLoadingRow;

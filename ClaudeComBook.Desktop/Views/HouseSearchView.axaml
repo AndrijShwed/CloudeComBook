@@ -19,6 +19,9 @@
 			<TextBlock Text="Домогосподарства_Пошук" Foreground="White"
 					   FontSize="13" FontWeight="Bold"/>
 		</StackPanel>
+		<TextBlock Name="UserLabel" HorizontalAlignment="Right"
+               VerticalAlignment="Center" Foreground="White"
+               FontSize="13" Margin="0,0,15,0"/>
 
 		<!-- Фільтри -->
 		<Grid Grid.Row="1" ColumnDefinitions="*,*,Auto,*,*,*" Margin="0,5">

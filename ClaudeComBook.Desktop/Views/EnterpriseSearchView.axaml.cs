@@ -16,6 +16,7 @@ public partial class EnterpriseSearchView : Window
     public EnterpriseSearchView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadComboBoxes();
         VillageBox.SelectionChanged += OnVillageChanged;

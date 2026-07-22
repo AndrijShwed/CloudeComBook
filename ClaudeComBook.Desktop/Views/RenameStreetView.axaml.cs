@@ -16,6 +16,7 @@ public partial class RenameStreetView : Window
     public RenameStreetView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadData();
         RenameDateBox.AddHandler(TextInputEvent, OnDateInput, RoutingStrategies.Tunnel);

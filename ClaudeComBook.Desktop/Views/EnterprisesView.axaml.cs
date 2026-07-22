@@ -11,6 +11,7 @@ public partial class EnterprisesView : Window
     public EnterprisesView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
     }
 

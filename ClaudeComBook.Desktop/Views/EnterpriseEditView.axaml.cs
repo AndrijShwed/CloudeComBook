@@ -16,6 +16,7 @@ public partial class EnterpriseEditView : Window
     public EnterpriseEditView(Enterprise enterprise, Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _enterprise = enterprise;
         _previousWindow = previousWindow;
         LoadData();

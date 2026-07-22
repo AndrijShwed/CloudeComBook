@@ -15,6 +15,7 @@ public partial class AddHouseView : Window
     public AddHouseView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadData();
         VillageBox.SelectionChanged += OnVillageChanged;

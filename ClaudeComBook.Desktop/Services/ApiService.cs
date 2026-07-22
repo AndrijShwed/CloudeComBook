@@ -401,4 +401,15 @@ public class ApiService
             return null;
         }
     }
+    public async Task<bool> UpdateUserAsync(int id, string login, string? fullName, string role, string? password)
+    {
+        var response = await _http.PutAsJsonAsync($"/api/auth/users/{id}", new
+        {
+            login,
+            fullName,
+            role,
+            password
+        });
+        return response.IsSuccessStatusCode;
+    }
 }

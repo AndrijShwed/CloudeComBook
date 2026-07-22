@@ -14,6 +14,7 @@ public partial class VillageStreetsView : Window
     public VillageStreetsView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadData();
         VillageInputBox.TextChanged += OnNameTextChanged;

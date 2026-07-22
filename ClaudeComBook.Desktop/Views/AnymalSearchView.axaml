@@ -72,6 +72,9 @@
 					FontWeight="Bold" Padding="15,8" Margin="20,0,0,0"
 					Click="OnClearTableClick"/>
 		</StackPanel>
+		<TextBlock Name="UserLabel" HorizontalAlignment="Right"
+               VerticalAlignment="Center" Foreground="White"
+               FontSize="13" Margin="0,0,15,0"/>
 
 		<!-- Таблиця -->
 		<DataGrid Grid.Row="3" Name="AnymalsGrid"

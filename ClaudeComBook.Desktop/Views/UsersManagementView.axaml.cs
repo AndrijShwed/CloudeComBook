@@ -14,6 +14,7 @@ public partial class UsersManagementView : Window
     public UsersManagementView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
         LoadData();
     }
@@ -79,5 +80,13 @@ public partial class UsersManagementView : Window
         if (!_manualClose)
             _previousWindow.Show();
         base.OnClosing(e);
+    }
+    private void OnEditUserClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.DataContext is UserModel user)
+        {
+            var window = new UserEditView(user, this);
+            window.ShowDialog(this);
+        }
     }
 }

@@ -12,6 +12,9 @@
 		<TextBlock Grid.Row="0" Text="Населені пункти"
 				   FontSize="20" FontWeight="Bold"
 				   Margin="20,15" HorizontalAlignment="Center"/>
+		<TextBlock Name="UserLabel" HorizontalAlignment="Right"
+			  VerticalAlignment="Center" Foreground="White"
+			  FontSize="13" Margin="0,0,15,0"/>
 
 		<!-- Список -->
 		<ListBox Grid.Row="1" Name="VillagesList"

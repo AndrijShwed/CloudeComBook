@@ -16,6 +16,7 @@ public partial class HouseEditView : Window
     public HouseEditView(House house, Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _house = house;
         _previousWindow = previousWindow;
         LoadData();

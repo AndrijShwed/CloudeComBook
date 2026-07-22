@@ -18,6 +18,9 @@
 			<TextBlock Text=" / " Foreground="White" FontSize="13"/>
 			<TextBlock Text="Статистика" Foreground="White" FontSize="13" FontWeight="Bold"/>
 		</StackPanel>
+		<TextBlock Name="UserLabel" HorizontalAlignment="Right"
+               VerticalAlignment="Center" Foreground="White"
+               FontSize="13" Margin="0,0,15,0"/>
 
 		<!-- Кнопка -->
 		<Button Grid.Row="1" Content="Оновити дані"

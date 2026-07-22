@@ -14,6 +14,9 @@
 			<TextBlock Text=" / " Foreground="Black" FontSize="13"/>
 			<TextBlock Text="Кількість населення" FontSize="13" Foreground="Black" FontWeight="Bold" FontStyle="Italic"/>
 		</StackPanel>
+		<TextBlock Name="UserLabel" HorizontalAlignment="Right"
+               VerticalAlignment="Center" Foreground="Black"
+               FontSize="13" Margin="0,0,15,0"/>
 
 		<!-- Кнопки -->
 		<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">

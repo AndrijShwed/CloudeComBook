@@ -1,0 +1,75 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.UserEditView"
+        Title="Редагування користувача"
+        Width="400" Height="380"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="#3F51B5">
+
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+		<!-- Заголовок -->
+		<TextBlock Grid.Row="0" Text="Редагування користувача"
+				   Foreground="White" FontSize="18" FontWeight="Bold"
+				   FontFamily="Comic Sans MS" Margin="0,0,0,20"/>
+
+		<!-- Поля -->
+		<StackPanel Grid.Row="1" Spacing="12">
+
+			<StackPanel>
+				<TextBlock Text="Логін" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="LoginBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel>
+				<TextBlock Text="ПІБ" Foreground="White" Margin="0,0,0,3"/>
+				<TextBox Name="FullNameBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+
+			<StackPanel>
+				<TextBlock Text="Роль" Foreground="White" Margin="0,0,0,3"/>
+				<ComboBox Name="RoleBox" HorizontalAlignment="Stretch">
+					<ComboBoxItem Content="admin"/>
+					<ComboBoxItem Content="user"/>
+					<ComboBoxItem Content="reader"/>
+				</ComboBox>
+			</StackPanel>
+
+			<StackPanel>
+				<TextBlock Text="Новий пароль (залиште порожнім щоб не змінювати)"
+						   Foreground="LightYellow" FontSize="11" Margin="0,0,0,3"/>
+				<Grid ColumnDefinitions="*,Auto">
+					<TextBox Grid.Column="0" Name="PasswordBox" Background="White"
+							 Foreground="Black" PasswordChar="*"/>
+					<Button Grid.Column="1" Name="ShowPasswordBtn"
+							Content="👁" FontSize="16"
+							Background="Transparent" Foreground="White"
+							Padding="8,0" Margin="5,0,0,0"
+							Click="OnShowPasswordClick"/>
+				</Grid>
+			</StackPanel>
+
+		</StackPanel>
+
+		<!-- Кнопки -->
+		<StackPanel Grid.Row="2" Orientation="Horizontal"
+					HorizontalAlignment="Right" Margin="0,20,0,0">
+			<Button Content="Зберегти"
+					Background="#4CAF50" Foreground="White"
+					FontWeight="Bold" Padding="20,10" Margin="0,0,10,0"
+					Click="OnSaveClick"/>
+			<Button Content="Скасувати"
+					Background="#F44336" Foreground="White"
+					FontWeight="Bold" Padding="20,10"
+					Click="OnCancelClick"/>
+		</StackPanel>
+
+	</Grid>
+</Window>

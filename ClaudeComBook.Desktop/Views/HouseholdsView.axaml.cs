@@ -11,6 +11,7 @@ public partial class HouseholdsView : Window
     public HouseholdsView(Window previousWindow)
     {
         InitializeComponent();
+        UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _previousWindow = previousWindow;
     }
 
