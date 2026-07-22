@@ -114,6 +114,13 @@ public partial class RenameStreetView : Window
 
     private async void OnSaveClick(object sender, RoutedEventArgs e)
     {
+        if (!AppSession.IsUser)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Доступ заборонено", "У вас немає прав для додавання!");
+            err.ShowAsync();
+            return;
+        }
         // Перевірка обов'язкових полів
         if (VillageBox.SelectedItem == null)
         {

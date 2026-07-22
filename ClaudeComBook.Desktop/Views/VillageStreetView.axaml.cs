@@ -42,6 +42,13 @@ public partial class VillageStreetsView : Window
 
     private async void OnAddClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        if (!AppSession.IsUser)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Доступ заборонено", "У вас немає прав для додавання!");
+            err.ShowAsync();
+            return;
+        }
         var villageName = VillageInputBox.Text?.Trim();
         var streetName = StreetInputBox.Text?.Trim();
 

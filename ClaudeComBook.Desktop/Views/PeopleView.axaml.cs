@@ -22,6 +22,13 @@ public partial class PeopleView : Window
 
     private void OnAddClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        if (!AppSession.IsUser)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Доступ заборонено", "У вас немає прав для додавання!");
+            err.ShowAsync();
+            return;
+        }
         var window = new PersonEditView(this);
         window.Show();
         this.Hide();

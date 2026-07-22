@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using ClaudeComBook.Desktop.Services;
 
 namespace ClaudeComBook.Desktop.Views;
 
@@ -22,6 +23,13 @@ public partial class HouseholdsView : Window
 
     private void OnAddHouseClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        if (!AppSession.IsUser)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Доступ заборонено", "У вас немає прав для додавання!");
+            err.ShowAsync();
+            return;
+        }
         var window = new AddHouseView(this);
         window.Show();
         this.Hide();
