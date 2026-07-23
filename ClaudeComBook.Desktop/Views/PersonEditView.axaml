@@ -163,23 +163,23 @@
 					   Placement="Top" IsLightDismissEnabled="True">
 					<Border Background="White" BorderBrush="Gray" BorderThickness="1" Padding="5">
 						<StackPanel>
-							<Button Name="FamilyBtn" Content="Довідка про склад сім'ї" Background="Transparent"
-								    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
-							<Button Name="CharacteristicBtn" Content="Характеристика" Background="Transparent"
+							<Button Name="FamilyBtn" Content="Довідка про склад сім'ї" Background="Gray"
 									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
-							<Button Name="TestamentBtn" Content="Заповіт" Background="Transparent"
+							<Button Name="CharacteristicBtn" Content="Характеристика" Background="Green"
 									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
-							<Button Name="SubsidyBtn" Content="Довідка на субсидію" Background="Transparent"
+							<Button Name="TestamentBtn" Content="Заповіт" Background="Brown"
 									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
-							<Button Name="BenefitsBtn" Content="Довідка на пільги" Background="Transparent"
+							<Button Name="SubsidyBtn" Content="Довідка на субсидію" Background="Blue"
 									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
-							<Button Name="TestamentRegBtn" Content="Заява на реєстрацію заповіту" Background="Transparent"
+							<Button Name="BenefitsBtn" Content="Довідка на пільги" Background="Red"
+									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
+							<Button Name="TestamentRegBtn" Content="Заява на реєстрацію заповіту" Background="Maroon"
 									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
 						</StackPanel>
 					</Border>
 				</Popup>
 			</StackPanel>
 		</StackPanel>
-
+		
 	</Grid>
 </Window>

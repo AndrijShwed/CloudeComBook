@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ClaudeComBook.Desktop.Views;
@@ -334,5 +335,73 @@ public partial class PersonEditView : Window
     {
         DocumentsPopup.IsOpen = !DocumentsPopup.IsOpen;
     }
+    private async void OnFamilyCompositionClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DocumentsPopup.IsOpen = false;
+        await GenerateDocument("family_composition",
+            "C:\\Документи\\Довідки\\Довідки про склад сім'ї");
+    }
 
+    private async void OnCharacteristicClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DocumentsPopup.IsOpen = false;
+        await GenerateDocument("characteristic",
+            "C:\\Документи\\Характеристики");
+    }
+
+    private async void OnTestamentClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DocumentsPopup.IsOpen = false;
+        await GenerateDocument("testament",
+            "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""));
+    }
+
+    private async void OnSubsidyClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DocumentsPopup.IsOpen = false;
+        await GenerateDocument("subsidy",
+            "C:\\Документи\\Довідки\\Довідки на субсидію");
+    }
+
+    private async void OnBenefitsClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DocumentsPopup.IsOpen = false;
+        await GenerateDocument("benefits",
+            "C:\\Документи\\Довідки\\Довідка на пільги");
+    }
+
+    private async void OnTestamentRegistrationClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DocumentsPopup.IsOpen = false;
+        await GenerateDocument("testament_registration",
+            "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""));
+    }
+
+    private async System.Threading.Tasks.Task GenerateDocument(string templateType, string folderPath)
+    {
+        var templateBytes = await _api.GetTemplateByTypeAsync(templateType);
+        if (templateBytes == null)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard("Помилка", "Шаблон документу не знайдено!\nЗавантажте шаблон через адмін панель.");
+            await err.ShowAsync();
+            return;
+        }
+
+        var fields = new Dictionary<string, string>
+    {
+        { "ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy") },
+        { "піп", $"{_person.LastName} {_person.Name} {_person.Surname}" },
+        { "дата", _person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "" },
+        { "село", _person.VillageName ?? "" },
+        { "вулиця", _person.StreetName ?? "" },
+        { "номер", _person.NumbOfHouse ?? "" },
+    };
+
+        var docService = new DocumentService();
+        var filledBytes = docService.FillTemplate(templateBytes, fields);
+        var fileName = $"{_person.LastName}_{_person.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.docx";
+        var filePath = docService.SaveDocument(filledBytes, folderPath, fileName);
+        docService.OpenDocument(filePath);
+    }
 }
