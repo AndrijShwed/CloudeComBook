@@ -412,4 +412,29 @@ public class ApiService
         });
         return response.IsSuccessStatusCode;
     }
+    public async Task<byte[]?> GetTemplateByTypeAsync(string type)
+    {
+        try
+        {
+            var response = await _http.GetAsync($"/api/documenttemplates/by-type/{type}");
+            if (!response.IsSuccessStatusCode) return null;
+
+            var template = await response.Content.ReadFromJsonAsync<DocumentTemplateDto>();
+            return template?.Template;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task UploadTemplateAsync(string name, string type, byte[] templateBytes)
+    {
+        await _http.PostAsJsonAsync("/api/documenttemplates", new
+        {
+            name,
+            type,
+            template = templateBytes
+        });
+    }
 }

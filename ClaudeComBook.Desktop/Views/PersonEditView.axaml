@@ -152,6 +152,33 @@
 					FontFamily="Comic Sans MS" FontSize="14"
 					FontWeight="Bold" Padding="20,10"
 					Click="OnDeleteClick"/>
+			<!-- Кнопка Довідки з меню -->
+			<StackPanel Orientation="Vertical">
+				<Button Name="DocumentsBtn" Content="Довідки ▼"
+						Background="#2196F3" Foreground="White"
+						FontFamily="Comic Sans MS" FontSize="14"
+						FontWeight="Bold" Padding="20,10" Margin="10,0"
+						Click="OnDocumentsMenuOpen"/>
+				<Popup Name="DocumentsPopup" PlacementTarget="{Binding #DocumentsBtn}"
+					   Placement="Top" IsLightDismissEnabled="True">
+					<Border Background="White" BorderBrush="Gray" BorderThickness="1" Padding="5">
+						<StackPanel>
+							<Button Name="FamilyBtn" Content="Довідка про склад сім'ї" Background="Transparent"
+								    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
+							<Button Name="CharacteristicBtn" Content="Характеристика" Background="Transparent"
+									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
+							<Button Name="TestamentBtn" Content="Заповіт" Background="Transparent"
+									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
+							<Button Name="SubsidyBtn" Content="Довідка на субсидію" Background="Transparent"
+									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
+							<Button Name="BenefitsBtn" Content="Довідка на пільги" Background="Transparent"
+									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
+							<Button Name="TestamentRegBtn" Content="Заява на реєстрацію заповіту" Background="Transparent"
+									HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,5"/>
+						</StackPanel>
+					</Border>
+				</Popup>
+			</StackPanel>
 		</StackPanel>
 
 	</Grid>

@@ -18,6 +18,12 @@ public partial class PersonEditView : Window
     public PersonEditView(Person person, Window previousWindow)
     {
         InitializeComponent();
+        FamilyBtn.Click += OnFamilyCompositionClick;
+        CharacteristicBtn.Click += OnCharacteristicClick;
+        TestamentBtn.Click += OnTestamentClick;
+        SubsidyBtn.Click += OnSubsidyClick;
+        BenefitsBtn.Click += OnBenefitsClick;
+        TestamentRegBtn.Click += OnTestamentRegistrationClick;
         UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
         _person = person;
         _previousWindow = previousWindow;
@@ -324,5 +330,9 @@ public partial class PersonEditView : Window
         }
         Close();
     }
-  
+    private void OnDocumentsMenuOpen(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        DocumentsPopup.IsOpen = !DocumentsPopup.IsOpen;
+    }
+
 }
