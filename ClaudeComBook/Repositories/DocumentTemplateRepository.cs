@@ -44,8 +44,9 @@ public class DocumentTemplateRepository : IDocumentTemplateRepository
     {
         using var conn = _db.CreateConnection();
         var rows = await conn.ExecuteAsync(
-            @"UPDATE document_templates SET name=@Name, type=@Type, template=@Template
-              WHERE id=@Id", template);
+            @"UPDATE document_templates 
+          SET name=@Name, type=@Type, template=@Template, updated_at=NOW()
+          WHERE id=@Id", template);
         return rows > 0;
     }
 

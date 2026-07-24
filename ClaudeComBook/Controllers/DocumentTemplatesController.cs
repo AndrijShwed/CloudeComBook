@@ -1,5 +1,6 @@
 ﻿using ClaudeComBook.API.Models;
 using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClaudeComBook.API.Controllers;
@@ -49,5 +50,30 @@ public class DocumentTemplatesController : ControllerBase
     {
         var ok = await _repo.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
+    }
+
+    [HttpPost("upsert")]
+    public async Task<IActionResult> Upsert([FromBody] DocumentTemplateUploadDto dto)
+    {
+        var templateBytes = Convert.FromBase64String(dto.Template);
+        var existing = await _repo.GetByTypeAsync(dto.Type);
+
+        if (existing != null)
+        {
+            existing.Name = dto.Name;
+            existing.Template = templateBytes;
+            var ok = await _repo.UpdateAsync(existing);
+            return Ok(new { updated = true, id = existing.Id, success = ok });
+        }
+        else
+        {
+            var id = await _repo.CreateAsync(new DocumentTemplate
+            {
+                Name = dto.Name,
+                Type = dto.Type,
+                Template = templateBytes
+            });
+            return Ok(new { updated = false, id });
+        }
     }
 }

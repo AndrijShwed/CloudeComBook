@@ -21,7 +21,7 @@
 							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
 					<TextBlock Grid.Column="1" Name="FamilyStatus" Text="❌ Не завантажено"
 							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
-					<Button Grid.Column="2" Content="Завантажити"
+					<Button Grid.Column="2" Name="FamilyBtn" Content="Завантажити"
 							Background="#4CAF50" Foreground="White" Padding="10,5"
 							Click="OnUploadFamilyClick"/>
 				</Grid>
@@ -33,7 +33,7 @@
 							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
 					<TextBlock Grid.Column="1" Name="CharacteristicStatus" Text="❌ Не завантажено"
 							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
-					<Button Grid.Column="2" Content="Завантажити"
+					<Button Grid.Column="2" Name="CharacteristicBtn" Content="Завантажити"
 							Background="#4CAF50" Foreground="White" Padding="10,5"
 							Click="OnUploadCharacteristicClick"/>
 				</Grid>
@@ -45,7 +45,7 @@
 							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
 					<TextBlock Grid.Column="1" Name="TestamentStatus" Text="❌ Не завантажено"
 							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
-					<Button Grid.Column="2" Content="Завантажити"
+					<Button Grid.Column="2" Name="TestamentBtn" Content="Завантажити"
 							Background="#4CAF50" Foreground="White" Padding="10,5"
 							Click="OnUploadTestamentClick"/>
 				</Grid>
@@ -57,7 +57,7 @@
 							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
 					<TextBlock Grid.Column="1" Name="SubsidyStatus" Text="❌ Не завантажено"
 							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
-					<Button Grid.Column="2" Content="Завантажити"
+					<Button Grid.Column="2" Name="SubsidyBtn" Content="Завантажити"
 							Background="#4CAF50" Foreground="White" Padding="10,5"
 							Click="OnUploadSubsidyClick"/>
 				</Grid>
@@ -69,7 +69,7 @@
 							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
 					<TextBlock Grid.Column="1" Name="BenefitsStatus" Text="❌ Не завантажено"
 							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
-					<Button Grid.Column="2" Content="Завантажити"
+					<Button Grid.Column="2" Name="BenefitsBtn" Content="Завантажити"
 							Background="#4CAF50" Foreground="White" Padding="10,5"
 							Click="OnUploadBenefitsClick"/>
 				</Grid>
@@ -81,7 +81,7 @@
 							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
 					<TextBlock Grid.Column="1" Name="TestamentRegStatus" Text="❌ Не завантажено"
 							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
-					<Button Grid.Column="2" Content="Завантажити"
+					<Button Grid.Column="2" Name="TestamentRegBtn" Content="Завантажити"
 							Background="#4CAF50" Foreground="White" Padding="10,5"
 							Click="OnUploadTestamentRegClick"/>
 				</Grid>

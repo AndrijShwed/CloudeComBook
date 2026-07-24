@@ -430,11 +430,11 @@ public class ApiService
 
     public async Task UploadTemplateAsync(string name, string type, byte[] templateBytes)
     {
-        await _http.PostAsJsonAsync("/api/documenttemplates", new
+        await _http.PostAsJsonAsync("/api/documenttemplates/upsert", new
         {
             name,
             type,
-            template = templateBytes
+            template = Convert.ToBase64String(templateBytes)
         });
     }
 }
