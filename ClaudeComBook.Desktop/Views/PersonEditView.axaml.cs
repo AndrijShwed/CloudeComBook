@@ -5,7 +5,9 @@ using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ClaudeComBook.Desktop.Views;
 
@@ -388,19 +390,27 @@ public partial class PersonEditView : Window
             return;
         }
 
-        var fields = new Dictionary<string, string>
-    {
-        { "ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy") },
-        { "піп", $"{_person.LastName} {_person.Name} {_person.Surname}" },
-        { "дата", _person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "" },
-        { "село", _person.VillageName ?? "" },
-        { "вулиця", _person.StreetName ?? "" },
-        { "номер", _person.NumbOfHouse ?? "" },
-    };
+
+        var fields = new Dictionary<string, string>();
+   
+        if (_person.Sex != "чол")
+        {
+            fields.Add("його", "її");
+            fields.Add("зареєстрований", "зареєстрована");
+        }
+
+        fields.Add("ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy"));
+        //fields.Add("НомерДовідки", NumbOfDoc);
+        fields.Add("село", _person.VillageName ?? "");
+        fields.Add("вулиця", _person.StreetName ?? "");
+        fields.Add("номер", _person.NumbOfHouse ?? "");
+        fields.Add("піп", $"{_person.LastName} {_person.Name} {_person.Surname}");
+        fields.Add("дата", _person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "");
+
 
         var docService = new DocumentService();
         var filledBytes = docService.FillTemplate(templateBytes, fields);
-        var fileName = $"{_person.LastName}_{_person.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.docx";
+        var fileName = $"{_person.LastName}_{_person.Name}_{DateTime.Now:dd.MM.yyyy_HH.mm.ss}.docx";
         var filePath = docService.SaveDocument(filledBytes, folderPath, fileName);
         docService.OpenDocument(filePath);
     }
