@@ -1,7 +1,11 @@
-﻿using Dapper;
+﻿using Avalonia;
 using ClaudeComBook.API.Data;
 using ClaudeComBook.API.Models;
 using ClaudeComBook.API.Repositories.Interfaces;
+using Dapper;
+using Microsoft.Win32;
+using System.Net.NetworkInformation;
+using System.Xml.Linq;
 
 namespace ClaudeComBook.API.Repositories;
 
@@ -116,7 +120,6 @@ public class PersonRepository : IPersonRepository
            FROM people " +
             " WHERE people_id = @id", new { id });
     }
-
     public async Task<IEnumerable<Person>> GetByVillageStreetIdAsync(int villageStreetId)
     {
         using var conn = _db.CreateConnection();

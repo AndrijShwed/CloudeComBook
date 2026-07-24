@@ -3,6 +3,8 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -390,22 +392,72 @@ public partial class PersonEditView : Window
             return;
         }
 
+        string i_1 = "";
+        string i_2 = "";
+        string i_3 = "";
+        string i_4 = "";
+        string i_5 = "";
+        string i_6 = "";
+        string i_7 = "";
+        string i_8 = "";
+        string i_9 = "";
+        string i_0 = "";
+        string RegistrDate = "";
+
+        string idKod = _person?.IdKod?.Trim() ?? string.Empty;
+        if (idKod.Length < 10)
+        {
+            var err = MsBox.Avalonia.MessageBoxManager
+               .GetMessageBoxStandard("Помилка", "Неправильно введений ідентифікаційний код");
+            await err.ShowAsync();
+            return;
+        }
+        else
+        {
+            i_1 = idKod.Substring(0, 1);
+            i_2 = idKod.Substring(1, 1);
+            i_3 = idKod.Substring(2, 1);
+            i_4 = idKod.Substring(3, 1);
+            i_5 = idKod.Substring(4, 1);
+            i_6 = idKod.Substring(5, 1);
+            i_7 = idKod.Substring(6, 1);
+            i_8 = idKod.Substring(7, 1);
+            i_9 = idKod.Substring(8, 1);
+            i_0 = idKod.Substring(9, 1);
+        }
 
         var fields = new Dictionary<string, string>();
    
         if (_person.Sex != "чол")
         {
-            fields.Add("його", "її");
+            fields.Add("his", "її");
             fields.Add("зареєстрований", "зареєстрована");
+            fields.Add("який народився", "яка народилася");
+            fields.Add("him", "нею");
         }
 
         fields.Add("ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy"));
         //fields.Add("НомерДовідки", NumbOfDoc);
-        fields.Add("село", _person.VillageName ?? "");
-        fields.Add("вулиця", _person.StreetName ?? "");
-        fields.Add("номер", _person.NumbOfHouse ?? "");
-        fields.Add("піп", $"{_person.LastName} {_person.Name} {_person.Surname}");
-        fields.Add("дата", _person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "");
+        fields.Add("village", _person.VillageName ?? "");
+        fields.Add("street", _person.StreetName ?? "");
+        fields.Add("house", _person.NumbOfHouse ?? "");
+        fields.Add("full_name", $"{_person.LastName} {_person.Name} {_person.Surname}");
+        fields.Add("z", i_1);
+        fields.Add("i-2", i_2);
+        fields.Add("i-3", i_3);
+        fields.Add("i-4", i_4);
+        fields.Add("i-5", i_5);
+        fields.Add("i-6", i_6);
+        fields.Add("i-7", i_7);
+        fields.Add("i-8", i_8);
+        fields.Add("i-9", i_9);
+        fields.Add("i-0", i_0);
+        fields.Add("dB", _person.DateOfBirth?.ToString("dd") ?? "");
+        fields.Add("mB", _person.DateOfBirth?.ToString("MM") ?? "");
+        fields.Add("yB", _person.DateOfBirth?.ToString("yyyy") ?? "");
+        fields.Add("dR", DateTime.Now.ToString("dd") ?? "");
+        fields.Add("mR", DateTime.Now.ToString("MM") ?? "");
+        fields.Add("yR", DateTime.Now.ToString("yyyy") ?? "");
 
 
         var docService = new DocumentService();
