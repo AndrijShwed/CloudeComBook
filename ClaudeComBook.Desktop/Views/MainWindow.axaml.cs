@@ -9,7 +9,7 @@ namespace ClaudeComBook.Desktop.Views
         {
             InitializeComponent();
             UserLabel.Text = AppSession.CurrentUser?.FullName ?? AppSession.CurrentUser?.Login ?? "";
-
+            TemplatesBtn.IsVisible = AppSession.IsAdmin;
             // Показуємо кнопки тільки для адміна
             if (AppSession.IsAdmin)
             {
@@ -88,6 +88,11 @@ namespace ClaudeComBook.Desktop.Views
             var window = new LandView(this);
             window.Show();
             this.Hide();
+        }
+        private void OnTemplatesClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new TemplatesManagementView();
+            window.ShowDialog(this);
         }
     }
 }

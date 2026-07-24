@@ -16,6 +16,13 @@
                        VerticalAlignment="Center"
                        Margin="0,0,15,0"
                        FontSize="14"/>
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,15,0">
+				<Button Name="TemplatesBtn" Content="Шаблони"
+						Background="#9C27B0" Foreground="White"
+						FontSize="12" Padding="8,4" Margin="0,0,10,0"
+						Click="OnTemplatesClick"/>
+				<!-- <TextBlock Name="UserLabel" Text="llabelUser" FontSize="14"/> -->
+			</StackPanel>
 			<Button Grid.Column="2" Name="UsersBtn"
                     Content="👥 Користувачі"
                     Background="#3F51B5" Foreground="White"

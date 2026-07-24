@@ -1,0 +1,96 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.TemplatesManagementView"
+        Title="Управління шаблонами"
+        Width="600" Height="600"
+        WindowStartupLocation="CenterScreen"
+        Background="#3F51B5">
+
+	<Grid RowDefinitions="Auto,*" Margin="20">
+
+		<TextBlock Grid.Row="0" Text="Управління шаблонами документів"
+				   Foreground="White" FontSize="18"
+				   FontWeight="Bold" FontFamily="Comic Sans MS"
+				   Margin="0,0,0,20"/>
+
+		<StackPanel Grid.Row="1" Spacing="10">
+
+			<Border Background="#FFFFFF20" CornerRadius="8" Padding="15">
+				<Grid ColumnDefinitions="*,Auto,Auto">
+					<TextBlock Grid.Column="0" Text="Довідка про склад сім'ї"
+							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+					<TextBlock Grid.Column="1" Name="FamilyStatus" Text="❌ Не завантажено"
+							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+					<Button Grid.Column="2" Content="Завантажити"
+							Background="#4CAF50" Foreground="White" Padding="10,5"
+							Click="OnUploadFamilyClick"/>
+				</Grid>
+			</Border>
+
+			<Border Background="#FFFFFF20" CornerRadius="8" Padding="15">
+				<Grid ColumnDefinitions="*,Auto,Auto">
+					<TextBlock Grid.Column="0" Text="Характеристика"
+							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+					<TextBlock Grid.Column="1" Name="CharacteristicStatus" Text="❌ Не завантажено"
+							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+					<Button Grid.Column="2" Content="Завантажити"
+							Background="#4CAF50" Foreground="White" Padding="10,5"
+							Click="OnUploadCharacteristicClick"/>
+				</Grid>
+			</Border>
+
+			<Border Background="#FFFFFF20" CornerRadius="8" Padding="15">
+				<Grid ColumnDefinitions="*,Auto,Auto">
+					<TextBlock Grid.Column="0" Text="Заповіт"
+							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+					<TextBlock Grid.Column="1" Name="TestamentStatus" Text="❌ Не завантажено"
+							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+					<Button Grid.Column="2" Content="Завантажити"
+							Background="#4CAF50" Foreground="White" Padding="10,5"
+							Click="OnUploadTestamentClick"/>
+				</Grid>
+			</Border>
+
+			<Border Background="#FFFFFF20" CornerRadius="8" Padding="15">
+				<Grid ColumnDefinitions="*,Auto,Auto">
+					<TextBlock Grid.Column="0" Text="Довідка на субсидію"
+							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+					<TextBlock Grid.Column="1" Name="SubsidyStatus" Text="❌ Не завантажено"
+							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+					<Button Grid.Column="2" Content="Завантажити"
+							Background="#4CAF50" Foreground="White" Padding="10,5"
+							Click="OnUploadSubsidyClick"/>
+				</Grid>
+			</Border>
+
+			<Border Background="#FFFFFF20" CornerRadius="8" Padding="15">
+				<Grid ColumnDefinitions="*,Auto,Auto">
+					<TextBlock Grid.Column="0" Text="Довідка на пільги"
+							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+					<TextBlock Grid.Column="1" Name="BenefitsStatus" Text="❌ Не завантажено"
+							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+					<Button Grid.Column="2" Content="Завантажити"
+							Background="#4CAF50" Foreground="White" Padding="10,5"
+							Click="OnUploadBenefitsClick"/>
+				</Grid>
+			</Border>
+
+			<Border Background="#FFFFFF20" CornerRadius="8" Padding="15">
+				<Grid ColumnDefinitions="*,Auto,Auto">
+					<TextBlock Grid.Column="0" Text="Заява на реєстрацію заповіту"
+							   Foreground="Black" FontSize="14" VerticalAlignment="Center"/>
+					<TextBlock Grid.Column="1" Name="TestamentRegStatus" Text="❌ Не завантажено"
+							   Foreground="Orange" FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+					<Button Grid.Column="2" Content="Завантажити"
+							Background="#4CAF50" Foreground="White" Padding="10,5"
+							Click="OnUploadTestamentRegClick"/>
+				</Grid>
+			</Border>
+
+			<Button Content="Закрити" Background="#F44336" Foreground="White"
+					FontWeight="Bold" Padding="20,10" HorizontalAlignment="Right"
+					Click="OnCloseClick"/>
+
+		</StackPanel>
+	</Grid>
+</Window>
