@@ -242,4 +242,23 @@ public class PersonRepository : IPersonRepository
             new { lastName, name, surname, dateOfBirth });
         return count > 0;
     }
+    public async Task<IEnumerable<Person>> GetByAddressAsync(int villageStreetId, string numbOfHouse, int? id)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<Person>(
+            @"SELECT 
+            p.people_id AS PeopleId,
+            p.lastname AS LastName,
+            p.name AS Name,
+            p.surname AS Surname,
+            p.date_of_birth AS DateOfBirth,
+            p.registr AS Registr
+          FROM people p
+          WHERE p.villagestreetId = @villageStreetId 
+          AND p.numb_of_house = @numbOfHouse
+          AND p.registr = 'так'
+          AND p.people_id <> @id
+          ORDER BY p.lastname, p.name",
+            new { villageStreetId, numbOfHouse, id });
+    }
 }

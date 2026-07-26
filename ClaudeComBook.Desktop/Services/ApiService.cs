@@ -1,6 +1,7 @@
 ﻿using ClaudeComBook.Desktop.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -436,5 +437,23 @@ public class ApiService
             type,
             template = Convert.ToBase64String(templateBytes)
         });
+    }
+    public async Task<List<Person>?> GetPeopleByAddressAsync(
+     int villageStreetId,
+     string numbOfHouse,
+     int? id = null)
+    {
+        var url = $"/api/people/by-address?villageStreetId={villageStreetId}" +
+                  $"&numbOfHouse={Uri.EscapeDataString(numbOfHouse)}";
+
+        if (id.HasValue)
+            url += $"&id={id.Value}";
+
+        return await _http.GetFromJsonAsync<List<Person>>(url);
+    }
+    public async Task<House?> GetHouseByAddressAsync(int villageStreetId, string numbOfHouse)
+    {
+        var houses = await GetHousesByVillageStreetAsync(villageStreetId);
+        return houses?.FirstOrDefault(h => h.NumbOfHouse == numbOfHouse);
     }
 }

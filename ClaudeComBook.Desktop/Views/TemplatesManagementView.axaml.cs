@@ -85,17 +85,6 @@ public partial class TemplatesManagementView : Window
         await stream.CopyToAsync(ms);
         var fileBytes = ms.ToArray();
 
-        //await _api.UploadTemplateAsync(name, type, fileBytes);
-
-        ////statusLabel.Text = "✅ Замінити";
-        ////statusLabel.Foreground = Avalonia.Media.Brushes.LightGreen;
-        //uploadBtn.Content = "Замінити";
-        //uploadBtn.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.FromRgb(255, 152, 0));
-
-        //var msg = MsBox.Avalonia.MessageBoxManager
-        //    .GetMessageBoxStandard("Успіх", $"Шаблон \"{name}\" завантажено!");
-        //await msg.ShowAsync();
-
         await _api.UploadTemplateAsync(name, type, fileBytes);
 
         // Оновлюємо статус

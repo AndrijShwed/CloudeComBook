@@ -3,6 +3,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
+using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.Win32;
 using System;
@@ -342,8 +343,22 @@ public partial class PersonEditView : Window
     private async void OnFamilyCompositionClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         DocumentsPopup.IsOpen = false;
+
+        // Запитуємо номер довідки
+        var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
+        await dialog.ShowDialog(this);
+
+        if (dialog.Result1 == null && (dialog.Result2 == null || dialog.Result3 == null)) return;
+
         await GenerateDocument("family_composition",
-            "C:\\Документи\\Довідки\\Довідки про склад сім'ї");
+            "C:\\Документи\\Довідки\\Довідки про склад сім'ї",
+            new Dictionary<string, string> {
+                { "НомерДовідки", dialog.Result1 },
+                { "Посада_1", dialog.Result2 },
+                { "Name_1 SURNAME_1", dialog.Result2_1 },
+                { "Посада_2", dialog.Result3 },
+                { "Name_2 SURNAME_2", dialog.Result3_1 }
+            });
     }
 
     private async void OnCharacteristicClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -381,7 +396,7 @@ public partial class PersonEditView : Window
             "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""));
     }
 
-    private async System.Threading.Tasks.Task GenerateDocument(string templateType, string folderPath)
+    private async System.Threading.Tasks.Task GenerateDocument(string templateType, string folderPath, Dictionary<string, string>? extraFields = null)
     {
         var templateBytes = await _api.GetTemplateByTypeAsync(templateType);
         if (templateBytes == null)
@@ -434,6 +449,13 @@ public partial class PersonEditView : Window
             fields.Add("зареєстрований", "зареєстрована");
             fields.Add("який народився", "яка народилася");
             fields.Add("him", "нею");
+            fields.Add("жителю", "жительці");
+            fields.Add("його", "її");
+        }
+        else
+        {
+            fields.Add("his", "його");
+            fields.Add("him", "ним");
         }
 
         fields.Add("ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy"));
@@ -442,7 +464,8 @@ public partial class PersonEditView : Window
         fields.Add("street", _person.StreetName ?? "");
         fields.Add("house", _person.NumbOfHouse ?? "");
         fields.Add("full_name", $"{_person.LastName} {_person.Name} {_person.Surname}");
-        fields.Add("z", i_1);
+        fields.Add("birth_date", $"{_person.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""}");
+        fields.Add("i-1", i_1);
         fields.Add("i-2", i_2);
         fields.Add("i-3", i_3);
         fields.Add("i-4", i_4);
@@ -459,6 +482,39 @@ public partial class PersonEditView : Window
         fields.Add("mR", DateTime.Now.ToString("MM") ?? "");
         fields.Add("yR", DateTime.Now.ToString("yyyy") ?? "");
 
+        // Додаємо extra fields
+        if (extraFields != null)
+            foreach (var f in extraFields)
+                fields[f.Key] = f.Value;
+
+        // Для довідки про склад сім'ї - отримуємо всіх за адресою
+        if (templateType == "family_composition" && _person.VillageStreetId.HasValue)
+        {
+            // Отримуємо будинок
+            var house = await _api.GetHouseByAddressAsync(
+                _person.VillageStreetId.Value,
+                _person.NumbOfHouse ?? "");
+
+            fields["ЗагальнаПлоща"] = house?.TotalArea?.ToString("F1") ?? "0";
+
+            var familyMembers = await _api.GetPeopleByAddressAsync(
+                _person.VillageStreetId.Value,
+                _person.NumbOfHouse ?? "",
+                _person.PeopleId);
+
+            if (familyMembers != null && familyMembers.Count > 1)
+            {
+                var membersList = string.Join("\n\n", familyMembers.Select((p, i) =>
+                    $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""} р.н."));
+
+                fields["осіб :"] = $"осіб:\n\n\n{membersList}";
+                //fields["осіб"] = familyMembers.Count.ToString();
+            }
+            else
+            {
+                fields["його сім'я складається з осіб :"] = "за даною адресою особа проживає одна";
+            }
+        }
 
         var docService = new DocumentService();
         var filledBytes = docService.FillTemplate(templateBytes, fields);

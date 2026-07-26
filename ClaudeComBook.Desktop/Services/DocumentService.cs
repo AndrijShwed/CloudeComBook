@@ -57,11 +57,27 @@ public class DocumentService
         foreach (var run in runs)
             run.Remove();
 
-        // Додаємо новий run з заміненим текстом
+        // Додаємо новий run із підтримкою перенесення рядків
         var newRun = new Run();
+
         if (runProperties != null)
             newRun.AppendChild(runProperties);
-        newRun.AppendChild(new Text(fullText) { Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve });
+
+        var lines = fullText.Replace("\r\n", "\n").Split('\n');
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            newRun.AppendChild(new Text(lines[i])
+            {
+                Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve
+            });
+
+            if (i < lines.Length - 1)
+            {
+                newRun.AppendChild(new Break());
+            }
+        }
+
         paragraph.AppendChild(newRun);
     }
 

@@ -27,4 +27,5 @@ public interface IPersonRepository
     Task<bool> DeleteAsync(int id);
     Task<Dictionary<string, int>> GetPopulationByVillageAsync();
     Task<bool> ExistsAsync(string lastName, string name, string? surname, DateTime? dateOfBirth);
+    Task<IEnumerable<Person>> GetByAddressAsync(int villageStreetId, string numbOfHouse, int? id);
 }

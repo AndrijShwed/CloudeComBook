@@ -87,4 +87,14 @@ public class PeopleController : ControllerBase
         var exists = await _repo.ExistsAsync(lastName, name, surname, dateOfBirth);
         return Ok(exists);
     }
+
+    [HttpGet("by-address")]
+    public async Task<IActionResult> GetByAddress(
+    [FromQuery] int villageStreetId,
+    [FromQuery] string numbOfHouse,
+    [FromQuery] int? id)
+    {
+        var result = await _repo.GetByAddressAsync(villageStreetId, numbOfHouse, id);
+        return Ok(result);
+    }
 }
