@@ -362,13 +362,32 @@ public partial class PersonEditView : Window
     private async void OnCharacteristicClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         DocumentsPopup.IsOpen = false;
+
+        // Запитуємо номер довідки
+        var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
+        await dialog.ShowDialog(this);
+
+        if (dialog.Result == null) return;
+
         await GenerateDocument("characteristic",
-            "C:\\Документи\\Характеристики");
+            "C:\\Документи\\Характеристики",
+             new Dictionary<string, string> {
+                { "НомерДовідки", dialog.Result },
+                { "Посада_1", AppSession.CurrentUser?.Position ?? "" },
+                { "Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "" }
+             });
     }
 
     private async void OnTestamentClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         DocumentsPopup.IsOpen = false;
+
+        // Запитуємо номер довідки
+        var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
+        await dialog.ShowDialog(this);
+
+        if (dialog.Result == null) return;
+
         await GenerateDocument("testament",
             "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""));
     }
@@ -449,6 +468,7 @@ public partial class PersonEditView : Window
             fields.Add("him", "нею");
             fields.Add("жителю", "жительці");
             fields.Add("його", "її");
+            fields.Add("жителя", "жительку");
         }
         else
         {
