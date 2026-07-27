@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ClaudeComBook.Desktop.Views.InputDialog"
         Title="Введіть дані"
-        Width="500" Height="500"
+        Width="300" Height="300"
         WindowStartupLocation="CenterOwner"
         CanResize="False"
         Background="#3F51B5">
@@ -14,8 +14,6 @@
 
 	<Grid Margin="20">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
@@ -33,64 +31,10 @@
 			<TextBlock Text="Номер довідки"
 					   Foreground="White"
 					   Margin="0,0,0,5"/>
-			<TextBox Name="InputBox1"
+			<TextBox Name="InputBox"
 					 Background="White"
 					 Foreground="Black"/>
 		</StackPanel>
-
-		<!-- Посада 1 / Ім'я та прізвище -->
-		<Grid Grid.Row="2" Margin="0,0,0,15">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*"/>
-				<ColumnDefinition Width="20"/>
-				<ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
-
-			<StackPanel Grid.Column="0">
-				<TextBlock Text="Посада 1"
-						   Foreground="White"
-						   Margin="0,0,0,5"/>
-				<TextBox Name="InputBox2"
-						 Background="White"
-						 Foreground="Black"/>
-			</StackPanel>
-
-			<StackPanel Grid.Column="2">
-				<TextBlock Text="Ім'я та прізвище"
-						   Foreground="White"
-						   Margin="0,0,0,5"/>
-				<TextBox Name="InputBox2_1"
-						 Background="White"
-						 Foreground="Black"/>
-			</StackPanel>
-		</Grid>
-
-		<!-- Посада 2 / Ім'я та прізвище -->
-		<Grid Grid.Row="3" Margin="0,0,0,15">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*"/>
-				<ColumnDefinition Width="20"/>
-				<ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
-
-			<StackPanel Grid.Column="0">
-				<TextBlock Text="Посада 2"
-						   Foreground="White"
-						   Margin="0,0,0,5"/>
-				<TextBox Name="InputBox3"
-						 Background="White"
-						 Foreground="Black"/>
-			</StackPanel>
-
-			<StackPanel Grid.Column="2">
-				<TextBlock Text="Ім'я та прізвище"
-						   Foreground="White"
-						   Margin="0,0,0,5"/>
-				<TextBox Name="InputBox3_1"
-						 Background="White"
-						 Foreground="Black"/>
-			</StackPanel>
-		</Grid>
 
 		<!-- Кнопки -->
 		<StackPanel Grid.Row="4"

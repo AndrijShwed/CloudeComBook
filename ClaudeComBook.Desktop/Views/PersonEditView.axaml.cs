@@ -348,16 +348,14 @@ public partial class PersonEditView : Window
         var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
         await dialog.ShowDialog(this);
 
-        if (dialog.Result1 == null && (dialog.Result2 == null || dialog.Result3 == null)) return;
+        if (dialog.Result == null) return;
 
         await GenerateDocument("family_composition",
             "C:\\Документи\\Довідки\\Довідки про склад сім'ї",
             new Dictionary<string, string> {
-                { "НомерДовідки", dialog.Result1 },
-                { "Посада_1", dialog.Result2 },
-                { "Name_1 SURNAME_1", dialog.Result2_1 },
-                { "Посада_2", dialog.Result3 },
-                { "Name_2 SURNAME_2", dialog.Result3_1 }
+                { "НомерДовідки", dialog.Result },
+                { "Посада_1", AppSession.CurrentUser?.Login ?? "" },
+                { "Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "" }
             });
     }
 
@@ -420,14 +418,14 @@ public partial class PersonEditView : Window
         string RegistrDate = "";
 
         string idKod = _person?.IdKod?.Trim() ?? string.Empty;
-        if (idKod.Length < 10)
+        if (idKod.Length != 10 && idKod.Length > 0)
         {
             var err = MsBox.Avalonia.MessageBoxManager
                .GetMessageBoxStandard("Помилка", "Неправильно введений ідентифікаційний код");
             await err.ShowAsync();
             return;
         }
-        else
+        if(idKod.Length == 10)
         {
             i_1 = idKod.Substring(0, 1);
             i_2 = idKod.Substring(1, 1);
@@ -507,12 +505,12 @@ public partial class PersonEditView : Window
                 var membersList = string.Join("\n\n", familyMembers.Select((p, i) =>
                     $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""} р.н."));
 
-                fields["осіб :"] = $"осіб:\n\n\n{membersList}";
+                fields["осіб:"] = $"осіб:\n\n\n{membersList}";
                 //fields["осіб"] = familyMembers.Count.ToString();
             }
             else
             {
-                fields["його сім'я складається з осіб :"] = "за даною адресою особа проживає одна";
+                fields["його сім`я складається з осіб:"] = "за даною адресою особа проживає одна";
             }
         }
 
