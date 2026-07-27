@@ -21,7 +21,8 @@ public class UserRepository : IUserRepository
             full_name AS FullName,
             role AS Role,
             is_active AS IsActive,
-            created_at AS CreatedAt
+            created_at AS CreatedAt,
+            position AS Position
           FROM users 
           WHERE login = @login AND is_active = 1",
             new { login });
@@ -45,7 +46,8 @@ public class UserRepository : IUserRepository
             full_name AS FullName,
             role AS Role,
             is_active AS IsActive,
-            created_at AS CreatedAt
+            created_at AS CreatedAt,
+            position AS Position
           FROM users ORDER BY login");
     }
 
@@ -53,8 +55,8 @@ public class UserRepository : IUserRepository
     {
         using var conn = _db.CreateConnection();
         return await conn.ExecuteScalarAsync<int>(
-            @"INSERT INTO users (login, password_hash, full_name, role, is_active, created_at)
-              VALUES (@Login, @PasswordHash, @FullName, @Role, @IsActive, @CreatedAt);
+            @"INSERT INTO users (login, password_hash, full_name, role, is_active, created_at, position)
+              VALUES (@Login, @PasswordHash, @FullName, @Role, @IsActive, @CreatedAt, @Position);
               SELECT LAST_INSERT_ID();", user);
     }
 
@@ -66,6 +68,7 @@ public class UserRepository : IUserRepository
           login=@Login,
           full_name=@FullName, 
           role=@Role,
+          position=@Position,
           password_hash=@PasswordHash
           WHERE id=@Id", user);
         return rows > 0;

@@ -388,12 +388,12 @@ public class ApiService
         await _http.DeleteAsync($"/api/auth/users/{id}");
     }
     public async Task<UserModel?> RegisterUserAsync(string login, string password,
-    string? fullName, string? role)
+    string? fullName, string? role, string? position)
     {
         try
         {
             var response = await _http.PostAsJsonAsync("/api/auth/register",
-                new { login, password, fullName, role });
+                new { login, password, fullName, role, position});
             if (!response.IsSuccessStatusCode) return null;
             return await response.Content.ReadFromJsonAsync<UserModel>();
         }
@@ -402,14 +402,15 @@ public class ApiService
             return null;
         }
     }
-    public async Task<bool> UpdateUserAsync(int id, string login, string? fullName, string role, string? password)
+    public async Task<bool> UpdateUserAsync(int id, string login, string? fullName, string role, string? position, string? password)
     {
         var response = await _http.PutAsJsonAsync($"/api/auth/users/{id}", new
         {
             login,
+            password,
             fullName,
             role,
-            password
+            position
         });
         return response.IsSuccessStatusCode;
     }

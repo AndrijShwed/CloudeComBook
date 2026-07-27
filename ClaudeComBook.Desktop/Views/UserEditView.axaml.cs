@@ -25,6 +25,7 @@ public partial class UserEditView : Window
     {
         LoginBox.Text = _user.Login;
         FullNameBox.Text = _user.FullName;
+        PositionBox.Text = _user.Position;
 
         var roleItems = RoleBox.Items.Cast<ComboBoxItem>().ToList();
         var roleItem = roleItems.FirstOrDefault(i => i.Content?.ToString() == _user.Role);
@@ -56,6 +57,7 @@ public partial class UserEditView : Window
             LoginBox.Text,
             FullNameBox.Text,
             selectedRole ?? _user.Role,
+            PositionBox.Text,
             string.IsNullOrEmpty(PasswordBox.Text) ? null : PasswordBox.Text);
 
         if (result)

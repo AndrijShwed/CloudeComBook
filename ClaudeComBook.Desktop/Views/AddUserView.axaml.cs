@@ -51,7 +51,8 @@ public partial class AddUserView : Window
             LoginBox.Text,
             PasswordBox.Text,
             FullNameBox.Text,
-            role);
+            role, 
+            PositionBox.Text);
 
         if (result == null)
         {

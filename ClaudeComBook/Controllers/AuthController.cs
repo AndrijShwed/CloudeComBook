@@ -1,6 +1,7 @@
 ﻿using ClaudeComBook.API.Models;
 using ClaudeComBook.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ClaudeComBook.API.Controllers;
 
@@ -25,7 +26,8 @@ public class AuthController : ControllerBase
             user.Id,
             user.Login,
             user.FullName,
-            user.Role
+            user.Role,
+            user.Position
         });
     }
 
@@ -41,10 +43,11 @@ public class AuthController : ControllerBase
             Login = request.Login,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             FullName = request.FullName,
-            Role = request.Role ?? "user"
+            Role = request.Role ?? "user",
+            Position = request.Position
         };
         user.Id = await _repo.CreateAsync(user);
-        return Ok(new { user.Id, user.Login, user.FullName, user.Role });
+        return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position });
     }
 
     [HttpGet("users")]
@@ -72,11 +75,11 @@ public class AuthController : ControllerBase
         if (user == null) return NotFound();
 
         user.Login = request.Login;
-        user.FullName = request.FullName;
-        user.Role = request.Role;
-
         if (!string.IsNullOrEmpty(request.Password))
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        user.FullName = request.FullName;
+        user.Role = request.Role;
+        user.Position = request.Position;
 
         var ok = await _repo.UpdateAsync(user);
         return ok ? NoContent() : BadRequest();
@@ -84,5 +87,5 @@ public class AuthController : ControllerBase
 }
 
 public record LoginRequest(string Login, string Password);
-public record RegisterRequest(string Login, string Password, string? FullName, string? Role);
-public record UpdateUserRequest(string Login, string? FullName, string Role, string? Password);
+public record RegisterRequest(string Login, string Password, string? FullName, string? Role, string? Position);
+public record UpdateUserRequest(string Login, string? Password, string? FullName, string Role, string? Position);

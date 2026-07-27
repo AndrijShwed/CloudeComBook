@@ -6,6 +6,7 @@ public class UserInfo
     public string Login { get; set; } = "";
     public string? FullName { get; set; }
     public string Role { get; set; } = "user";
+    public string Position { get; set; } = "";
 }
 
 public static class AppSession

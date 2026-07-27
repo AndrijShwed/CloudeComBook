@@ -9,4 +9,5 @@ public class User
     public string Role { get; set; } = "user";
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public string Position { get; set; } = string.Empty;
 }

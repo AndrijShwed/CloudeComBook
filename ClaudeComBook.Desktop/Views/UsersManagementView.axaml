@@ -41,6 +41,7 @@
 				<DataGridTextColumn Header="Логін" Binding="{Binding Login}" Width="150"/>
 				<DataGridTextColumn Header="ПІБ" Binding="{Binding FullName}" Width="300"/>
 				<DataGridTextColumn Header="Роль" Binding="{Binding Role}" Width="100"/>
+				<DataGridTextColumn Header="Посада" Binding="{Binding Position}" Width="150"/>
 				<DataGridTextColumn Header="Активний" Binding="{Binding IsActiveText}" Width="100"/>
 				<DataGridTextColumn Header="Створено" Binding="{Binding CreatedAt}" Width="180"/>
 				<DataGridTemplateColumn Header="Дії" Width="320">

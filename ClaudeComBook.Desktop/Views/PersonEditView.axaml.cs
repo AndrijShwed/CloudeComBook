@@ -354,7 +354,7 @@ public partial class PersonEditView : Window
             "C:\\Документи\\Довідки\\Довідки про склад сім'ї",
             new Dictionary<string, string> {
                 { "НомерДовідки", dialog.Result },
-                { "Посада_1", AppSession.CurrentUser?.Login ?? "" },
+                { "Посада_1", AppSession.CurrentUser?.Position ?? "" },
                 { "Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "" }
             });
     }

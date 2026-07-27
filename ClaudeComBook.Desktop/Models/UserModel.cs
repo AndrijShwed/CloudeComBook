@@ -11,4 +11,5 @@ public class UserModel
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public string IsActiveText => IsActive ? "Так" : "Ні";
+    public string Position { get; set; } = "";
 }
