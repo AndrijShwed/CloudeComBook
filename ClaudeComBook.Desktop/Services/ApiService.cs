@@ -457,4 +457,20 @@ public class ApiService
         var houses = await GetHousesByVillageStreetAsync(villageStreetId);
         return houses?.FirstOrDefault(h => h.NumbOfHouse == numbOfHouse);
     }
+
+    public async Task<UserInfo?> GetCurrentUserAsync()
+    {
+        return await _http.GetFromJsonAsync<UserInfo>(
+            $"/api/auth/users/{AppSession.CurrentUser?.Id}");
+    }
+
+    public async Task<bool> UpdatePersonalSettingsAsync(int id, string? fullName, string? position)
+    {
+        var response = await _http.PutAsJsonAsync($"/api/auth/users/{id}/settings", new
+        {
+            fullName,
+            position
+        });
+        return response.IsSuccessStatusCode;
+    }
 }

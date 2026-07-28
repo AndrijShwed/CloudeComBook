@@ -21,6 +21,10 @@
 						Background="#9C27B0" Foreground="White"
 						FontSize="12" Padding="8,4" Margin="0,0,10,0"
 						Click="OnTemplatesClick"/>
+				<Button Name="SettingsBtn" Content="⚙ Налаштування"
+						Background="#607D8B" Foreground="White"
+						FontSize="12" Padding="8,4" Margin="0,0,10,0"
+						Click="OnSettingsClick"/>
 				<!-- <TextBlock Name="UserLabel" Text="llabelUser" FontSize="14"/> -->
 			</StackPanel>
 			<Button Grid.Column="2" Name="UsersBtn"

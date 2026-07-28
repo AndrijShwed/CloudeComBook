@@ -84,8 +84,32 @@ public class AuthController : ControllerBase
         var ok = await _repo.UpdateAsync(user);
         return ok ? NoContent() : BadRequest();
     }
+
+    [HttpGet("users/{id}")]
+    public async Task<IActionResult> GetUser(int id)
+    {
+        var user = await _repo.GetByIdAsync(id);
+        if (user == null) return NotFound();
+        return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position });
+    }
+
+    [HttpPut("users/{id}/settings")]
+    public async Task<IActionResult> UpdateSettings(int id, [FromBody] UpdateSettingsRequest request)
+    {
+        var user = await _repo.GetByIdAsync(id);
+        if (user == null) return NotFound();
+
+        user.FullName = request.FullName;
+        user.Position = request.Position;
+
+        var ok = await _repo.UpdateAsync(user);
+        return ok ? NoContent() : BadRequest();
+    }
+
+    
 }
 
 public record LoginRequest(string Login, string Password);
 public record RegisterRequest(string Login, string Password, string? FullName, string? Role, string? Position);
 public record UpdateUserRequest(string Login, string? Password, string? FullName, string Role, string? Position);
+public record UpdateSettingsRequest(string? FullName, string? Position);

@@ -1,0 +1,41 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ClaudeComBook.Desktop.Views.PersonalSettingsView"
+        Title="Особисті налаштування"
+        Width="400" Height="280"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="#3F51B5">
+
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+		<TextBlock Grid.Row="0" Text="Особисті налаштування"
+				   Foreground="White" FontSize="18" FontWeight="Bold"
+				   FontFamily="Comic Sans MS" Margin="0,0,0,20"/>
+
+		<StackPanel Grid.Row="1" Spacing="15">
+			<StackPanel>
+				<TextBlock Text="Підписувач посада" Foreground="White" Margin="0,0,0,5"/>
+				<TextBox Name="PositionBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+			<StackPanel>
+				<TextBlock Text="Підписувач ПІБ" Foreground="White" Margin="0,0,0,5"/>
+				<TextBox Name="FullNameBox" Background="White" Foreground="Black"/>
+			</StackPanel>
+		</StackPanel>
+
+		<Button Grid.Row="2" Content="Зберегти"
+				Background="#4CAF50" Foreground="White"
+				FontWeight="Bold" HorizontalAlignment="Stretch"
+				HorizontalContentAlignment="Center"
+				Padding="0,12" Margin="0,20,0,0"
+				Click="OnSaveClick"/>
+
+	</Grid>
+</Window>

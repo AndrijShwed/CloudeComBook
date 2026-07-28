@@ -16,4 +16,5 @@ public static class AppSession
     public static bool IsAdmin => CurrentUser?.Role == "admin";
     public static bool IsUser => CurrentUser?.Role == "user" || IsAdmin;
     public static bool IsReader => CurrentUser?.Role == "reader" || IsUser;
+    public static string Position => CurrentUser?.Position ?? "";
 }

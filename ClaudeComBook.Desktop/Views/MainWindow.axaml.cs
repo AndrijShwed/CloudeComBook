@@ -5,6 +5,7 @@ namespace ClaudeComBook.Desktop.Views
 {
     public partial class MainWindow : Window
     {
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -16,8 +17,9 @@ namespace ClaudeComBook.Desktop.Views
                 UsersBtn.IsVisible = true;
                 AdminPanelBtn.IsVisible = true;
             }
-        }
+            SettingsBtn.IsVisible = AppSession.IsUser;
 
+        }
         private void OnUsersClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             var window = new UsersManagementView(this);
@@ -92,6 +94,13 @@ namespace ClaudeComBook.Desktop.Views
         private void OnTemplatesClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             var window = new TemplatesManagementView();
+            window.ShowDialog(this);
+        }
+        
+
+        private void OnSettingsClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            var window = new PersonalSettingsView();
             window.ShowDialog(this);
         }
     }

@@ -32,7 +32,16 @@ public class UserRepository : IUserRepository
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryFirstOrDefaultAsync<User>(
-            "SELECT * FROM users WHERE id = @id", new { id });
+            @"SELECT 
+            id AS Id,
+            login AS Login,
+            password_hash AS PasswordHash,
+            full_name AS FullName,
+            role AS Role,
+            is_active AS IsActive,
+            created_at AS CreatedAt,
+            position AS Position
+          FROM users WHERE id = @id", new { id });
     }
 
     public async Task<IEnumerable<User>> GetAllAsync()
@@ -73,7 +82,6 @@ public class UserRepository : IUserRepository
           WHERE id=@Id", user);
         return rows > 0;
     }
-
     public async Task<bool> SetActiveAsync(int id, bool isActive)
     {
         using var conn = _db.CreateConnection();
