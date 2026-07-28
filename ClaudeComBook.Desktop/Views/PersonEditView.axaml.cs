@@ -345,7 +345,7 @@ public partial class PersonEditView : Window
         DocumentsPopup.IsOpen = false;
 
         // Запитуємо номер довідки
-        var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
+        var dialog = new InputDialog("Введіть номер довідки", "");
         await dialog.ShowDialog(this);
 
         if (dialog.Result == null) return;
@@ -364,7 +364,7 @@ public partial class PersonEditView : Window
         DocumentsPopup.IsOpen = false;
 
         // Запитуємо номер довідки
-        var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
+        var dialog = new InputDialog("Введіть номер довідки", "");
         await dialog.ShowDialog(this);
 
         if (dialog.Result == null) return;
@@ -389,7 +389,12 @@ public partial class PersonEditView : Window
         if (dialog.Result == null) return;
 
         await GenerateDocument("testament",
-            "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""));
+            "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""),
+             new Dictionary<string, string> {
+                { "НомерДовідки", dialog.Result },
+                { "Посада_1", AppSession.CurrentUser?.Position ?? "" },
+                { "Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "" } 
+             });
     }
 
     private async void OnSubsidyClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -469,15 +474,18 @@ public partial class PersonEditView : Window
             fields.Add("жителю", "жительці");
             fields.Add("його", "її");
             fields.Add("жителя", "жительку");
+            fields.Add("which born", "яка народилась");
+            fields.Add("registr", "зареєстрована");
         }
         else
         {
             fields.Add("his", "його");
             fields.Add("him", "ним");
+            fields.Add("which born", "який народився");
+            fields.Add("registr", "зареєстрований");
         }
 
         fields.Add("ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy"));
-        //fields.Add("НомерДовідки", NumbOfDoc);
         fields.Add("village", _person.VillageName ?? "");
         fields.Add("street", _person.StreetName ?? "");
         fields.Add("house", _person.NumbOfHouse ?? "");
@@ -532,6 +540,65 @@ public partial class PersonEditView : Window
             {
                 fields["його сім`я складається з осіб:"] = "за даною адресою особа проживає одна";
             }
+        }
+
+        if (templateType == "testament")
+        {
+            DateToString date = new DateToString();
+            fields.Add("ДатаТекст", date.GetDateInWords());
+        }
+        if (templateType == "subsidy")
+        {
+            var familyMembers = await _api.GetPeopleByAddressAsync(
+                _person.VillageStreetId.Value,
+                _person.NumbOfHouse ?? "",
+                _person.PeopleId);
+
+            string count = familyMembers.Count.ToString();
+            string countWrite = "(одна) особа";
+            if (familyMembers.Count == 2)
+            {
+                countWrite = "(дві) особи";
+            }
+            if (familyMembers.Count == 3)
+            {
+                countWrite = "(три) особи";
+            }
+            if (familyMembers.Count == 4)
+            {
+                countWrite = "(чотири) особи";
+            }
+            if (familyMembers.Count == 5)
+            {
+                countWrite = "(п'ять) осіб";
+            }
+            if (familyMembers.Count == 6)
+            {
+                countWrite = "(шість) осіб";
+            }
+            if (familyMembers.Count == 7)
+            {
+                countWrite = "(сім) осіб";
+            }
+            if (familyMembers.Count == 8)
+            {
+                countWrite = "(вісім) осіб";
+            }
+            if (familyMembers.Count == 9)
+            {
+                countWrite = "(дев'ять) осіб";
+            }
+            if (familyMembers.Count == 10)
+            {
+                countWrite = "(десять) осіб";
+            }
+            string curentMonth = DateTime.Now.Month.ToString();
+            if (Convert.ToInt32(curentMonth) < 10) { curentMonth = "0" + curentMonth; }
+            string curentYear = DateTime.Now.Year.ToString();
+            fields.Add("curentMonth", curentMonth);
+            fields.Add("curentYear", curentYear);
+            fields.Add("Count", (familyMembers?.Count ?? 0).ToString());
+
         }
 
         var docService = new DocumentService();
