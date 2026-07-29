@@ -354,8 +354,6 @@ public partial class PersonEditView : Window
             "C:\\Документи\\Довідки\\Довідки про склад сім'ї",
             new Dictionary<string, string> {
                 { "НомерДовідки", dialog.Result },
-                { "Посада_1", AppSession.CurrentUser?.Position ?? "" },
-                { "Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "" }
             });
     }
 
@@ -373,8 +371,6 @@ public partial class PersonEditView : Window
             "C:\\Документи\\Характеристики",
              new Dictionary<string, string> {
                 { "НомерДовідки", dialog.Result },
-                { "Посада_1", AppSession.CurrentUser?.Position ?? "" },
-                { "Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "" }
              });
     }
 
@@ -392,16 +388,24 @@ public partial class PersonEditView : Window
             "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""),
              new Dictionary<string, string> {
                 { "НомерДовідки", dialog.Result },
-                { "Посада_1", AppSession.CurrentUser?.Position ?? "" },
-                { "Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "" } 
              });
     }
 
     private async void OnSubsidyClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         DocumentsPopup.IsOpen = false;
+
+        // Запитуємо номер довідки
+        var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
+        await dialog.ShowDialog(this);
+
+        if (dialog.Result == null) return;
+
         await GenerateDocument("subsidy",
-            "C:\\Документи\\Довідки\\Довідки на субсидію");
+            "C:\\Документи\\Довідки\\Довідки на субсидію",
+            new Dictionary<string, string> {
+                { "НомерДовідки", dialog.Result },
+            });
     }
 
     private async void OnBenefitsClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -428,6 +432,11 @@ public partial class PersonEditView : Window
             await err.ShowAsync();
             return;
         }
+        var familyMembers = await _api.GetPeopleByAddressAsync(
+                _person.VillageStreetId.Value,
+                _person.NumbOfHouse ?? "",
+                _person.PeopleId);
+
 
         string i_1 = "";
         string i_2 = "";
@@ -485,6 +494,8 @@ public partial class PersonEditView : Window
             fields.Add("registr", "зареєстрований");
         }
 
+        fields.Add("Посада_1", AppSession.CurrentUser?.Position ?? "");
+        fields.Add("Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "");
         fields.Add("ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy"));
         fields.Add("village", _person.VillageName ?? "");
         fields.Add("street", _person.StreetName ?? "");
@@ -523,11 +534,6 @@ public partial class PersonEditView : Window
 
             fields["ЗагальнаПлоща"] = house?.TotalArea?.ToString("F1") ?? "0";
 
-            var familyMembers = await _api.GetPeopleByAddressAsync(
-                _person.VillageStreetId.Value,
-                _person.NumbOfHouse ?? "",
-                _person.PeopleId);
-
             if (familyMembers != null && familyMembers.Count > 1)
             {
                 var membersList = string.Join("\n\n", familyMembers.Select((p, i) =>
@@ -549,60 +555,68 @@ public partial class PersonEditView : Window
         }
         if (templateType == "subsidy")
         {
-            var familyMembers = await _api.GetPeopleByAddressAsync(
+            // Отримуємо будинок
+            var house = await _api.GetHouseByAddressAsync(
                 _person.VillageStreetId.Value,
-                _person.NumbOfHouse ?? "",
-                _person.PeopleId);
+                _person.NumbOfHouse ?? "");
 
-            string count = familyMembers.Count.ToString();
+            fields["ЗагальнаПлоща"] = house?.TotalArea?.ToString("F1") ?? "0";
+
+            int countReal = (familyMembers?.Count ?? 0) + 1;
+            string count = countReal.ToString();
             string countWrite = "(одна) особа";
-            if (familyMembers.Count == 2)
+            if (countReal == 2)
             {
                 countWrite = "(дві) особи";
             }
-            if (familyMembers.Count == 3)
+            if (countReal == 3)
             {
                 countWrite = "(три) особи";
             }
-            if (familyMembers.Count == 4)
+            if (countReal == 4)
             {
                 countWrite = "(чотири) особи";
             }
-            if (familyMembers.Count == 5)
+            if (countReal == 5)
             {
                 countWrite = "(п'ять) осіб";
             }
-            if (familyMembers.Count == 6)
+            if (countReal == 6)
             {
                 countWrite = "(шість) осіб";
             }
-            if (familyMembers.Count == 7)
+            if (countReal == 7)
             {
                 countWrite = "(сім) осіб";
             }
-            if (familyMembers.Count == 8)
+            if (countReal == 8)
             {
                 countWrite = "(вісім) осіб";
             }
-            if (familyMembers.Count == 9)
+            if (countReal == 9)
             {
                 countWrite = "(дев'ять) осіб";
             }
-            if (familyMembers.Count == 10)
+            if (countReal == 10)
             {
                 countWrite = "(десять) осіб";
             }
             string curentMonth = DateTime.Now.Month.ToString();
             if (Convert.ToInt32(curentMonth) < 10) { curentMonth = "0" + curentMonth; }
             string curentYear = DateTime.Now.Year.ToString();
+            var passport = _person.Passport?.ToString() ?? "";
             fields.Add("curentMonth", curentMonth);
             fields.Add("curentYear", curentYear);
-            fields.Add("Count", (familyMembers?.Count ?? 0).ToString());
+            fields.Add("Кількість", countReal.ToString());
+            fields.Add("Кільк.Прописом", countWrite);
+            fields.Add("Документ", passport.Length > 9 ?
+                passport.Substring(0, 9) : passport);
+
 
         }
 
         var docService = new DocumentService();
-        var filledBytes = docService.FillTemplate(templateBytes, fields);
+        var filledBytes = docService.FillTemplate(templateBytes, fields, familyMembers);
         var fileName = $"{_person.LastName}_{_person.Name}_{DateTime.Now:dd.MM.yyyy_HH.mm.ss}.docx";
         var filePath = docService.SaveDocument(filledBytes, folderPath, fileName);
         docService.OpenDocument(filePath);

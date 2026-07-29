@@ -252,7 +252,8 @@ public class PersonRepository : IPersonRepository
             p.name AS Name,
             p.surname AS Surname,
             p.date_of_birth AS DateOfBirth,
-            p.registr AS Registr
+            p.registr AS Registr,
+            p.passport AS Passport
           FROM people p
           WHERE p.villagestreetId = @villageStreetId 
           AND p.numb_of_house = @numbOfHouse

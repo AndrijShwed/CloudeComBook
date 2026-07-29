@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+﻿using ClaudeComBook.Desktop.Models;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,10 @@ namespace ClaudeComBook.Desktop.Services;
 
 public class DocumentService
 {
-    public byte[] FillTemplate(byte[] templateBytes, Dictionary<string, string> fields)
+    public byte[] FillTemplate(
+    byte[] templateBytes,
+    Dictionary<string, string> fields,
+    List<Person>? familyMembers = null)
     {
         using var memStream = new MemoryStream();
         memStream.Write(templateBytes, 0, templateBytes.Length);
@@ -19,17 +23,126 @@ public class DocumentService
         using (var doc = WordprocessingDocument.Open(memStream, true))
         {
             var body = doc.MainDocumentPart?.Document?.Body;
-            if (body == null) return templateBytes;
+            if (body == null)
+                return templateBytes;
 
+            // Зберігаємо незмінений рядок-шаблон
+            Table? familyTable = null;
+            TableRow? serviceRow = null;
+            TableRow? familyTemplate = null;
+
+            if (familyMembers != null)
+            {
+                familyTable = body.Descendants<Table>().FirstOrDefault();
+
+                if (familyTable != null)
+                {
+                    var rows = familyTable.Elements<TableRow>().ToList();
+
+                    // 0 - заголовок
+                    // 1 - заявник
+                    // 2 - шаблон
+                    if (rows.Count >= 3)
+                    {
+                        serviceRow = rows[2];
+                        familyTemplate = (TableRow)serviceRow.CloneNode(true);
+                    }
+                        
+                }
+            }
+
+            // Замінюємо всі текстові поля
             foreach (var paragraph in body.Descendants<Paragraph>())
             {
+                // Пропускаємо параграфи службового рядка
+                if (serviceRow != null &&
+                    paragraph.Ancestors<TableRow>().FirstOrDefault() == serviceRow)
+                {
+                    continue;
+                }
+
                 ReplaceParagraphText(paragraph, fields);
             }
 
-            doc.MainDocumentPart!.Document.Save();
+
+            // Заповнюємо таблицю
+            if (familyTable != null &&
+                 serviceRow != null &&
+                 familyTemplate != null)
+            {
+                FillFamilyTable(
+                    familyTable,
+                    serviceRow,
+                    familyTemplate,
+                    familyMembers ?? new List<Person>());
+            }
+
+            doc.MainDocumentPart.Document.Save();
         }
 
         return memStream.ToArray();
+    }
+
+    private void FillFamilyTable(
+                     Table table,
+                     TableRow serviceRow,
+                     TableRow templateRow,
+                     List<Person> familyMembers)
+    {
+        if (table == null)
+            return;
+
+        // службовий рядок у документі
+        templateRow = (TableRow)serviceRow.CloneNode(true);
+
+        // Якщо немає членів сім'ї — просто прибираємо службовий рядок
+        if (familyMembers.Count == 0)
+        {
+            serviceRow.Remove();
+            return;
+        }
+
+        int index = 2;
+
+        foreach (var person in familyMembers)
+        {
+            var row = (TableRow)templateRow.CloneNode(true);
+
+            ReplaceCell(row, "{№}", index.ToString());
+
+            ReplaceCell(row, "full_name",
+                $"{person.LastName} {person.Name} {person.Surname}");
+
+            ReplaceCell(row, "birth_date",
+                person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "");
+
+            ReplaceCell(row, "Документ",
+                        person.Passport is { Length: > 9 }
+                            ? person.Passport[..9]
+                            : person.Passport ?? "");
+
+            ReplaceCell(row, "член сім'ї", "член сім'ї");
+
+            table.InsertBefore(row, serviceRow);
+
+            index++;
+        }
+
+        // Видаляємо службовий рядок
+        serviceRow.Remove();
+    }
+
+    private void ReplaceCell(TableRow row, string key, string value)
+    {
+        foreach (var paragraph in row.Descendants<Paragraph>())
+        {
+            ReplaceParagraphText(
+                paragraph,
+                new Dictionary<string, string>
+                {
+                { key, value }
+                });
+        }
     }
 
     private void ReplaceParagraphText(Paragraph paragraph, Dictionary<string, string> fields)
