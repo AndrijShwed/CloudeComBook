@@ -353,7 +353,7 @@ public partial class PersonEditView : Window
         await GenerateDocument("family_composition",
             "C:\\Документи\\Довідки\\Довідки про склад сім'ї",
             new Dictionary<string, string> {
-                { "НомерДовідки", dialog.Result },
+                { "НомерДовідки", dialog.Result }
             });
     }
 
@@ -370,7 +370,7 @@ public partial class PersonEditView : Window
         await GenerateDocument("characteristic",
             "C:\\Документи\\Характеристики",
              new Dictionary<string, string> {
-                { "НомерДовідки", dialog.Result },
+                { "НомерДовідки", dialog.Result }
              });
     }
 
@@ -387,7 +387,7 @@ public partial class PersonEditView : Window
         await GenerateDocument("testament",
             "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""),
              new Dictionary<string, string> {
-                { "НомерДовідки", dialog.Result },
+                { "НомерДовідки", dialog.Result }
              });
     }
 
@@ -404,15 +404,25 @@ public partial class PersonEditView : Window
         await GenerateDocument("subsidy",
             "C:\\Документи\\Довідки\\Довідки на субсидію",
             new Dictionary<string, string> {
-                { "НомерДовідки", dialog.Result },
+                { "НомерДовідки", dialog.Result }
             });
     }
 
     private async void OnBenefitsClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         DocumentsPopup.IsOpen = false;
+
+        // Запитуємо номер довідки
+        var dialog = new InputDialog("Введіть номер довідки", "");
+        await dialog.ShowDialog(this);
+
+        if (dialog.Result == null) return;
+
         await GenerateDocument("benefits",
-            "C:\\Документи\\Довідки\\Довідка на пільги");
+            "C:\\Документи\\Довідки\\Довідка на пільги",
+            new Dictionary<string, string> {
+                { "НомерДовідки", dialog.Result }
+            });
     }
 
     private async void OnTestamentRegistrationClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -613,6 +623,19 @@ public partial class PersonEditView : Window
                 passport.Substring(0, 9) : passport);
 
 
+        }
+
+        if(templateType == "benefits")
+        {
+            int countReal = (familyMembers?.Count ?? 0) + 1;
+            fields.Add("Кількість", countReal.ToString());
+            // Отримуємо будинок
+            var house = await _api.GetHouseByAddressAsync(
+                _person.VillageStreetId.Value,
+                _person.NumbOfHouse ?? "");
+
+            fields["ЗагальнаПлоща"] = house?.TotalArea?.ToString("F1") ?? "0";
+            fields["ЖитловаПлоща"] = house?.LivingArea?.ToString("F1") ?? "0";
         }
 
         var docService = new DocumentService();
