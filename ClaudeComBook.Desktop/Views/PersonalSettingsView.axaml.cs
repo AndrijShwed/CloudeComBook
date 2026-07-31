@@ -21,6 +21,15 @@ public partial class PersonalSettingsView : Window
         {
             PositionBox.Text = user.Position;
             FullNameBox.Text = user.FullName;
+            ShortNameBox.Text = user.ShortName;
+            OrganizationBox.Text = user.Organization;
+            RegionBox.Text = user.Region;
+            DistrictBox.Text = user.District;
+            VillageBox.Text = user.Village;
+            StreetBox.Text = user.Street;
+            HouseBox.Text = user.House;
+            PhoneBox.Text = user.Phone;
+            PostIndexBox.Text = user.PostIndex;
         }
     }
 
@@ -29,13 +38,23 @@ public partial class PersonalSettingsView : Window
         var ok = await _api.UpdatePersonalSettingsAsync(
             AppSession.CurrentUser!.Id,
             FullNameBox.Text,
-            PositionBox.Text);
+            PositionBox.Text,
+            ShortNameBox.Text,
+            OrganizationBox.Text,
+            RegionBox.Text,
+            DistrictBox.Text,
+            VillageBox.Text,
+            StreetBox.Text,
+            HouseBox.Text,
+            PhoneBox.Text,
+            PostIndexBox.Text);
 
         if (ok)
         {
             // Оновлюємо сесію
             AppSession.CurrentUser.FullName = FullNameBox.Text;
             AppSession.CurrentUser.Position = PositionBox.Text;
+            AppSession.CurrentUser.ShortName = ShortNameBox.Text;
 
             var msg = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandard("Успіх", "Налаштування збережено!");

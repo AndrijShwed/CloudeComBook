@@ -40,11 +40,11 @@ public class AuthController : ControllerBase
 
         var user = new User
         {
-            Login = request.Login,
+            Login = request.Login ?? "",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            FullName = request.FullName,
+            FullName = request.FullName ?? "",
             Role = request.Role ?? "user",
-            Position = request.Position
+            Position = request.Position ?? ""
         };
         user.Id = await _repo.CreateAsync(user);
         return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position });
@@ -74,12 +74,21 @@ public class AuthController : ControllerBase
         var user = await _repo.GetByIdAsync(id);
         if (user == null) return NotFound();
 
-        user.Login = request.Login;
+        user.Login = request.Login ?? "";
         if (!string.IsNullOrEmpty(request.Password))
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-        user.FullName = request.FullName;
-        user.Role = request.Role;
-        user.Position = request.Position;
+        user.FullName = request.FullName ?? "";
+        user.Role = request.Role ?? "";
+        user.Position = request.Position ?? "";
+        user.Region = request.Region ?? "";
+        user.District = request.District ?? "";
+        user.Village = request.Village ?? "";
+        user.Street = request.Street ?? "";
+        user.House = request.House ?? "";
+        user.ShortName = request.SchortName ?? "";
+        user.Organization = request.Organization ?? "";
+        user.Phone = request.Phone ?? "";
+        user.PostIndex = request.PostIndex ?? "";
 
         var ok = await _repo.UpdateAsync(user);
         return ok ? NoContent() : BadRequest();
@@ -99,8 +108,17 @@ public class AuthController : ControllerBase
         var user = await _repo.GetByIdAsync(id);
         if (user == null) return NotFound();
 
-        user.FullName = request.FullName;
-        user.Position = request.Position;
+        user.FullName = request.FullName ?? "";
+        user.Position = request.Position ?? "";
+        user.Region = request.Region?? "";
+        user.District = request.District?? "";
+        user.Village = request.Village ?? "";
+        user.Street = request.Street ?? "";
+        user.House = request.House ?? "";
+        user.ShortName = request.SchortName ?? "";
+        user.Organization = request.Organization ?? "";
+        user.Phone = request.Phone ?? "";
+        user.PostIndex = request.PostIndex ?? "";
 
         var ok = await _repo.UpdateAsync(user);
         return ok ? NoContent() : BadRequest();
@@ -111,5 +129,9 @@ public class AuthController : ControllerBase
 
 public record LoginRequest(string Login, string Password);
 public record RegisterRequest(string Login, string Password, string? FullName, string? Role, string? Position);
-public record UpdateUserRequest(string Login, string? Password, string? FullName, string Role, string? Position);
-public record UpdateSettingsRequest(string? FullName, string? Position);
+public record UpdateUserRequest(string Login, string? Password, string? FullName, string Role, string? Position,
+                                string? Region, string? District, string? Village, string? Street, string? House,
+                                string? SchortName, string? Organization, string? Phone, string? PostIndex);
+public record UpdateSettingsRequest(string? FullName, string? Position, string? Region, string? District,
+                                    string? Village, string? Street, string? House, string? SchortName, 
+                                    string? Organization, string? Phone, string? PostIndex);

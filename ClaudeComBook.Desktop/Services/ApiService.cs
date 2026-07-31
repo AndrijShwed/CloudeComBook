@@ -464,12 +464,25 @@ public class ApiService
             $"/api/auth/users/{AppSession.CurrentUser?.Id}");
     }
 
-    public async Task<bool> UpdatePersonalSettingsAsync(int id, string? fullName, string? position)
+    public async Task<bool> UpdatePersonalSettingsAsync(int id, string? fullName, string? position,
+                                                        string? shortName, string? organization, string? region,
+                                                        string? distict, string? village, string? street, string? house,
+                                                        string? phone, string? postIndex)
     {
         var response = await _http.PutAsJsonAsync($"/api/auth/users/{id}/settings", new
         {
             fullName,
-            position
+            position,
+            shortName,
+            organization,
+            region,
+            distict,
+            village,
+            street,
+            house,
+            phone,
+            postIndex
+
         });
         return response.IsSuccessStatusCode;
     }

@@ -40,7 +40,16 @@ public class UserRepository : IUserRepository
             role AS Role,
             is_active AS IsActive,
             created_at AS CreatedAt,
-            position AS Position
+            position AS Position,
+            region AS Region,
+            district AS District,
+            village AS Village,
+            street AS Street,
+            house AS House,
+            short_name AS ShortName,
+            organization AS Organization,
+            phone AS Phone,
+            post_index AS PostIndex
           FROM users WHERE id = @id", new { id });
     }
 
@@ -56,7 +65,16 @@ public class UserRepository : IUserRepository
             role AS Role,
             is_active AS IsActive,
             created_at AS CreatedAt,
-            position AS Position
+            position AS Position,
+            region AS Region,
+            district AS District,
+            village AS Village,
+            street AS Street,
+            house AS House,
+            short_name AS ShortName,
+            organization AS Organization,
+            phone AS Phone,
+            post_index AS PostIndex
           FROM users ORDER BY login");
     }
 
@@ -78,7 +96,16 @@ public class UserRepository : IUserRepository
           full_name=@FullName, 
           role=@Role,
           position=@Position,
-          password_hash=@PasswordHash
+          password_hash=@PasswordHash,
+          region = @Region,
+          district = @District,
+          village = @Village,
+          street = @Street,
+          house = @House,
+          short_name = @ShortName,
+          organization = @Organization,
+          phone = @Phone,
+          post_index = @PostIndex
           WHERE id=@Id", user);
         return rows > 0;
     }
