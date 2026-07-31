@@ -85,7 +85,7 @@ public class AuthController : ControllerBase
         user.Village = request.Village ?? "";
         user.Street = request.Street ?? "";
         user.House = request.House ?? "";
-        user.ShortName = request.SchortName ?? "";
+        user.ShortName = request.ShortName ?? "";
         user.Organization = request.Organization ?? "";
         user.Phone = request.Phone ?? "";
         user.PostIndex = request.PostIndex ?? "";
@@ -99,7 +99,9 @@ public class AuthController : ControllerBase
     {
         var user = await _repo.GetByIdAsync(id);
         if (user == null) return NotFound();
-        return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position });
+        return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position,
+                        user.Organization, user.Region, user.District, user.Village,
+                        user.Street, user.House, user.ShortName, user.Phone, user.PostIndex});
     }
 
     [HttpPut("users/{id}/settings")]
@@ -115,7 +117,7 @@ public class AuthController : ControllerBase
         user.Village = request.Village ?? "";
         user.Street = request.Street ?? "";
         user.House = request.House ?? "";
-        user.ShortName = request.SchortName ?? "";
+        user.ShortName = request.ShortName ?? "";
         user.Organization = request.Organization ?? "";
         user.Phone = request.Phone ?? "";
         user.PostIndex = request.PostIndex ?? "";
@@ -131,7 +133,7 @@ public record LoginRequest(string Login, string Password);
 public record RegisterRequest(string Login, string Password, string? FullName, string? Role, string? Position);
 public record UpdateUserRequest(string Login, string? Password, string? FullName, string Role, string? Position,
                                 string? Region, string? District, string? Village, string? Street, string? House,
-                                string? SchortName, string? Organization, string? Phone, string? PostIndex);
+                                string? ShortName, string? Organization, string? Phone, string? PostIndex);
 public record UpdateSettingsRequest(string? FullName, string? Position, string? Region, string? District,
-                                    string? Village, string? Street, string? House, string? SchortName, 
+                                    string? Village, string? Street, string? House, string? ShortName, 
                                     string? Organization, string? Phone, string? PostIndex);

@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ClaudeComBook.Desktop.Views.PersonalSettingsView"
         Title="Особисті налаштування"
-        Width="400" Height="280"
+        Width="400" Height="680"
         WindowStartupLocation="CenterOwner"
         CanResize="False"
         Background="#3F51B5">

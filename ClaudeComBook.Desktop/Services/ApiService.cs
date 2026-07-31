@@ -466,7 +466,7 @@ public class ApiService
 
     public async Task<bool> UpdatePersonalSettingsAsync(int id, string? fullName, string? position,
                                                         string? shortName, string? organization, string? region,
-                                                        string? distict, string? village, string? street, string? house,
+                                                        string? district, string? village, string? street, string? house,
                                                         string? phone, string? postIndex)
     {
         var response = await _http.PutAsJsonAsync($"/api/auth/users/{id}/settings", new
@@ -476,7 +476,7 @@ public class ApiService
             shortName,
             organization,
             region,
-            distict,
+            district,
             village,
             street,
             house,
