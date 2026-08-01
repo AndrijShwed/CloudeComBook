@@ -26,8 +26,17 @@ public class AuthController : ControllerBase
             user.Id,
             user.Login,
             user.FullName,
+            user.ShortName,
             user.Role,
-            user.Position
+            user.Position,
+            user.Organization,
+            user.Region,
+            user.District,
+            user.Village,
+            user.Street,
+            user.House,
+            user.Phone,
+            user.PostIndex
         });
     }
 
@@ -50,9 +59,9 @@ public class AuthController : ControllerBase
         return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position });
     }
 
-    [HttpGet("users")]
-    public async Task<IActionResult> GetUsers() =>
-        Ok(await _repo.GetAllAsync());
+    //[HttpGet("users")]
+    //public async Task<IActionResult> GetUsers() =>
+    //    Ok(await _repo.GetAllAsync());
 
     [HttpDelete("users/{id}")]
     public async Task<IActionResult> DeleteUser(int id)

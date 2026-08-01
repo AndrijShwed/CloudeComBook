@@ -506,6 +506,7 @@ public partial class PersonEditView : Window
 
         fields.Add("Посада_1", AppSession.CurrentUser?.Position ?? "");
         fields.Add("Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "");
+        fields.Add("ShortName", AppSession.CurrentUser?.ShortName ?? "");
         fields.Add("ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy"));
         fields.Add("village", _person.VillageName ?? "");
         fields.Add("street", _person.StreetName ?? "");

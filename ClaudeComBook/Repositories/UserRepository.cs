@@ -13,18 +13,29 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByLoginAsync(string login)
     {
         using var conn = _db.CreateConnection();
+
         return await conn.QueryFirstOrDefaultAsync<User>(
-            @"SELECT 
+            @"SELECT
             id AS Id,
             login AS Login,
             password_hash AS PasswordHash,
             full_name AS FullName,
+            short_name AS ShortName,
             role AS Role,
             is_active AS IsActive,
             created_at AS CreatedAt,
-            position AS Position
-          FROM users 
-          WHERE login = @login AND is_active = 1",
+            position AS Position,
+            organization AS Organization,
+            region AS Region,
+            district AS District,
+            village AS Village,
+            street AS Street,
+            house AS House,
+            phone AS Phone,
+            post_index AS PostIndex
+        FROM users
+        WHERE login = @login
+          AND is_active = 1",
             new { login });
     }
 
