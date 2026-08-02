@@ -503,8 +503,10 @@ public partial class PersonEditView : Window
             fields.Add("which born", "який народився");
             fields.Add("registr", "зареєстрований");
         }
+        string position = AppSession.CurrentUser?.Position ?? "";
 
-        fields.Add("Посада_1", AppSession.CurrentUser?.Position ?? "");
+        fields.Add("Посада_1", position);
+        fields.Add("Посада", position.ToString().Substring(0, 8));
         fields.Add("Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "");
         fields.Add("ShortName", AppSession.CurrentUser?.ShortName ?? "");
         fields.Add("ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy"));

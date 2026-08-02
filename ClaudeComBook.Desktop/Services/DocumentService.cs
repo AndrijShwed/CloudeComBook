@@ -52,31 +52,7 @@ public class DocumentService
                 }
             }
 
-            // Замінюємо всі текстові поля
-            //foreach (var paragraph in body.Descendants<Paragraph>())
-            //{
-            //    // Пропускаємо параграфи службового рядка
-            //    if (serviceRow != null &&
-            //        paragraph.Ancestors<TableRow>().FirstOrDefault() == serviceRow)
-            //    {
-            //        continue;
-            //    }
-
-            //    ReplaceParagraphText(paragraph, fields);
-            //}
-
-            // Спочатку швидка заміна простих маркерів
-            ReplaceSingleTexts(body, fields);
-
-            // Потім тільки якщо Word розбив маркер на декілька Run
-            foreach (var paragraph in body.Descendants<Paragraph>())
-            {
-                if (serviceRow != null &&
-                    paragraph.Ancestors<TableRow>().FirstOrDefault() == serviceRow)
-                    continue;
-
-                ReplaceBrokenMarkers(paragraph, fields);
-            }
+            ReplaceMarkers(body, fields, serviceRow);
 
 
             // Заповнюємо таблицю
@@ -146,112 +122,32 @@ public class DocumentService
         serviceRow.Remove();
     }
 
-    //private void ReplaceCell(TableRow row, string key, string value)
-    //{
-    //    foreach (var paragraph in row.Descendants<Paragraph>())
-    //    {
-    //        ReplaceParagraphText(
-    //            paragraph,
-    //            new Dictionary<string, string>
-    //            {
-    //            { key, value }
-    //            });
-    //    }
-    //}
-
     private void ReplaceCell(TableRow row, string key, string value)
     {
-        var dict = new Dictionary<string, string>
+        var fields = new Dictionary<string, string>
     {
         { key, value }
     };
 
-        foreach (var text in row.Descendants<Text>())
-        {
-            if (dict.TryGetValue(text.Text.Trim(), out var v))
-                text.Text = v;
-        }
-
         foreach (var paragraph in row.Descendants<Paragraph>())
         {
-            ReplaceBrokenMarkers(paragraph, dict);
+            ReplaceParagraphText(paragraph, fields);
         }
     }
 
-    //private void ReplaceParagraphText(Paragraph paragraph, Dictionary<string, string> fields)
-    //{
-    //    // Збираємо весь текст параграфа
-    //    var runs = paragraph.Descendants<Run>().ToList();
-    //    var fullText = string.Concat(runs.Select(r => r.InnerText));
-
-    //    // Перевіряємо чи є що замінювати
-    //    bool hasReplacement = fields.Keys.Any(key => fullText.Contains(key));
-    //    if (!hasReplacement) return;
-
-    //    // Замінюємо
-    //    foreach (var field in fields)
-    //        fullText = fullText.Replace(field.Key, field.Value);
-
-    //    // Очищаємо старі runs і вставляємо новий
-    //    var firstRun = runs.FirstOrDefault();
-    //    if (firstRun == null) return;
-
-    //    // Зберігаємо форматування першого run
-    //    var runProperties = firstRun.RunProperties?.CloneNode(true);
-
-    //    // Видаляємо всі runs
-    //    foreach (var run in runs)
-    //        run.Remove();
-
-    //    // Додаємо новий run із підтримкою перенесення рядків
-    //    var newRun = new Run();
-
-    //    if (runProperties != null)
-    //        newRun.AppendChild(runProperties);
-
-    //    var lines = fullText.Replace("\r\n", "\n").Split('\n');
-
-    //    for (int i = 0; i < lines.Length; i++)
-    //    {
-    //        newRun.AppendChild(new Text(lines[i])
-    //        {
-    //            Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve
-    //        });
-
-    //        if (i < lines.Length - 1)
-    //        {
-    //            newRun.AppendChild(new Break());
-    //        }
-    //    }
-
-    //    paragraph.AppendChild(newRun);
-    //}
-
-    private void ReplaceSingleTexts(
-    Body body,
-    Dictionary<string, string> fields)
+    private void ReplaceParagraphText(Paragraph paragraph, Dictionary<string, string> fields)
     {
-        foreach (var text in body.Descendants<Text>())
-        {
-            var key = text.Text.Trim();
+        var runs = paragraph.Descendants<Run>().ToList();
 
-            if (fields.TryGetValue(key, out var value))
-            {
-                text.Text = value;
-            }
-        }
-    }
-
-    private void ReplaceBrokenMarkers(
-    Paragraph paragraph,
-    Dictionary<string, string> fields)
-    {
-        var texts = paragraph.Descendants<Text>().ToList();
-
-        if (texts.Count < 2)
+        if (runs.Count == 0)
             return;
 
-        string fullText = string.Concat(texts.Select(t => t.Text));
+        string fullText = string.Concat(
+            runs.SelectMany(r => r.Elements<Text>())
+                .Select(t => t.Text));
+
+        if (string.IsNullOrEmpty(fullText))
+            return;
 
         bool changed = false;
 
@@ -259,7 +155,7 @@ public class DocumentService
         {
             if (fullText.Contains(field.Key))
             {
-                fullText = fullText.Replace(field.Key, field.Value);
+                fullText = fullText.Replace(field.Key, field.Value ?? "");
                 changed = true;
             }
         }
@@ -267,30 +163,75 @@ public class DocumentService
         if (!changed)
             return;
 
-        // Очищаємо тільки текст, НЕ видаляємо Run
-        foreach (var text in texts)
-            text.Text = "";
+        var firstRun = runs.First();
+
+        var runProperties = firstRun.RunProperties?.CloneNode(true);
+
+        foreach (var run in runs)
+            run.Remove();
+
+        var newRun = new Run();
+
+        if (runProperties != null)
+            newRun.RunProperties = (RunProperties)runProperties;
 
         var lines = fullText.Replace("\r\n", "\n").Split('\n');
 
-        texts[0].Text = lines[0];
-
-        if (lines.Length > 1)
+        for (int i = 0; i < lines.Length; i++)
         {
-            var run = texts[0].Parent as Run;
-
-            for (int i = 1; i < lines.Length; i++)
+            newRun.AppendChild(new Text(lines[i])
             {
-                run?.AppendChild(new Break());
+                Space = SpaceProcessingModeValues.Preserve
+            });
 
-                run?.AppendChild(new Text(lines[i])
+            if (i < lines.Length - 1)
+                newRun.AppendChild(new Break());
+        }
+
+        paragraph.AppendChild(newRun);
+    }
+
+    //private void ReplaceSplitRuns(Paragraph paragraph, Dictionary<string, string> fields)
+    //{
+    //    var texts = paragraph.Descendants<Text>().ToList();
+
+    //    if (texts.Count != 2)
+    //        return;
+
+    //    string key = texts[0].Text + texts[1].Text;
+
+    //    System.Diagnostics.Debug.WriteLine($"KEY = [{key}]");
+
+    //    if (fields.TryGetValue(key, out var value))
+    //    {
+    //        System.Diagnostics.Debug.WriteLine($"FOUND = {key} -> {value}");
+
+    //        texts[0].Text = value;
+    //        texts[1].Text = "";
+    //    }
+    //}
+
+    private void ReplaceMarkers(
+     Body body,
+     Dictionary<string, string> fields,
+     TableRow? serviceRow)
+    {
+        foreach (var paragraph in body.Descendants<Paragraph>())
+        {
+            // Не чіпаємо службовий рядок таблиці
+            if (serviceRow != null &&
+                paragraph.Ancestors<TableRow>().FirstOrDefault() == serviceRow)
+                continue;
+
+            foreach (var text in paragraph.Descendants<Text>())
+            {
+                if (fields.TryGetValue(text.Text, out var value))
                 {
-                    Space = SpaceProcessingModeValues.Preserve
-                });
+                    text.Text = value;
+                }
             }
         }
     }
-
     public string SaveDocument(byte[] documentBytes, string folderPath, string fileName)
     {
         Directory.CreateDirectory(folderPath);
