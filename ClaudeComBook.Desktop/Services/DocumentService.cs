@@ -1,4 +1,5 @@
 ﻿using ClaudeComBook.Desktop.Models;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
@@ -52,16 +53,29 @@ public class DocumentService
             }
 
             // Замінюємо всі текстові поля
+            //foreach (var paragraph in body.Descendants<Paragraph>())
+            //{
+            //    // Пропускаємо параграфи службового рядка
+            //    if (serviceRow != null &&
+            //        paragraph.Ancestors<TableRow>().FirstOrDefault() == serviceRow)
+            //    {
+            //        continue;
+            //    }
+
+            //    ReplaceParagraphText(paragraph, fields);
+            //}
+
+            // Спочатку швидка заміна простих маркерів
+            ReplaceSingleTexts(body, fields);
+
+            // Потім тільки якщо Word розбив маркер на декілька Run
             foreach (var paragraph in body.Descendants<Paragraph>())
             {
-                // Пропускаємо параграфи службового рядка
                 if (serviceRow != null &&
                     paragraph.Ancestors<TableRow>().FirstOrDefault() == serviceRow)
-                {
                     continue;
-                }
 
-                ReplaceParagraphText(paragraph, fields);
+                ReplaceBrokenMarkers(paragraph, fields);
             }
 
 
@@ -132,66 +146,149 @@ public class DocumentService
         serviceRow.Remove();
     }
 
+    //private void ReplaceCell(TableRow row, string key, string value)
+    //{
+    //    foreach (var paragraph in row.Descendants<Paragraph>())
+    //    {
+    //        ReplaceParagraphText(
+    //            paragraph,
+    //            new Dictionary<string, string>
+    //            {
+    //            { key, value }
+    //            });
+    //    }
+    //}
+
     private void ReplaceCell(TableRow row, string key, string value)
     {
+        var dict = new Dictionary<string, string>
+    {
+        { key, value }
+    };
+
+        foreach (var text in row.Descendants<Text>())
+        {
+            if (dict.TryGetValue(text.Text.Trim(), out var v))
+                text.Text = v;
+        }
+
         foreach (var paragraph in row.Descendants<Paragraph>())
         {
-            ReplaceParagraphText(
-                paragraph,
-                new Dictionary<string, string>
-                {
-                { key, value }
-                });
+            ReplaceBrokenMarkers(paragraph, dict);
         }
     }
 
-    private void ReplaceParagraphText(Paragraph paragraph, Dictionary<string, string> fields)
+    //private void ReplaceParagraphText(Paragraph paragraph, Dictionary<string, string> fields)
+    //{
+    //    // Збираємо весь текст параграфа
+    //    var runs = paragraph.Descendants<Run>().ToList();
+    //    var fullText = string.Concat(runs.Select(r => r.InnerText));
+
+    //    // Перевіряємо чи є що замінювати
+    //    bool hasReplacement = fields.Keys.Any(key => fullText.Contains(key));
+    //    if (!hasReplacement) return;
+
+    //    // Замінюємо
+    //    foreach (var field in fields)
+    //        fullText = fullText.Replace(field.Key, field.Value);
+
+    //    // Очищаємо старі runs і вставляємо новий
+    //    var firstRun = runs.FirstOrDefault();
+    //    if (firstRun == null) return;
+
+    //    // Зберігаємо форматування першого run
+    //    var runProperties = firstRun.RunProperties?.CloneNode(true);
+
+    //    // Видаляємо всі runs
+    //    foreach (var run in runs)
+    //        run.Remove();
+
+    //    // Додаємо новий run із підтримкою перенесення рядків
+    //    var newRun = new Run();
+
+    //    if (runProperties != null)
+    //        newRun.AppendChild(runProperties);
+
+    //    var lines = fullText.Replace("\r\n", "\n").Split('\n');
+
+    //    for (int i = 0; i < lines.Length; i++)
+    //    {
+    //        newRun.AppendChild(new Text(lines[i])
+    //        {
+    //            Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve
+    //        });
+
+    //        if (i < lines.Length - 1)
+    //        {
+    //            newRun.AppendChild(new Break());
+    //        }
+    //    }
+
+    //    paragraph.AppendChild(newRun);
+    //}
+
+    private void ReplaceSingleTexts(
+    Body body,
+    Dictionary<string, string> fields)
     {
-        // Збираємо весь текст параграфа
-        var runs = paragraph.Descendants<Run>().ToList();
-        var fullText = string.Concat(runs.Select(r => r.InnerText));
-
-        // Перевіряємо чи є що замінювати
-        bool hasReplacement = fields.Keys.Any(key => fullText.Contains(key));
-        if (!hasReplacement) return;
-
-        // Замінюємо
-        foreach (var field in fields)
-            fullText = fullText.Replace(field.Key, field.Value);
-
-        // Очищаємо старі runs і вставляємо новий
-        var firstRun = runs.FirstOrDefault();
-        if (firstRun == null) return;
-
-        // Зберігаємо форматування першого run
-        var runProperties = firstRun.RunProperties?.CloneNode(true);
-
-        // Видаляємо всі runs
-        foreach (var run in runs)
-            run.Remove();
-
-        // Додаємо новий run із підтримкою перенесення рядків
-        var newRun = new Run();
-
-        if (runProperties != null)
-            newRun.AppendChild(runProperties);
-
-        var lines = fullText.Replace("\r\n", "\n").Split('\n');
-
-        for (int i = 0; i < lines.Length; i++)
+        foreach (var text in body.Descendants<Text>())
         {
-            newRun.AppendChild(new Text(lines[i])
-            {
-                Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve
-            });
+            var key = text.Text.Trim();
 
-            if (i < lines.Length - 1)
+            if (fields.TryGetValue(key, out var value))
             {
-                newRun.AppendChild(new Break());
+                text.Text = value;
+            }
+        }
+    }
+
+    private void ReplaceBrokenMarkers(
+    Paragraph paragraph,
+    Dictionary<string, string> fields)
+    {
+        var texts = paragraph.Descendants<Text>().ToList();
+
+        if (texts.Count < 2)
+            return;
+
+        string fullText = string.Concat(texts.Select(t => t.Text));
+
+        bool changed = false;
+
+        foreach (var field in fields)
+        {
+            if (fullText.Contains(field.Key))
+            {
+                fullText = fullText.Replace(field.Key, field.Value);
+                changed = true;
             }
         }
 
-        paragraph.AppendChild(newRun);
+        if (!changed)
+            return;
+
+        // Очищаємо тільки текст, НЕ видаляємо Run
+        foreach (var text in texts)
+            text.Text = "";
+
+        var lines = fullText.Replace("\r\n", "\n").Split('\n');
+
+        texts[0].Text = lines[0];
+
+        if (lines.Length > 1)
+        {
+            var run = texts[0].Parent as Run;
+
+            for (int i = 1; i < lines.Length; i++)
+            {
+                run?.AppendChild(new Break());
+
+                run?.AppendChild(new Text(lines[i])
+                {
+                    Space = SpaceProcessingModeValues.Preserve
+                });
+            }
+        }
     }
 
     public string SaveDocument(byte[] documentBytes, string folderPath, string fileName)

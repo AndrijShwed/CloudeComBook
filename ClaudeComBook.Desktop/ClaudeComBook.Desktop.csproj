@@ -88,5 +88,8 @@
     <Compile Update="Views\AnymalSearchView.axaml.cs">
       <DependentUpon>AnymalSearchView.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\InputDialogTestamentRegistration.axaml.cs">
+      <DependentUpon>InputDialogTestamentRegistration.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

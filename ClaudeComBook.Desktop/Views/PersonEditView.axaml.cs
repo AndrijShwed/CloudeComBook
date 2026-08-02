@@ -427,9 +427,29 @@ public partial class PersonEditView : Window
 
     private async void OnTestamentRegistrationClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+
+        var dialog = new InputDialogTestamentRegistration("Введіть дані");
+
+        bool result = await dialog.ShowDialog<bool>(this);
+
+        if (!result)
+            return;
+
+        // Отримуємо введені дані
+        string testamentNumber = dialog.TestamentNumber ?? "";
+        string placeOfBirth = dialog.PlaceOfBirth ?? "";
+        string postalCode = dialog.PostalCode ?? "";
+        string registrationDate = dialog.RegistrationDate ?? "";
+
         DocumentsPopup.IsOpen = false;
         await GenerateDocument("testament_registration",
-            "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""));
+            "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""),
+            new Dictionary<string, string> {
+                { "reg", testamentNumber },
+                { "place", placeOfBirth },
+                { "ПоштовийКодЗаповідача", postalCode },
+                { "ДатаРеєстраціїЗаповіту", registrationDate }
+            });
     }
 
     private async System.Threading.Tasks.Task GenerateDocument(string templateType, string folderPath, Dictionary<string, string>? extraFields = null)
@@ -460,30 +480,10 @@ public partial class PersonEditView : Window
         string i_0 = "";
         string RegistrDate = "";
 
-        string idKod = _person?.IdKod?.Trim() ?? string.Empty;
-        if (idKod.Length != 10 && idKod.Length > 0)
-        {
-            var err = MsBox.Avalonia.MessageBoxManager
-               .GetMessageBoxStandard("Помилка", "Неправильно введений ідентифікаційний код");
-            await err.ShowAsync();
-            return;
-        }
-        if(idKod.Length == 10)
-        {
-            i_1 = idKod.Substring(0, 1);
-            i_2 = idKod.Substring(1, 1);
-            i_3 = idKod.Substring(2, 1);
-            i_4 = idKod.Substring(3, 1);
-            i_5 = idKod.Substring(4, 1);
-            i_6 = idKod.Substring(5, 1);
-            i_7 = idKod.Substring(6, 1);
-            i_8 = idKod.Substring(7, 1);
-            i_9 = idKod.Substring(8, 1);
-            i_0 = idKod.Substring(9, 1);
-        }
+
 
         var fields = new Dictionary<string, string>();
-   
+
         if (_person.Sex != "чол")
         {
             fields.Add("his", "її");
@@ -513,27 +513,50 @@ public partial class PersonEditView : Window
         fields.Add("house", _person.NumbOfHouse ?? "");
         fields.Add("full_name", $"{_person.LastName} {_person.Name} {_person.Surname}");
         fields.Add("birth_date", $"{_person.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""}");
-        fields.Add("i-1", i_1);
-        fields.Add("i-2", i_2);
-        fields.Add("i-3", i_3);
-        fields.Add("i-4", i_4);
-        fields.Add("i-5", i_5);
-        fields.Add("i-6", i_6);
-        fields.Add("i-7", i_7);
-        fields.Add("i-8", i_8);
-        fields.Add("i-9", i_9);
-        fields.Add("i-0", i_0);
-        fields.Add("dB", _person.DateOfBirth?.ToString("dd") ?? "");
-        fields.Add("mB", _person.DateOfBirth?.ToString("MM") ?? "");
-        fields.Add("yB", _person.DateOfBirth?.ToString("yyyy") ?? "");
-        fields.Add("dR", DateTime.Now.ToString("dd") ?? "");
-        fields.Add("mR", DateTime.Now.ToString("MM") ?? "");
-        fields.Add("yR", DateTime.Now.ToString("yyyy") ?? "");
+
+
 
         // Додаємо extra fields
         if (extraFields != null)
+        {
             foreach (var f in extraFields)
                 fields[f.Key] = f.Value;
+
+            // ===========================
+            // Поштовий індекс
+            // ===========================
+            if (fields.TryGetValue("ПоштовийКодЗаповідача", out var postalCode))
+            {
+                postalCode = (postalCode ?? "").Trim();
+
+                for (int i = 0; i < 5; i++)
+                {
+                    fields[$"p_{i + 1}"] =
+                        postalCode.Length > i
+                            ? postalCode[i].ToString()
+                            : "";
+                }
+            }
+
+            // ===========================
+            // Дата реєстрації заповіту
+            // ===========================
+            if (fields.TryGetValue("ДатаРеєстраціїЗаповіту", out var registrationDate))
+            {
+                if (DateTime.TryParse(registrationDate, out var date))
+                {
+                    fields["dR"] = date.ToString("dd");
+                    fields["mR"] = date.ToString("MM");
+                    fields["yR"] = date.ToString("yyyy");
+                }
+                else
+                {
+                    fields["dR"] = "";
+                    fields["mR"] = "";
+                    fields["yR"] = "";
+                }
+            }
+        }
 
         // Для довідки про склад сім'ї - отримуємо всіх за адресою
         if (templateType == "family_composition" && _person.VillageStreetId.HasValue)
@@ -626,7 +649,7 @@ public partial class PersonEditView : Window
 
         }
 
-        if(templateType == "benefits")
+        if (templateType == "benefits")
         {
             int countReal = (familyMembers?.Count ?? 0) + 1;
             fields.Add("Кількість", countReal.ToString());
@@ -638,6 +661,65 @@ public partial class PersonEditView : Window
             fields["ЗагальнаПлоща"] = house?.TotalArea?.ToString("F1") ?? "0";
             fields["ЖитловаПлоща"] = house?.LivingArea?.ToString("F1") ?? "0";
         }
+        if (templateType == "testament_registration")
+        {
+            string idKod = _person?.IdKod?.Trim() ?? string.Empty;
+            if (idKod.Length != 10 && idKod.Length > 0)
+            {
+                var err = MsBox.Avalonia.MessageBoxManager
+                   .GetMessageBoxStandard("Помилка", "Неправильно введений ідентифікаційний код");
+                await err.ShowAsync();
+                return;
+            }
+            if (idKod.Length == 10)
+            {
+                i_1 = idKod.Substring(0, 1);
+                i_2 = idKod.Substring(1, 1);
+                i_3 = idKod.Substring(2, 1);
+                i_4 = idKod.Substring(3, 1);
+                i_5 = idKod.Substring(4, 1);
+                i_6 = idKod.Substring(5, 1);
+                i_7 = idKod.Substring(6, 1);
+                i_8 = idKod.Substring(7, 1);
+                i_9 = idKod.Substring(8, 1);
+                i_0 = idKod.Substring(9, 1);
+            }
+
+
+            fields.Add("dB", _person.DateOfBirth?.ToString("dd") ?? "");
+            fields.Add("mB", _person.DateOfBirth?.ToString("MM") ?? "");
+            fields.Add("yB", _person.DateOfBirth?.ToString("yyyy") ?? "");
+
+            string postIndex = AppSession.CurrentUser?.PostIndex ?? "";
+
+            fields.Add("p-1", postIndex.Length >= 1 ? postIndex.Substring(0, 1) : "");
+            fields.Add("p-2", postIndex.Length >= 2 ? postIndex.Substring(1, 1) : "");
+            fields.Add("p-3", postIndex.Length >= 3 ? postIndex.Substring(2, 1) : "");
+            fields.Add("p-4", postIndex.Length >= 4 ? postIndex.Substring(3, 1) : "");
+            fields.Add("p-5", postIndex.Length >= 5 ? postIndex.Substring(4, 1) : "");
+        
+        fields.Add("z1", i_1);
+        fields.Add("z2", i_2);
+        fields.Add("z3", i_3);
+        fields.Add("z4", i_4);
+        fields.Add("z5", i_5);
+        fields.Add("z6", i_6);
+        fields.Add("z7", i_7);
+        fields.Add("z8", i_8);
+        fields.Add("z9", i_9);
+        fields.Add("z0", i_0);
+
+        fields.Add("user_region", AppSession.CurrentUser?.Region ?? "");
+        fields.Add("user_district", AppSession.CurrentUser?.District ?? "");
+        fields.Add("user_full_name", AppSession.CurrentUser?.FullName ?? "");
+        fields.Add("user_position", AppSession.CurrentUser?.Position ?? "");
+        fields.Add("user_organization", AppSession.CurrentUser?.Organization ?? "");
+        fields.Add("user_village", AppSession.CurrentUser?.Village ?? "");
+        fields.Add("user_street", AppSession.CurrentUser?.Street ?? "");
+        fields.Add("u-h", AppSession.CurrentUser?.House ?? "");
+        fields.Add("user_phone", AppSession.CurrentUser?.Phone ?? "");
+    }
+        
 
         var docService = new DocumentService();
         var filledBytes = docService.FillTemplate(templateBytes, fields, familyMembers);
