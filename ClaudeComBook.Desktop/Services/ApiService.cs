@@ -1,6 +1,7 @@
 ﻿using ClaudeComBook.Desktop.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -414,21 +415,6 @@ public class ApiService
         });
         return response.IsSuccessStatusCode;
     }
-    public async Task<byte[]?> GetTemplateByTypeAsync(string type)
-    {
-        try
-        {
-            var response = await _http.GetAsync($"/api/documenttemplates/by-type/{type}");
-            if (!response.IsSuccessStatusCode) return null;
-
-            var template = await response.Content.ReadFromJsonAsync<DocumentTemplateDto>();
-            return template?.Template;
-        }
-        catch
-        {
-            return null;
-        }
-    }
 
     public async Task UploadTemplateAsync(string name, string type, byte[] templateBytes)
     {
@@ -485,5 +471,57 @@ public class ApiService
 
         });
         return response.IsSuccessStatusCode;
+    }
+    public async Task<string?> GetTemplatePathByTypeAsync(string type)
+    {
+        try
+        {
+            var response = await _http.GetAsync($"/api/documenttemplates/by-type/{type}");
+            if (!response.IsSuccessStatusCode) return null;
+            var template = await response.Content.ReadFromJsonAsync<DocumentTemplateDto>();
+            return template?.Name;
+        }
+        catch { return null; }
+    }
+
+    public async Task UploadTemplateAsync(string name, string type, string filePath)
+    {
+        using var content = new MultipartFormDataContent();
+
+        content.Add(new StringContent(name), "Name");
+        content.Add(new StringContent(type), "Type");
+
+        await using var stream = File.OpenRead(filePath);
+
+        content.Add(
+            new StreamContent(stream),
+            "File",
+            Path.GetFileName(filePath));
+
+        var response = await _http.PostAsync("/api/documenttemplates", content);
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task SaveTemplatePathAsync(string name, string type)
+    {
+        await _http.PostAsJsonAsync("/api/documenttemplates/upsert", new
+        {
+            name,
+            type
+        });
+    }
+
+    public async Task<bool> TemplateExistsAsync(string type)
+    {
+        try
+        {
+            var response = await _http.GetAsync($"/api/documenttemplates/by-type/{type}");
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

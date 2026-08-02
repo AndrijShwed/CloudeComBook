@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -454,8 +455,8 @@ public partial class PersonEditView : Window
 
     private async System.Threading.Tasks.Task GenerateDocument(string templateType, string folderPath, Dictionary<string, string>? extraFields = null)
     {
-        var templateBytes = await _api.GetTemplateByTypeAsync(templateType);
-        if (templateBytes == null)
+        var templatePath = await _api.GetTemplatePathByTypeAsync(templateType);
+        if (templatePath == null || !System.IO.File.Exists(templatePath))
         {
             var err = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandard("Помилка", "Шаблон документу не знайдено!\nЗавантажте шаблон через адмін панель.");
@@ -665,6 +666,11 @@ public partial class PersonEditView : Window
         }
         if (templateType == "testament_registration")
         {
+            //wordApp = new Microsoft.Office.Interop.Word.Application();
+            //string currentDirectory = Directory.GetCurrentDirectory();
+            //string temlatePath = Path.Combine(currentDirectory, "DocTemplates", "Шаблон_заява_заповіт.docx");
+            //document = wordApp.Documents.Open(temlatePath);
+
             string idKod = _person?.IdKod?.Trim() ?? string.Empty;
             if (idKod.Length != 10 && idKod.Length > 0)
             {
@@ -724,9 +730,9 @@ public partial class PersonEditView : Window
         
 
         var docService = new DocumentService();
-        var filledBytes = docService.FillTemplate(templateBytes, fields, familyMembers);
+        //var filledBytes = docService.FillTemplate(templateBytes, fields, familyMembers);
         var fileName = $"{_person.LastName}_{_person.Name}_{DateTime.Now:dd.MM.yyyy_HH.mm.ss}.docx";
-        var filePath = docService.SaveDocument(filledBytes, folderPath, fileName);
-        docService.OpenDocument(filePath);
+        //var filePath = docService.SaveDocument(filledBytes, folderPath, fileName);
+        //docService.OpenDocument(filePath);
     }
 }
