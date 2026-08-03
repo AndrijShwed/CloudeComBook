@@ -463,10 +463,7 @@ public partial class PersonEditView : Window
             await err.ShowAsync();
             return;
         }
-        var familyMembers = await _api.GetPeopleByAddressAsync(
-                _person.VillageStreetId.Value,
-                _person.NumbOfHouse ?? "",
-                _person.PeopleId);
+        
 
 
         string i_1 = "";
@@ -562,6 +559,11 @@ public partial class PersonEditView : Window
         }
 
         // Для довідки про склад сім'ї - отримуємо всіх за адресою
+        var familyMembers = await _api.GetPeopleByAddressAsync(
+                _person.VillageStreetId.Value,
+                _person.NumbOfHouse ?? "",
+                _person.PeopleId);
+
         if (templateType == "family_composition" && _person.VillageStreetId.HasValue)
         {
             // Отримуємо будинок
@@ -573,16 +575,31 @@ public partial class PersonEditView : Window
 
             if (familyMembers != null && familyMembers.Count > 1)
             {
-                var membersList = string.Join("\n\n", familyMembers.Select((p, i) =>
-                    $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""} р.н."));
-
-                fields["осіб:"] = $"осіб:\n\n\n{membersList}";
-                //fields["осіб"] = familyMembers.Count.ToString();
+                fields["що його сім'я складається з осіб:"] = "що його сім'я складається з осіб:" + 
+                    Environment.NewLine + Environment.NewLine +
+                    string.Join(
+                        Environment.NewLine + Environment.NewLine, 
+                        familyMembers.Select((p, i) =>
+                        $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""} р.н."));
             }
             else
             {
-                fields["його сім`я складається з осіб:"] = "за даною адресою особа проживає одна";
+                fields["що його сім'я складається з осіб:"] = "за даною адресою особа проживає одна";
             }
+
+            //if (familyMembers != null && familyMembers.Count > 0)
+            //{
+            //    fields["FamilyMembers"] =
+            //            Environment.NewLine +
+            //            string.Join(
+            //                Environment.NewLine + Environment.NewLine,
+            //                familyMembers.Select((p, i) =>
+            //                    $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth:dd.MM.yyyy} р.н."));
+            //}
+            //else
+            //{
+            //    fields["FamilyMembers"] = "За даною адресою особа проживає одна.";
+            //}
         }
 
         if (templateType == "testament")
@@ -727,12 +744,16 @@ public partial class PersonEditView : Window
         fields.Add("u-h", AppSession.CurrentUser?.House ?? "");
         fields.Add("user_phone", AppSession.CurrentUser?.Phone ?? "");
     }
-        
+
 
         var docService = new DocumentService();
-        //var filledBytes = docService.FillTemplate(templateBytes, fields, familyMembers);
-        var fileName = $"{_person.LastName}_{_person.Name}_{DateTime.Now:dd.MM.yyyy_HH.mm.ss}.docx";
-        //var filePath = docService.SaveDocument(filledBytes, folderPath, fileName);
-        //docService.OpenDocument(filePath);
+        string fileName = $"{_person.LastName}_{_person.Name}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.docx";
+
+        string filePath = docService.GenerateDocument(
+            templatePath,
+            folderPath,
+            fileName,
+            fields,
+            familyMembers);
     }
 }

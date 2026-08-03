@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using ClaudeComBook.Desktop.Services;
 using System.IO;
 using System.Threading.Tasks;
@@ -26,25 +28,30 @@ public partial class TemplatesManagementView : Window
         await CheckStatus("testament_registration", TestamentRegStatus, TestamentRegBtn);
     }
 
-    private async Task CheckStatus(string type, TextBlock statusLabel, Button uploadBtn)
+    private async Task CheckStatus(
+    string type,
+    TextBlock statusLabel,
+    Button uploadButton)
     {
         bool exists = await _api.TemplateExistsAsync(type);
 
         if (exists)
         {
             statusLabel.Text = "✅ Завантажено";
-            statusLabel.Foreground = Avalonia.Media.Brushes.LightGreen;
-            uploadBtn.Content = "Замінити";
-            uploadBtn.Background = new Avalonia.Media.SolidColorBrush(
-                Avalonia.Media.Color.FromRgb(255, 152, 0));
+            statusLabel.Foreground = Brushes.LightGreen;
+
+            uploadButton.Content = "Замінити";
+            uploadButton.Background =
+                new SolidColorBrush(Color.FromRgb(255, 152, 0));
         }
         else
         {
             statusLabel.Text = "❌ Не завантажено";
-            statusLabel.Foreground = Avalonia.Media.Brushes.Orange;
-            uploadBtn.Content = "Завантажити";
-            uploadBtn.Background = new Avalonia.Media.SolidColorBrush(
-                Avalonia.Media.Color.FromRgb(76, 175, 80));
+            statusLabel.Foreground = Brushes.Orange;
+
+            uploadButton.Content = "Завантажити";
+            uploadButton.Background =
+                new SolidColorBrush(Color.FromRgb(76, 175, 80));
         }
     }
 
@@ -66,78 +73,51 @@ public partial class TemplatesManagementView : Window
     private async void OnUploadTestamentRegClick(object sender, RoutedEventArgs e) =>
         await UploadTemplate("testament_registration", "Заява на реєстрацію заповіту", TestamentRegStatus, TestamentRegBtn);
 
-    //private async System.Threading.Tasks.Task UploadTemplate(string type, string name, TextBlock statusLabel, Button uploadBtn)
-    //{
-    //    var dialog = new Avalonia.Platform.Storage.FilePickerOpenOptions
-    //    {
-    //        Title = $"Оберіть шаблон — {name}",
-    //        AllowMultiple = false,
-    //        FileTypeFilter = new[]
-    //        {
-    //        new Avalonia.Platform.Storage.FilePickerFileType("Word документи")
-    //        {
-    //            Patterns = new[] { "*.docx" }
-    //        }
-    //    }
-    //    };
-
-    //    var files = await StorageProvider.OpenFilePickerAsync(dialog);
-    //    if (files.Count == 0) return;
-
-
-    //    string currentDirectory = Directory.GetCurrentDirectory();
-
-    //    string filePath = Path.Combine(currentDirectory, "DocTemplates", name + ".docx");
-
-    //    //var filePath = files[0].Path.LocalPath;
-
-    //    // Зберігаємо тільки шлях в БД
-    //    await _api.SaveTemplatePathAsync(name, type, filePath);
-
-    //    await CheckStatus(type, statusLabel, uploadBtn);
-
-    //    var msg = MsBox.Avalonia.MessageBoxManager
-    //        .GetMessageBoxStandard("Успіх", $"Шаблон \"{name}\" зареєстровано!\nШлях: {filePath}");
-    //    await msg.ShowAsync();
-    //}
-
     private async Task UploadTemplate(
-    string type,
-    string name,
-    TextBlock statusLabel,
-    Button uploadBtn)
+     string type,
+     string templateName,
+     TextBlock statusLabel,
+     Button uploadButton)
     {
-        var dialog = new Avalonia.Platform.Storage.FilePickerOpenOptions
-        {
-            Title = $"Оберіть шаблон — {name}",
-            AllowMultiple = false,
-            FileTypeFilter =
-            [
-                new Avalonia.Platform.Storage.FilePickerFileType("Word документи")
+        var files = await StorageProvider.OpenFilePickerAsync(
+            new FilePickerOpenOptions
             {
-                Patterns = ["*.docx"]
-            }
-            ]
-        };
-
-        var files = await StorageProvider.OpenFilePickerAsync(dialog);
+                Title = $"Виберіть шаблон \"{templateName}\"",
+                AllowMultiple = false,
+                FileTypeFilter =
+                [
+                    new FilePickerFileType("Документи Word")
+                {
+                    Patterns = new[] { "*.docx" },
+                    MimeTypes = new[] { "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }
+                }
+                ]
+            });
 
         if (files.Count == 0)
             return;
 
-        string selectedFile = files[0].Path.LocalPath;
+        string? filePath = files[0].TryGetLocalPath();
 
-        await _api.UploadTemplateAsync(name, type, selectedFile);
+        if (string.IsNullOrWhiteSpace(filePath))
+            return;
 
-        await CheckStatus(type, statusLabel, uploadBtn);
+        await _api.UploadTemplateAsync(type, filePath);
 
-        await MsBox.Avalonia.MessageBoxManager
-            .GetMessageBoxStandard(
-                "Успіх",
-                $"Шаблон \"{name}\" успішно завантажено.")
-            .ShowAsync();
+        var msg = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard(
+                    "Успішно",
+                    "Шаблон успішно замінено.");
+
+        await msg.ShowAsync();
+
+        statusLabel.Text = "✅ Завантажено";
+        statusLabel.Foreground = Brushes.LightGreen;
+
+        uploadButton.Content = "Замінити";
+        uploadButton.Background =
+            new SolidColorBrush(Color.FromRgb(255, 152, 0));
     }
-
     private void OnCloseClick(object sender, RoutedEventArgs e)
     {
         Close();
