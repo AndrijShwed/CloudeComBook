@@ -5,6 +5,7 @@ using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
 using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.Office.Interop.Word;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Window = Avalonia.Controls.Window;
 
 namespace ClaudeComBook.Desktop.Views;
 
@@ -489,8 +491,9 @@ public partial class PersonEditView : Window
             fields.Add("який народився", "яка народилася");
             fields.Add("him", "нею");
             fields.Add("жителю", "жительці");
-            fields.Add("його", "її");
-            fields.Add("жителя", "жительку");
+            fields["його"] = "її";
+            fields["жителя"] = "жительку";
+            fields["жителю"] = "жительці";
             fields.Add("which born", "яка народилась");
             fields.Add("registr", "зареєстрована");
         }
@@ -500,6 +503,7 @@ public partial class PersonEditView : Window
             fields.Add("him", "ним");
             fields.Add("which born", "який народився");
             fields.Add("registr", "зареєстрований");
+            fields["жителю"] = "жителю";
         }
         string position = AppSession.CurrentUser?.Position ?? "";
 
@@ -566,40 +570,32 @@ public partial class PersonEditView : Window
 
         if (templateType == "family_composition" && _person.VillageStreetId.HasValue)
         {
+            
+
             // Отримуємо будинок
             var house = await _api.GetHouseByAddressAsync(
                 _person.VillageStreetId.Value,
                 _person.NumbOfHouse ?? "");
 
             fields["ЗагальнаПлоща"] = house?.TotalArea?.ToString("F1") ?? "0";
-
+            string hisFamily = "що його сім'я складається з осіб:";
             if (familyMembers != null && familyMembers.Count > 1)
             {
-                fields["що його сім'я складається з осіб:"] = "що його сім'я складається з осіб:" + 
-                    Environment.NewLine + Environment.NewLine +
-                    string.Join(
-                        Environment.NewLine + Environment.NewLine, 
-                        familyMembers.Select((p, i) =>
-                        $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""} р.н."));
+                if (_person.Sex != "чол")
+                {
+                    hisFamily = "що її сім'я складається з осіб:";
+                }
+                fields["що його сім'я складається з осіб:"] = hisFamily; 
+                    //Environment.NewLine + Environment.NewLine +
+                    //string.Join(
+                    //    Environment.NewLine + Environment.NewLine, 
+                    //    familyMembers.Select((p, i) =>
+                    //    $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""} р.н."));
             }
             else
             {
                 fields["що його сім'я складається з осіб:"] = "за даною адресою особа проживає одна";
             }
-
-            //if (familyMembers != null && familyMembers.Count > 0)
-            //{
-            //    fields["FamilyMembers"] =
-            //            Environment.NewLine +
-            //            string.Join(
-            //                Environment.NewLine + Environment.NewLine,
-            //                familyMembers.Select((p, i) =>
-            //                    $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth:dd.MM.yyyy} р.н."));
-            //}
-            //else
-            //{
-            //    fields["FamilyMembers"] = "За даною адресою особа проживає одна.";
-            //}
         }
 
         if (templateType == "testament")

@@ -3,6 +3,7 @@ using Microsoft.Office.Interop.Word;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Word = Microsoft.Office.Interop.Word;
 
@@ -42,7 +43,7 @@ public class DocumentService
 
             if (familyMembers != null)
             {
-                FillFamilyTable(familyMembers);
+                FillFamilyBookmark(familyMembers);
             }
 
             _document.Save();
@@ -155,6 +156,32 @@ public class DocumentService
         }
 
         templateRow.Delete();
+    }
+
+    private void FillFamilyBookmark(List<Person> familyMembers)
+    {
+        if (_document == null)
+            return;
+
+        if (!_document.Bookmarks.Exists("FamilyMembers"))
+            return;
+
+        Word.Range range = _document.Bookmarks["FamilyMembers"].Range;
+
+        if (familyMembers == null || familyMembers.Count == 0)
+        {
+            range.Text = "за даною адресою особа проживає одна";
+        }
+        else
+        {
+            range.Text = string.Join(
+                Environment.NewLine + Environment.NewLine,
+                familyMembers.Select((p, i) =>
+                    $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth:dd.MM.yyyy} р.н."));
+        }
+
+        // Повертаємо закладку, оскільки після присвоєння Text вона видаляється
+        _document.Bookmarks.Add("FamilyMembers", range);
     }
 
     private void FillFamilyRow(
