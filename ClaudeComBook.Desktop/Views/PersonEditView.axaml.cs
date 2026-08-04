@@ -448,7 +448,7 @@ public partial class PersonEditView : Window
         await GenerateDocument("testament_registration",
             "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""),
             new Dictionary<string, string> {
-                { "reg", testamentNumber },
+                { "regnumber", testamentNumber },
                 { "place", placeOfBirth },
                 { "ПоштовийКодЗаповідача", postalCode },
                 { "ДатаРеєстраціїЗаповіту", registrationDate }
@@ -512,11 +512,11 @@ public partial class PersonEditView : Window
         fields.Add("Name_1 SURNAME_1", AppSession.CurrentUser?.FullName ?? "");
         fields.Add("ShortName", AppSession.CurrentUser?.ShortName ?? "");
         fields.Add("ПоточнаДата", DateTime.Now.ToString("dd.MM.yyyy"));
-        fields.Add("village", _person.VillageName ?? "");
-        fields.Add("street", _person.StreetName ?? "");
-        fields.Add("house", _person.NumbOfHouse ?? "");
-        fields.Add("full_name", $"{_person.LastName} {_person.Name} {_person.Surname}");
-        fields.Add("birth_date", $"{_person.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""}");
+        fields["village"] = _person.VillageName ?? "";
+        fields["street"] = _person.StreetName ?? "";
+        fields["house"] = _person.NumbOfHouse ?? "";
+        fields["full_name"] = $"{_person.LastName} {_person.Name} {_person.Surname}";
+        fields["birth_date"] = $"{_person.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""}";
 
 
 
@@ -535,7 +535,7 @@ public partial class PersonEditView : Window
 
                 for (int i = 0; i < 5; i++)
                 {
-                    fields[$"p_{i + 1}"] =
+                    fields[$"p-{i + 1}"] =
                         postalCode.Length > i
                             ? postalCode[i].ToString()
                             : "";
@@ -586,11 +586,6 @@ public partial class PersonEditView : Window
                     hisFamily = "що її сім'я складається з осіб:";
                 }
                 fields["що його сім'я складається з осіб:"] = hisFamily; 
-                    //Environment.NewLine + Environment.NewLine +
-                    //string.Join(
-                    //    Environment.NewLine + Environment.NewLine, 
-                    //    familyMembers.Select((p, i) =>
-                    //    $"{i + 1}. {p.LastName} {p.Name} {p.Surname} - {p.DateOfBirth?.ToString("dd.MM.yyyy") ?? ""} р.н."));
             }
             else
             {
@@ -679,11 +674,6 @@ public partial class PersonEditView : Window
         }
         if (templateType == "testament_registration")
         {
-            //wordApp = new Microsoft.Office.Interop.Word.Application();
-            //string currentDirectory = Directory.GetCurrentDirectory();
-            //string temlatePath = Path.Combine(currentDirectory, "DocTemplates", "Шаблон_заява_заповіт.docx");
-            //document = wordApp.Documents.Open(temlatePath);
-
             string idKod = _person?.IdKod?.Trim() ?? string.Empty;
             if (idKod.Length != 10 && idKod.Length > 0)
             {
@@ -713,32 +703,32 @@ public partial class PersonEditView : Window
 
             string postIndex = AppSession.CurrentUser?.PostIndex ?? "";
 
-            fields.Add("p-1", postIndex.Length >= 1 ? postIndex.Substring(0, 1) : "");
-            fields.Add("p-2", postIndex.Length >= 2 ? postIndex.Substring(1, 1) : "");
-            fields.Add("p-3", postIndex.Length >= 3 ? postIndex.Substring(2, 1) : "");
-            fields.Add("p-4", postIndex.Length >= 4 ? postIndex.Substring(3, 1) : "");
-            fields.Add("p-5", postIndex.Length >= 5 ? postIndex.Substring(4, 1) : "");
-        
-        fields.Add("z1", i_1);
-        fields.Add("z2", i_2);
-        fields.Add("z3", i_3);
-        fields.Add("z4", i_4);
-        fields.Add("z5", i_5);
-        fields.Add("z6", i_6);
-        fields.Add("z7", i_7);
-        fields.Add("z8", i_8);
-        fields.Add("z9", i_9);
-        fields.Add("z0", i_0);
+            fields.Add("z-1", postIndex.Length >= 1 ? postIndex.Substring(0, 1) : "");
+            fields.Add("z-2", postIndex.Length >= 2 ? postIndex.Substring(1, 1) : "");
+            fields.Add("z-3", postIndex.Length >= 3 ? postIndex.Substring(2, 1) : "");
+            fields.Add("z-4", postIndex.Length >= 4 ? postIndex.Substring(3, 1) : "");
+            fields.Add("z-5", postIndex.Length >= 5 ? postIndex.Substring(4, 1) : "");
 
-        fields.Add("user_region", AppSession.CurrentUser?.Region ?? "");
-        fields.Add("user_district", AppSession.CurrentUser?.District ?? "");
-        fields.Add("user_full_name", AppSession.CurrentUser?.FullName ?? "");
-        fields.Add("user_position", AppSession.CurrentUser?.Position ?? "");
-        fields.Add("user_organization", AppSession.CurrentUser?.Organization ?? "");
-        fields.Add("user_village", AppSession.CurrentUser?.Village ?? "");
-        fields.Add("user_street", AppSession.CurrentUser?.Street ?? "");
-        fields.Add("u-h", AppSession.CurrentUser?.House ?? "");
-        fields.Add("user_phone", AppSession.CurrentUser?.Phone ?? "");
+            fields.Add("i-1", i_1);
+            fields.Add("i-2", i_2);
+            fields.Add("i-3", i_3);
+            fields.Add("i-4", i_4);
+            fields.Add("i-5", i_5);
+            fields.Add("i-6", i_6);
+            fields.Add("i-7", i_7);
+            fields.Add("i-8", i_8);
+            fields.Add("i-9", i_9);
+            fields.Add("i-0", i_0);
+
+            fields.Add("ruegion", AppSession.CurrentUser?.Region ?? "");
+            fields.Add("duistrict", AppSession.CurrentUser?.District ?? "");
+            fields.Add("fuull_name", AppSession.CurrentUser?.FullName ?? "");
+            fields.Add("puosition", AppSession.CurrentUser?.Position ?? "");
+            fields.Add("ourganization", AppSession.CurrentUser?.Organization ?? "");
+            fields.Add("vuillage", AppSession.CurrentUser?.Village ?? "");
+            fields.Add("sutreet", AppSession.CurrentUser?.Street ?? "");
+            fields.Add("uah", AppSession.CurrentUser?.House ?? "");
+            fields.Add("puhone", AppSession.CurrentUser?.Phone ?? "");
     }
 
 

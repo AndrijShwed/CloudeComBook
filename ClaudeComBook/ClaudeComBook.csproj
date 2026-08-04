@@ -7,20 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="DocTemplates\Довідка про склад сім%27ї.docx" />
-    <None Remove="DocTemplates\Заява на реєстрацію заповіту.docx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="DocTemplates\Довідка про склад сім'ї.docx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DocTemplates\Заява на реєстрацію заповіту.docx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Dapper" Version="2.1.79" />

@@ -39,7 +39,12 @@ public class DocumentService
 
             _document = _word.Documents.Open(outputPath);
 
-            ReplaceFields(fields);
+            
+            
+             ReplaceWords(fields);
+            
+
+            //ReplaceFields(fields);
 
             if (familyMembers != null)
             {
@@ -65,6 +70,29 @@ public class DocumentService
         }
     }
 
+    public void ReplaceWords(Dictionary<string, string> words)
+    {
+       
+        if (_document == null)
+            return;
+        foreach (var word in words)
+        {
+            foreach (var replacement in words)
+            {
+                // Визначаємо об'єкт для пошуку
+                Find find = _word.Selection.Find;
+
+                // Налаштовуємо параметри пошуку
+                find.ClearFormatting();
+                find.Text = replacement.Key; // Текст для пошуку
+                find.Replacement.ClearFormatting();
+                find.Replacement.Text = replacement.Value; // Текст для заміни
+
+                // Виконуємо заміну у всьому документі
+                find.Execute(Replace: WdReplace.wdReplaceAll);
+            }
+        }
+    }
     public void OpenDocument(string filePath)
     {
         System.Diagnostics.Process.Start(
