@@ -381,16 +381,25 @@ public partial class PersonEditView : Window
     {
         DocumentsPopup.IsOpen = false;
 
-        // Запитуємо номер довідки
-        var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
-        await dialog.ShowDialog(this);
+        // Запитуємо дані для заповіту
+        var dialog = new TestamentDialog("Введіть дані для заповіту");
+        bool result = await dialog.ShowDialog<bool>(this);
 
-        if (dialog.Result == null) return;
+        if (!result) return;
+
+        // Отримуємо введені дані
+        string testamentPersonBirthDate = dialog.DateOfBirthTestamentPerson ?? "";
+        string placeOfBirth = dialog.PlaceOfBirth ?? "";
+        string fullNameTestamentPerson = dialog.FullNameTestamentPerson ?? "";
+        string testamentNumber = dialog.TestamentNumber ?? "";
 
         await GenerateDocument("testament",
             "C:\\Документи\\Заяви заповіти\\" + (_person.VillageName ?? ""),
              new Dictionary<string, string> {
-                { "НомерДовідки", dialog.Result }
+                { "місценародження", placeOfBirth },
+                { "ПІБкому", fullNameTestamentPerson },
+                { "Датанародженнякому", testamentPersonBirthDate },
+                { "НомерЗаповіту", testamentNumber }
              });
     }
 
