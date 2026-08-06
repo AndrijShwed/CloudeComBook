@@ -20,4 +20,8 @@
     <Folder Include="Services\Inerfaces\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ClaudeComBook.Shared\ClaudeComBook.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

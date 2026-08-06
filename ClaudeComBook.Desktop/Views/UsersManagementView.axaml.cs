@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using ClaudeComBook.Desktop.Models;
+using ClaudeComBook.Shared.Models;
 using ClaudeComBook.Desktop.Services;
 
 namespace ClaudeComBook.Desktop.Views;

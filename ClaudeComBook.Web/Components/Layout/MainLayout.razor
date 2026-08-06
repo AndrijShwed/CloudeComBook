@@ -1,0 +1,71 @@
+﻿@using MudBlazor
+@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h6">
+            ClaudeComBook
+        </MudText>
+
+        <MudSpacer />
+
+        <MudText>
+            Андрій
+        </MudText>
+    </MudAppBar>
+
+    <MudDrawer Open="true"
+               Elevation="1"
+               Variant="DrawerVariant.Mini">
+
+        <MudNavMenu>
+
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+                Головна
+            </MudNavLink>
+
+            <MudNavLink Href="/people" Icon="@Icons.Material.Filled.People">
+                Люди
+            </MudNavLink>
+
+            <MudNavLink Href="/houses" Icon="@Icons.Material.Filled.HomeWork">
+                Будинки
+            </MudNavLink>
+
+            <MudNavLink Href="/streets" Icon="@Icons.Material.Filled.Route">
+                Вулиці
+            </MudNavLink>
+
+            <MudNavLink Href="/animals" Icon="@Icons.Material.Filled.Pets">
+                Тварини
+            </MudNavLink>
+
+            <MudNavLink Href="/plots" Icon="@Icons.Material.Filled.Landscape">
+                Земельні ділянки
+            </MudNavLink>
+
+            <MudNavLink Href="/enterprises" Icon="@Icons.Material.Filled.Business">
+                Підприємства
+            </MudNavLink>
+
+            <MudNavLink Href="/documents" Icon="@Icons.Material.Filled.Description">
+                Довідки
+            </MudNavLink>
+
+        </MudNavMenu>
+
+    </MudDrawer>
+
+    <MudMainContent Class="pa-4">
+
+        @Body
+
+    </MudMainContent>
+
+</MudLayout>

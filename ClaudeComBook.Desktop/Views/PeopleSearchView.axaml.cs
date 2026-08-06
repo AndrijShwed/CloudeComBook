@@ -1,12 +1,9 @@
 using Avalonia.Controls;
-using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
+using ClaudeComBook.Shared.Models;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ClaudeComBook.Desktop.Views;
 

@@ -40,6 +40,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClaudeComBook.Shared\ClaudeComBook.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AvaloniaResource Update="Assets\add_house.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </AvaloniaResource>

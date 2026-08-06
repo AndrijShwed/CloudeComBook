@@ -1,4 +1,4 @@
-﻿using ClaudeComBook.Desktop.Models;
+﻿using ClaudeComBook.Shared.Models;
 using Microsoft.Office.Interop.Word;
 using System;
 using System.Collections.Generic;

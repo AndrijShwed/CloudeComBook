@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using ClaudeComBook.API.Models;
+using ClaudeComBook.Shared.Models;
 using ClaudeComBook.API.Data;
 using ClaudeComBook.API.Repositories.Interfaces;
 

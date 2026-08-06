@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using ClaudeComBook.Desktop.Models;
+using ClaudeComBook.Shared.Models;
 using ClaudeComBook.Desktop.Services;
 using System.Linq;
 using System.Text.RegularExpressions;

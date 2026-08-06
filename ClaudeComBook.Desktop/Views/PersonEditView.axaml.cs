@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using ClaudeComBook.Desktop.Models;
+using ClaudeComBook.Shared.Models;
 using ClaudeComBook.Desktop.Services;
 using System;
 using System.Collections.Generic;

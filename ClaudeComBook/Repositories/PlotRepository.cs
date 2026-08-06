@@ -1,5 +1,5 @@
 ﻿using ClaudeComBook.API.Data;
-using ClaudeComBook.API.Models;
+using ClaudeComBook.Shared.Models;
 using ClaudeComBook.API.Repositories.Interfaces;
 using Dapper;
 using System.Text.Json;

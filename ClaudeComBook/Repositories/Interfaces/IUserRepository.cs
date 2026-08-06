@@ -1,4 +1,4 @@
-﻿using ClaudeComBook.API.Models;
+﻿using ClaudeComBook.Shared.Models;
 
 namespace ClaudeComBook.API.Repositories.Interfaces;
 
