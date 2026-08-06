@@ -1,60 +1,115 @@
 ﻿@using MudBlazor
 @inherits LayoutComponentBase
 
-<MudThemeProvider />
+@using ClaudeComBook.Web.Theme
+
+<MudThemeProvider Theme="@AppTheme.Default" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
 
-    <MudAppBar Elevation="1">
-        <MudText Typo="Typo.h6">
-            ClaudeComBook
-        </MudText>
+    <MudAppBar Dense="false" Elevation="1">
+
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="ToggleDrawer" />
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+
+            <MudIcon Icon="@Icons.Material.Filled.AccountBalance"
+                     Size="Size.Medium" />
+
+            <MudText Typo="Typo.h5">
+                ClaudeComBook
+            </MudText>
+
+        </MudStack>
 
         <MudSpacer />
 
-        <MudText>
+        <MudAvatar Color="Color.Primary" Size="Size.Small">
+            А
+        </MudAvatar>
+
+        <MudMenu>
+
+    <ActivatorContent>
+
+        <MudButton Variant="Variant.Text"
+                   StartIcon="@Icons.Material.Filled.AccountCircle">
+
             Андрій
-        </MudText>
+
+        </MudButton>
+
+    </ActivatorContent>
+
+    <MudMenuItem Icon="@Icons.Material.Filled.Person">
+        Профіль
+    </MudMenuItem>
+
+    <MudMenuItem Icon="@Icons.Material.Filled.Settings">
+        Налаштування
+    </MudMenuItem>
+
+    <MudDivider/>
+
+    <MudMenuItem Icon="@Icons.Material.Filled.Logout">
+        Вийти
+    </MudMenuItem>
+
+</MudMenu>
+
     </MudAppBar>
 
-    <MudDrawer Open="true"
-               Elevation="1"
-               Variant="DrawerVariant.Mini">
+    <MudDrawer @bind-Open="_drawerOpen"
+               Variant="DrawerVariant.Mini"
+               Elevation="1">
 
-        <MudNavMenu>
+        <MudNavMenu Dense="true">
 
-            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+            <MudNavLink Href="/" Match="NavLinkMatch.All"
+                        Icon="@Icons.Material.Filled.Home">
                 Головна
             </MudNavLink>
 
-            <MudNavLink Href="/people" Icon="@Icons.Material.Filled.People">
+            <MudNavLink Href="/people"
+                        Icon="@Icons.Material.Filled.People">
                 Люди
             </MudNavLink>
 
-            <MudNavLink Href="/houses" Icon="@Icons.Material.Filled.HomeWork">
+            <MudNavLink Href="/houses"
+                        Icon="@Icons.Material.Filled.HomeWork">
                 Будинки
             </MudNavLink>
 
-            <MudNavLink Href="/streets" Icon="@Icons.Material.Filled.Route">
+            <MudNavLink Href="/streets"
+                        Icon="@Icons.Material.Filled.Route">
                 Вулиці
             </MudNavLink>
 
-            <MudNavLink Href="/animals" Icon="@Icons.Material.Filled.Pets">
+            <MudNavLink Href="/animals"
+                        Icon="@Icons.Material.Filled.Pets">
                 Тварини
             </MudNavLink>
 
-            <MudNavLink Href="/plots" Icon="@Icons.Material.Filled.Landscape">
+            <MudNavLink Href="/plots"
+                        Icon="@Icons.Material.Filled.Landscape">
                 Земельні ділянки
             </MudNavLink>
 
-            <MudNavLink Href="/enterprises" Icon="@Icons.Material.Filled.Business">
+            <MudNavLink Href="/enterprises"
+                        Icon="@Icons.Material.Filled.Business">
                 Підприємства
             </MudNavLink>
 
-            <MudNavLink Href="/documents" Icon="@Icons.Material.Filled.Description">
+            <MudDivider Class="my-2" />
+
+            <MudNavLink Href="/documents"
+                        Icon="@Icons.Material.Filled.Description">
                 Довідки
             </MudNavLink>
 
@@ -62,10 +117,20 @@
 
     </MudDrawer>
 
-    <MudMainContent Class="pa-4">
+    <MudMainContent Class="pa-6">
 
         @Body
 
     </MudMainContent>
 
 </MudLayout>
+
+@code
+{
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

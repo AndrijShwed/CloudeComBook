@@ -1,5 +1,6 @@
 using ClaudeComBook.Web.Components;
 using ClaudeComBook.Web.Services;
+using ClaudeComBook.Web.ViewModels;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddHttpClient<ApiService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7079/");
 });
+builder.Services.AddScoped<PeopleViewModel>();
 
 var app = builder.Build();
 

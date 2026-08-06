@@ -1,17 +1,115 @@
 ﻿@page "/people"
 
+@using ClaudeComBook.Shared.Models
+@using ClaudeComBook.Shared.Filters
+@using ClaudeComBook.Web.Services
+@using ClaudeComBook.Web.ViewModels
+
+@inject PeopleViewModel Vm
+
 <PageTitle>Люди</PageTitle>
 
-<MudText Typo="Typo.h4">
-    Люди
-</MudText>
+<MudContainer MaxWidth="MaxWidth.False">
 
-<MudDivider Class="my-4" />
+    <MudPaper Class="pa-4 mb-4">
 
-<MudButton Variant="Variant.Filled"
-           Color="Color.Primary"
-           StartIcon="@Icons.Material.Filled.Add">
+        <MudText Typo="Typo.h4">
+            Реєстр жителів
+        </MudText>
 
-    Додати людину
+        <MudDivider Class="my-3" />
 
-</MudButton>
+        <MudGrid>
+
+            <MudItem xs="12" md="4">
+                <MudTextField @bind-Value="Vm.Filter.LastName"
+                              Label="Прізвище"
+                              Variant="Variant.Outlined" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudTextField @bind-Value="Vm.Filter.Name"
+                              Label="Ім'я"
+                              Variant="Variant.Outlined" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudTextField @bind-Value="Vm.Filter.Surname"
+                              Label="По батькові"
+                              Variant="Variant.Outlined" />
+            </MudItem>
+
+        </MudGrid>
+
+        <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-4">
+
+           @*  <MudButton Variant="Variant.Outlined"
+                       OnClick="ClearFilter">
+
+                Очистити
+
+            </MudButton> *@
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="Vm.LoadPeopleAsync">
+
+                Пошук
+
+            </MudButton>
+
+        </MudStack>
+
+    </MudPaper>
+
+    <MudPaper Class="pa-2">
+
+        <MudTable Items="Vm.People"
+                  Hover="true"
+                  Dense="true"
+                  Striped="true"
+                  Loading="Vm.Loading">
+
+            <HeaderContent>
+
+                <MudTh>Прізвище</MudTh>
+                <MudTh>Ім'я</MudTh>
+                <MudTh>По батькові</MudTh>
+                <MudTh>Дата народження</MudTh>
+
+            </HeaderContent>
+
+            <RowTemplate>
+
+                <MudTd>@context.LastName</MudTd>
+                <MudTd>@context.Name</MudTd>
+                <MudTd>@context.Surname</MudTd>
+                <MudTd>@context.DateOfBirth?.ToString("dd.MM.yyyy")</MudTd>
+
+            </RowTemplate>
+
+        </MudTable>
+
+    </MudPaper>
+
+</MudContainer>
+
+@code
+{
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Vm.InitializeAsync();
+    }
+
+    private async Task ClearFilter()
+    {
+        Vm.ClearFilter();
+        await Vm.LoadPeopleAsync();
+    }
+
+    private void AddPerson()
+    {
+
+    }
+}
