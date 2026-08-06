@@ -3,7 +3,6 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using ClaudeComBook.Desktop.Services;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace ClaudeComBook.Desktop.Views;

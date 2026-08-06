@@ -39,17 +39,19 @@ public class DocumentService
 
             _document = _word.Documents.Open(outputPath);
 
-            
-            
              ReplaceWords(fields);
-            
 
-            //ReplaceFields(fields);
-
-            if (familyMembers != null)
+            // Якщо є закладка - заповнюємо її
+            if (familyMembers != null && HasFamilyTable())
+            {
+                FillFamilyTable(familyMembers);
+            }
+            else if (familyMembers != null &&
+                     _document.Bookmarks.Exists("FamilyMembers"))
             {
                 FillFamilyBookmark(familyMembers);
             }
+
 
             _document.Save();
 
@@ -70,29 +72,52 @@ public class DocumentService
         }
     }
 
-    public void ReplaceWords(Dictionary<string, string> words)
+    private bool HasFamilyTable()
     {
-       
         if (_document == null)
-            return;
-        foreach (var word in words)
+            return false;
+
+        foreach (Word.Table table in _document.Tables)
         {
-            foreach (var replacement in words)
+            foreach (Word.Row row in table.Rows)
             {
-                // Визначаємо об'єкт для пошуку
-                Find find = _word.Selection.Find;
-
-                // Налаштовуємо параметри пошуку
-                find.ClearFormatting();
-                find.Text = replacement.Key; // Текст для пошуку
-                find.Replacement.ClearFormatting();
-                find.Replacement.Text = replacement.Value; // Текст для заміни
-
-                // Виконуємо заміну у всьому документі
-                find.Execute(Replace: WdReplace.wdReplaceAll);
+                if (RowContainsMarker(row, "{FR}"))
+                    return true;
             }
         }
+
+        return false;
     }
+
+    private void ReplaceWords(Dictionary<string, string> fields)
+    {
+        if (_document == null)
+            return;
+
+        foreach (var field in fields)
+        {
+            Word.Range range = _document.Content;
+
+            Word.Find find = range.Find;
+
+            find.ClearFormatting();
+            find.Replacement.ClearFormatting();
+
+            find.Text = field.Key;
+            find.Replacement.Text = field.Value ?? "";
+
+            find.Forward = true;
+            find.Wrap = Word.WdFindWrap.wdFindContinue;
+            find.Format = false;
+            find.MatchCase = false;
+            find.MatchWholeWord = false;
+            find.MatchWildcards = false;
+
+            find.Execute(
+                Replace: Word.WdReplace.wdReplaceAll);
+        }
+    }
+
     public void OpenDocument(string filePath)
     {
         System.Diagnostics.Process.Start(
@@ -123,67 +148,47 @@ public class DocumentService
         GC.Collect();
         GC.WaitForPendingFinalizers();
     }
-    private void ReplaceFields(Dictionary<string, string> fields)
-    {
-        if (_document == null)
-            return;
-
-        foreach (var field in fields)
-        {
-            ReplaceInRange(
-                _document.Content,
-                "{" + field.Key + "}",
-                field.Value ?? "");
-        }
-    }
 
     private void FillFamilyTable(List<Person> familyMembers)
     {
         if (_document == null)
             return;
 
-        Row? templateRow = null;
-        Table? familyTable = null;
+        Word.Table? table = null;
+        Word.Row? templateRow = null;
 
-        foreach (Table table in _document.Tables)
+        foreach (Word.Table t in _document.Tables)
         {
-            foreach (Row row in table.Rows)
+            foreach (Word.Row row in t.Rows)
             {
-                if (RowContainsMarker(row, "{FamilyRow}"))
+                if (RowContainsMarker(row, "{FR}"))
                 {
+                    table = t;
                     templateRow = row;
-                    familyTable = table;
                     break;
                 }
             }
 
-            if (templateRow != null)
+            if (table != null)
                 break;
         }
 
-        if (templateRow == null || familyTable == null)
+        if (table == null || templateRow == null)
             return;
-
-        if (familyMembers.Count == 0)
-        {
-            templateRow.Delete();
-            return;
-        }
 
         int number = 2;
 
         foreach (var person in familyMembers)
         {
-            Word.Row newRow = familyTable.Rows.Add(templateRow);
-            newRow.Range.FormattedText = templateRow.Range.FormattedText;
+            templateRow = table.Rows[2];
 
-            ReplaceInRange(newRow.Range, "{FamilyRow}", "");
+            Word.Row newRow = table.Rows.Add();
+
             FillFamilyRow(newRow, person, number);
 
             number++;
         }
 
-        templateRow.Delete();
     }
 
     private void FillFamilyBookmark(List<Person> familyMembers)
@@ -213,30 +218,58 @@ public class DocumentService
     }
 
     private void FillFamilyRow(
-    Word.Row row,
-    Person person,
-    int number)
+     Word.Row row,
+     Person person,
+     int number)
     {
-        ReplaceInRange(row.Range, "{№}", number.ToString());
+        SetCell(row, 1, number.ToString());
 
-        ReplaceInRange(row.Range,
-            "{full_name}",
+        SetCell(row, 2,
             $"{person.LastName} {person.Name} {person.Surname}");
 
-        ReplaceInRange(row.Range,
-            "{birth_date}",
+        SetCell(row, 3, "член сім'ї");
+
+        SetCell(row, 4,
             person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "");
 
-        ReplaceInRange(row.Range,
-            "{Документ}",
-            person.Passport?.Length > 9
-                ? person.Passport[..9]
-                : person.Passport ?? "");
+        SetCell(row, 5, FormatDocument(person.Passport));
 
-        ReplaceInRange(row.Range,
-            "{член}", "член сім'ї");
+        ReplaceInRange(row.Range, "{FR}", "");
+    }
 
-        ReplaceInRange(row.Range, "{FamilyRow}", "");
+    public static string FormatDocument(string? document)
+    {
+        document ??= "";
+
+        char[] result = Enumerable.Repeat(' ', 11).ToArray();
+
+        // Перші 4 символи копіюємо як є
+        for (int i = 0; i < Math.Min(4, document.Length); i++)
+        {
+            result[i] = document[i];
+        }
+
+        // З 5-го по 11-й символ тільки цифри
+        for (int i = 4; i < 11 && i < document.Length; i++)
+        {
+            result[i] = char.IsDigit(document[i])
+                ? document[i]
+                : ' ';
+        }
+
+        return new string(result);
+    }
+
+    private void SetCell(Word.Row row, int cellIndex, string value)
+    {
+        if (cellIndex > row.Cells.Count)
+            return;
+
+        Word.Range range = row.Cells[cellIndex].Range;
+
+        // Видаляємо службові символи Word
+        range.End -= 1;
+        range.Text = value;
     }
 
     private void ReplaceInRange(

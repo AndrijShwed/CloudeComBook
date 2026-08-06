@@ -3,16 +3,10 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using ClaudeComBook.Desktop.Models;
 using ClaudeComBook.Desktop.Services;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using Microsoft.Office.Interop.Word;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Window = Avalonia.Controls.Window;
 
 namespace ClaudeComBook.Desktop.Views;
@@ -408,7 +402,7 @@ public partial class PersonEditView : Window
         DocumentsPopup.IsOpen = false;
 
         // Запитуємо номер довідки
-        var dialog = new InputDialog("Введіть номер довідки та підписантів(посада, ім'я, прізвище):", "");
+        var dialog = new InputDialog("Введіть номер довідки", "");
         await dialog.ShowDialog(this);
 
         if (dialog.Result == null) return;
@@ -474,8 +468,6 @@ public partial class PersonEditView : Window
             await err.ShowAsync();
             return;
         }
-        
-
 
         string i_1 = "";
         string i_2 = "";
@@ -488,8 +480,6 @@ public partial class PersonEditView : Window
         string i_9 = "";
         string i_0 = "";
         string RegistrDate = "";
-
-
 
         var fields = new Dictionary<string, string>();
 
@@ -607,7 +597,7 @@ public partial class PersonEditView : Window
             DateToString date = new DateToString();
             fields.Add("ДатаТекст", date.GetDateInWords());
         }
-        if (templateType == "subsidy")
+        if (templateType == "subsidy" || templateType == "benefits")
         {
             // Отримуємо будинок
             var house = await _api.GetHouseByAddressAsync(
@@ -615,6 +605,7 @@ public partial class PersonEditView : Window
                 _person.NumbOfHouse ?? "");
 
             fields["ЗагальнаПлоща"] = house?.TotalArea?.ToString("F1") ?? "0";
+            fields["ЖитловаПлоща"] = house?.LivingArea?.ToString("F1") ?? "0";
 
             int countReal = (familyMembers?.Count ?? 0) + 1;
             string count = countReal.ToString();
@@ -659,28 +650,20 @@ public partial class PersonEditView : Window
             if (Convert.ToInt32(curentMonth) < 10) { curentMonth = "0" + curentMonth; }
             string curentYear = DateTime.Now.Year.ToString();
             var passport = _person.Passport?.ToString() ?? "";
+            passport = FormatDocument(passport);
+
             fields.Add("curentMonth", curentMonth);
             fields.Add("curentYear", curentYear);
             fields.Add("Кількість", countReal.ToString());
             fields.Add("Кільк.Прописом", countWrite);
-            fields.Add("Документ", passport.Length > 9 ?
-                passport.Substring(0, 9) : passport);
+            //fields.Add("Документ", passport.Length > 9 ?
+            //    passport.Substring(0, 9) : passport);
+            fields.Add("Документ", passport);
 
 
         }
 
-        if (templateType == "benefits")
-        {
-            int countReal = (familyMembers?.Count ?? 0) + 1;
-            fields.Add("Кількість", countReal.ToString());
-            // Отримуємо будинок
-            var house = await _api.GetHouseByAddressAsync(
-                _person.VillageStreetId.Value,
-                _person.NumbOfHouse ?? "");
-
-            fields["ЗагальнаПлоща"] = house?.TotalArea?.ToString("F1") ?? "0";
-            fields["ЖитловаПлоща"] = house?.LivingArea?.ToString("F1") ?? "0";
-        }
+        
         if (templateType == "testament_registration")
         {
             string idKod = _person?.IdKod?.Trim() ?? string.Empty;
@@ -750,5 +733,28 @@ public partial class PersonEditView : Window
             fileName,
             fields,
             familyMembers);
+    }
+
+    public static string FormatDocument(string? document)
+    {
+        document ??= "";
+
+        char[] result = Enumerable.Repeat(' ', 11).ToArray();
+
+        // Перші 4 символи копіюємо як є
+        for (int i = 0; i < Math.Min(4, document.Length); i++)
+        {
+            result[i] = document[i];
+        }
+
+        // З 5-го по 11-й символ тільки цифри
+        for (int i = 4; i < 11 && i < document.Length; i++)
+        {
+            result[i] = char.IsDigit(document[i])
+                ? document[i]
+                : ' ';
+        }
+
+        return new string(result);
     }
 }
