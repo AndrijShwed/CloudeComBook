@@ -36,32 +36,32 @@
 
         <MudMenu>
 
-    <ActivatorContent>
+            <ActivatorContent>
+                <MudButton Variant="Variant.Text"
+                           StartIcon="@Icons.Material.Filled.AccountCircle">
+                    Андрій
+                </MudButton>
+            </ActivatorContent>
 
-        <MudButton Variant="Variant.Text"
-                   StartIcon="@Icons.Material.Filled.AccountCircle">
+            <ChildContent>
 
-            Андрій
+                <MudMenuItem Icon="@Icons.Material.Filled.Person">
+                    Профіль
+                </MudMenuItem>
 
-        </MudButton>
+                <MudMenuItem Icon="@Icons.Material.Filled.Settings">
+                    Налаштування
+                </MudMenuItem>
 
-    </ActivatorContent>
+                <MudDivider />
 
-    <MudMenuItem Icon="@Icons.Material.Filled.Person">
-        Профіль
-    </MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout">
+                    Вийти
+                </MudMenuItem>
 
-    <MudMenuItem Icon="@Icons.Material.Filled.Settings">
-        Налаштування
-    </MudMenuItem>
+            </ChildContent>
 
-    <MudDivider/>
-
-    <MudMenuItem Icon="@Icons.Material.Filled.Logout">
-        Вийти
-    </MudMenuItem>
-
-</MudMenu>
+        </MudMenu>
 
     </MudAppBar>
 
