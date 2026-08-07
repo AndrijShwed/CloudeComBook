@@ -3,6 +3,9 @@ using ClaudeComBook.API.Data;
 using ClaudeComBook.API.Repositories;
 using ClaudeComBook.API.Repositories.Interfaces;
 using ClaudeComBook.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,35 @@ builder.Services.AddCors(options =>
     });
 });
 
+// ---- JWT Authentication ----
+var jwtSection = builder.Configuration.GetSection(JwtOptions.SectionName);
+var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key не заданий у конфігурації");
+var jwtIssuer = jwtSection["Issuer"];
+var jwtAudience = jwtSection["Audience"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
+// ---- кінець JWT блоку ----
+
 builder.Services.AddSingleton<DbConnectionFactory>();
 
 builder.Services.AddScoped<IVillageRepository, VillageRepository>();
@@ -34,7 +66,8 @@ builder.Services.AddScoped<IHouseRepository, HouseRepository>();
 builder.Services.AddScoped<IAnymalRepository, AnymalRepository>();
 builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
 builder.Services.AddScoped<IPlotRepository, PlotRepository>();
-builder.Services.AddScoped<IPopulationSnapshotRepository, PopulationSnapshotRepository>(); builder.Services.AddHostedService<PopulationSnapshotService>();
+builder.Services.AddScoped<IPopulationSnapshotRepository, PopulationSnapshotRepository>();
+builder.Services.AddHostedService<PopulationSnapshotService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IDocumentTemplateRepository, DocumentTemplateRepository>();
 builder.Services.AddScoped<JwtService>();
@@ -50,6 +83,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("WebClient");
 
+app.UseAuthentication();   // ВАЖЛИВО: має бути перед UseAuthorization()
 app.UseAuthorization();
 
 app.MapControllers();

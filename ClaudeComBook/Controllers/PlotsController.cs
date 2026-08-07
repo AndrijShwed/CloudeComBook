@@ -1,11 +1,14 @@
-﻿using ClaudeComBook.Shared.Models;
-using ClaudeComBook.API.Repositories.Interfaces;
+﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClaudeComBook.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[Authorize(Roles = "reader,user,admin")]
 
 public class PlotController : ControllerBase
 {
@@ -24,27 +27,6 @@ public class PlotController : ControllerBase
         return item == null ? NotFound() : Ok(item);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Plot plot)
-    {
-        plot.Id = await _repo.CreateAsync(plot);
-        return CreatedAtAction(nameof(GetById), new { id = plot.Id }, plot);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Plot plot)
-    {
-        plot.Id = id;
-        var ok = await _repo.UpdateAsync(plot);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var ok = await _repo.DeleteAsync(id);
-        return ok ? NoContent() : NotFound();
-    }
 
     [HttpGet("search")]
     public async Task<IActionResult> Search(
@@ -63,5 +45,31 @@ public class PlotController : ControllerBase
             fieldNumber, plotType, plotNumber, tenant, cadastr);
         return Ok(result);
     }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] Plot plot)
+    {
+        plot.Id = await _repo.CreateAsync(plot);
+        return CreatedAtAction(nameof(GetById), new { id = plot.Id }, plot);
+    }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] Plot plot)
+    {
+        plot.Id = id;
+        var ok = await _repo.UpdateAsync(plot);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var ok = await _repo.DeleteAsync(id);
+        return ok ? NoContent() : NotFound();
+    }
+
 }
 

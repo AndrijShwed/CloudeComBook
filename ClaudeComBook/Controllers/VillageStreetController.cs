@@ -1,13 +1,14 @@
-﻿using ClaudeComBook.Shared.Models;
-using ClaudeComBook.API.Repositories.Interfaces;
+﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ClaudeComBook.API.DTOs;
-using static ClaudeComBook.API.DTOs.DTOs;
 
 namespace ClaudeComBook.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[Authorize(Roles = "reader,user,admin")]
 public class VillageStreetsController : ControllerBase
 {
     private readonly IVillageStreetRepository _repo;
@@ -33,6 +34,7 @@ public class VillageStreetsController : ControllerBase
     public async Task<IActionResult> GetByStreet(int streetId) =>
         Ok(await _repo.GetByStreetIdAsync(streetId));
 
+    [Authorize(Roles = "user,admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] VillageStreet villageStreet)
     {
@@ -40,6 +42,7 @@ public class VillageStreetsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = villageStreet.Id }, villageStreet);
     }
 
+    [Authorize(Roles = "user,admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] VillageStreet villageStreet)
     {
@@ -48,6 +51,7 @@ public class VillageStreetsController : ControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -55,23 +59,4 @@ public class VillageStreetsController : ControllerBase
         return ok ? NoContent() : NotFound();
     }
 
-    [HttpPut("{id}/file")]
-    public async Task<IActionResult> UpdateFile(int id, [FromBody] UpdateFileRequest request)
-    {
-        var fileData = Convert.FromBase64String(request.FileData);
-        var ok = await _repo.UpdateFileAsync(id, fileData);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpPost("rename")]
-    public async Task<IActionResult> Rename([FromBody] RenameStreetRequest request)
-    {
-        var ok = await _repo.RenameStreetAsync(
-            request.VillageId,
-            request.OldStreetId,
-            request.NewStreetId,
-            request.RenameDate,
-            request.FileData != null ? Convert.FromBase64String(request.FileData) : null);
-        return ok ? NoContent() : BadRequest();
-    }
 }

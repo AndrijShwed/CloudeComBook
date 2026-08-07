@@ -1,11 +1,14 @@
-﻿using ClaudeComBook.Shared.Models;
-using ClaudeComBook.API.Repositories.Interfaces;
+﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClaudeComBook.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[Authorize(Roles = "reader,user,admin")]
 public class PopulationSnapshotsController : ControllerBase
 {
     private readonly IPopulationSnapshotRepository _repo;
@@ -27,28 +30,6 @@ public class PopulationSnapshotsController : ControllerBase
     public async Task<IActionResult> Search([FromQuery] string q) =>
         Ok(await _repo.SearchAsync(q));
 
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PopulationSnapshot populationSnapshot)
-    {
-        populationSnapshot.Id = await _repo.CreateAsync(populationSnapshot);
-        return CreatedAtAction(nameof(GetById), new { id = populationSnapshot.Id }, populationSnapshot);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] PopulationSnapshot populationSnapshot)
-    {
-        populationSnapshot.Id = id;
-        var ok = await _repo.UpdateAsync(populationSnapshot);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var ok = await _repo.DeleteAsync(id);
-        return ok ? NoContent() : NotFound();
-    }
-
     [HttpPost("upsert")]
     public async Task<IActionResult> Upsert([FromBody] PopulationSnapshot snapshot)
     {
@@ -63,4 +44,31 @@ public class PopulationSnapshotsController : ControllerBase
 
         return Ok();
     }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] PopulationSnapshot populationSnapshot)
+    {
+        populationSnapshot.Id = await _repo.CreateAsync(populationSnapshot);
+        return CreatedAtAction(nameof(GetById), new { id = populationSnapshot.Id }, populationSnapshot);
+    }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] PopulationSnapshot populationSnapshot)
+    {
+        populationSnapshot.Id = id;
+        var ok = await _repo.UpdateAsync(populationSnapshot);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var ok = await _repo.DeleteAsync(id);
+        return ok ? NoContent() : NotFound();
+    }
+
+    
 }

@@ -1,4 +1,4 @@
-﻿namespace ClaudeComBook.Shared.DTOs;
+﻿namespace ClaudeComBook.Shared.DTOs.Auth;
 
 public record RegisterRequest(
     string Login,

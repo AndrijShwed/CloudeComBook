@@ -1,11 +1,14 @@
-﻿using ClaudeComBook.Shared.Models;
-using ClaudeComBook.API.Repositories.Interfaces;
+﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClaudeComBook.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[Authorize(Roles = "admin")]
 public class DocumentTemplatesController : ControllerBase
 {
     private readonly IDocumentTemplateRepository _repo;

@@ -1,6 +1,9 @@
-﻿using ClaudeComBook.Shared.Models;
+﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.API.Services;
 using ClaudeComBook.Shared.DTOs;
-using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.DTOs.Auth;
+using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -8,12 +11,20 @@ namespace ClaudeComBook.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class AuthController : ControllerBase
 {
     private readonly IUserRepository _repo;
 
-    public AuthController(IUserRepository repo) => _repo = repo;
+    private readonly JwtService _jwt;
 
+    public AuthController(IUserRepository repo, JwtService jwt)
+    {
+        _repo = repo;
+        _jwt = jwt;
+    }
+
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
@@ -21,9 +32,12 @@ public class AuthController : ControllerBase
         if (user == null) return Unauthorized(new { message = "Невірний логін або пароль" });
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return Unauthorized(new { message = "Невірний логін або пароль" });
+        
+        var token = _jwt.GenerateToken(user);
 
         return Ok(new
         {
+            token,
             user.Id,
             user.Login,
             user.FullName,
@@ -41,6 +55,7 @@ public class AuthController : ControllerBase
         });
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
@@ -60,10 +75,7 @@ public class AuthController : ControllerBase
         return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position });
     }
 
-    //[HttpGet("users")]
-    //public async Task<IActionResult> GetUsers() =>
-    //    Ok(await _repo.GetAllAsync());
-
+    [Authorize(Roles = "admin")]
     [HttpDelete("users/{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
@@ -71,6 +83,7 @@ public class AuthController : ControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPut("users/{id}/toggle")]
     public async Task<IActionResult> ToggleActive(int id, [FromBody] bool isActive)
     {
@@ -78,6 +91,7 @@ public class AuthController : ControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [Authorize(Roles = "admin")]
     [HttpPut("users/{id}")]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
     {
@@ -104,6 +118,7 @@ public class AuthController : ControllerBase
         return ok ? NoContent() : BadRequest();
     }
 
+    [Authorize(Roles = "reader,user,admin")]
     [HttpGet("users/{id}")]
     public async Task<IActionResult> GetUser(int id)
     {
@@ -114,6 +129,7 @@ public class AuthController : ControllerBase
                         user.Street, user.House, user.ShortName, user.Phone, user.PostIndex});
     }
 
+    [Authorize(Roles = "reader,user,admin")]
     [HttpPut("users/{id}/settings")]
     public async Task<IActionResult> UpdateSettings(int id, [FromBody] UpdateSettingsRequest request)
     {

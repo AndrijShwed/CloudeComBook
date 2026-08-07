@@ -1,11 +1,14 @@
-﻿using ClaudeComBook.Shared.Models;
-using ClaudeComBook.API.Repositories.Interfaces;
+﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClaudeComBook.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[Authorize(Roles = "reader,user,admin")]
 public class StreetsController : ControllerBase
 {
     private readonly IStreetRepository _repo;
@@ -23,6 +26,7 @@ public class StreetsController : ControllerBase
         return item == null ? NotFound() : Ok(item);
     }
 
+    [Authorize(Roles = "user,admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Street street)
     {
@@ -30,6 +34,7 @@ public class StreetsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = street.Id }, street);
     }
 
+    [Authorize(Roles = "user,admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] Street street)
     {
@@ -38,6 +43,7 @@ public class StreetsController : ControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

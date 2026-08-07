@@ -1,11 +1,14 @@
-﻿using ClaudeComBook.Shared.Models;
-using ClaudeComBook.API.Repositories.Interfaces;
+﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClaudeComBook.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[Authorize(Roles = "reader,user,admin")]
 public class PeopleController : ControllerBase
 {
     private readonly IPersonRepository _repo;
@@ -48,28 +51,6 @@ public class PeopleController : ControllerBase
     public async Task<IActionResult> Search([FromQuery] string q) =>
         Ok(await _repo.SearchAsync(q));
 
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Person person)
-    {
-        person.PeopleId = await _repo.CreateAsync(person);
-        return CreatedAtAction(nameof(GetById), new { id = person.PeopleId }, person);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Person person)
-    {
-        person.PeopleId = id;
-        var ok = await _repo.UpdateAsync(person);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var ok = await _repo.DeleteAsync(id);
-        return ok ? NoContent() : NotFound();
-    }
-
     [HttpGet("population-by-village")]
     public async Task<IActionResult> GetPopulationByVillage()
     {
@@ -97,4 +78,31 @@ public class PeopleController : ControllerBase
         var result = await _repo.GetByAddressAsync(villageStreetId, numbOfHouse, id);
         return Ok(result);
     }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] Person person)
+    {
+        person.PeopleId = await _repo.CreateAsync(person);
+        return CreatedAtAction(nameof(GetById), new { id = person.PeopleId }, person);
+    }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] Person person)
+    {
+        person.PeopleId = id;
+        var ok = await _repo.UpdateAsync(person);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var ok = await _repo.DeleteAsync(id);
+        return ok ? NoContent() : NotFound();
+    }
+
+    
 }

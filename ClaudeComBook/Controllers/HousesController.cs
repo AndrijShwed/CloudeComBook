@@ -1,11 +1,14 @@
-﻿using ClaudeComBook.Shared.Models;
-using ClaudeComBook.API.Repositories.Interfaces;
+﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClaudeComBook.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[Authorize(Roles = "reader,user,admin")]
 public class HousesController : ControllerBase
 {
     private readonly IHouseRepository _repo;
@@ -41,37 +44,6 @@ public class HousesController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] House house)
-    {
-        house.IdHouses = await _repo.CreateAsync(house);
-        return CreatedAtAction(nameof(GetById), new { id = house.IdHouses }, house);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] House house)
-    {
-        house.IdHouses = id;
-        var ok = await _repo.UpdateAsync(house);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var ok = await _repo.DeleteAsync(id);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [HttpGet("exists")]
-    public async Task<IActionResult> Exists(
-    [FromQuery] int villageStreetId,
-    [FromQuery] string numbOfHouse)
-    {
-        var exists = await _repo.ExistsAsync(villageStreetId, numbOfHouse);
-        return Ok(exists);
-    }
-
     [HttpGet("area-by-village")]
     public async Task<IActionResult> GetAreaByVillage()
     {
@@ -84,5 +56,39 @@ public class HousesController : ControllerBase
     {
         var result = await _repo.GetRoomCountByVillageAsync();
         return Ok(result);
+    }
+
+    [HttpGet("exists")]
+    public async Task<IActionResult> Exists(
+   [FromQuery] int villageStreetId,
+   [FromQuery] string numbOfHouse)
+    {
+        var exists = await _repo.ExistsAsync(villageStreetId, numbOfHouse);
+        return Ok(exists);
+    }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] House house)
+    {
+        house.IdHouses = await _repo.CreateAsync(house);
+        return CreatedAtAction(nameof(GetById), new { id = house.IdHouses }, house);
+    }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] House house)
+    {
+        house.IdHouses = id;
+        var ok = await _repo.UpdateAsync(house);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var ok = await _repo.DeleteAsync(id);
+        return ok ? NoContent() : NotFound();
     }
 }

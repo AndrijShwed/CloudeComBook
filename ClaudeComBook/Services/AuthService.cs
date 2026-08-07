@@ -1,6 +1,6 @@
 ﻿using BCrypt.Net;
 using ClaudeComBook.API.Repositories.Interfaces;
-using ClaudeComBook.Shared.DTOs;
+using ClaudeComBook.Shared.DTOs.Auth;
 using ClaudeComBook.Shared.Models;
 
 namespace ClaudeComBook.API.Services;
