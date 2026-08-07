@@ -1,3 +1,4 @@
+using ClaudeComBook.API.Configuration;
 using ClaudeComBook.API.Data;
 using ClaudeComBook.API.Repositories;
 using ClaudeComBook.API.Repositories.Interfaces;
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -34,6 +37,8 @@ builder.Services.AddScoped<IPlotRepository, PlotRepository>();
 builder.Services.AddScoped<IPopulationSnapshotRepository, PopulationSnapshotRepository>(); builder.Services.AddHostedService<PopulationSnapshotService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IDocumentTemplateRepository, DocumentTemplateRepository>();
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
 

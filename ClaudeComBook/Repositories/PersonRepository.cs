@@ -1,11 +1,7 @@
-﻿using Avalonia;
-using ClaudeComBook.API.Data;
+﻿using ClaudeComBook.API.Data;
 using ClaudeComBook.Shared.Models;
 using ClaudeComBook.API.Repositories.Interfaces;
 using Dapper;
-using Microsoft.Win32;
-using System.Net.NetworkInformation;
-using System.Xml.Linq;
 
 namespace ClaudeComBook.API.Repositories;
 

@@ -1,4 +1,5 @@
 ﻿using ClaudeComBook.Shared.Models;
+using ClaudeComBook.Shared.DTOs;
 using ClaudeComBook.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -134,15 +135,4 @@ public class AuthController : ControllerBase
         var ok = await _repo.UpdateAsync(user);
         return ok ? NoContent() : BadRequest();
     }
-
-    
 }
-
-public record LoginRequest(string Login, string Password);
-public record RegisterRequest(string Login, string Password, string? FullName, string? Role, string? Position);
-public record UpdateUserRequest(string Login, string? Password, string? FullName, string Role, string? Position,
-                                string? Region, string? District, string? Village, string? Street, string? House,
-                                string? ShortName, string? Organization, string? Phone, string? PostIndex);
-public record UpdateSettingsRequest(string? FullName, string? Position, string? Region, string? District,
-                                    string? Village, string? Street, string? House, string? ShortName, 
-                                    string? Organization, string? Phone, string? PostIndex);
