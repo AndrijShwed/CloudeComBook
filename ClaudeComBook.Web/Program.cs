@@ -1,6 +1,7 @@
 using ClaudeComBook.Web.Components;
 using ClaudeComBook.Web.Services;
 using ClaudeComBook.Web.ViewModels;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,11 +11,33 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddMudServices();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddCascadingAuthenticationState();
+
+// ---- Cookie Authentication ----
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.Name = "ClaudeComBook.Auth";
+    });
+
+builder.Services.AddAuthorization();
+// ---- кінець блоку автентифікації ----
+
+// Handler, що підставляє JWT з cookie-claims у заголовок Authorization
+builder.Services.AddTransient<JwtAuthorizationHandler>();
 
 builder.Services.AddHttpClient<ApiService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7079/");
-});
+})
+.AddHttpMessageHandler<JwtAuthorizationHandler>();
+
 builder.Services.AddScoped<PeopleViewModel>();
 
 var app = builder.Build();
@@ -22,17 +45,21 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+app.UseStatusCodePagesWithReExecute("/not-found");
 app.UseHttpsRedirection();
+
+app.UseAuthentication();   // ВАЖЛИВО: перед UseAuthorization()
+app.UseAuthorization();
 
 app.UseAntiforgery();
 
-app.MapStaticAssets();
+app.UseStaticFiles();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapAccountEndpoints();  // мінімальні API для логіну/логауту
 
 app.Run();

@@ -1,11 +1,9 @@
 ﻿using ClaudeComBook.API.Repositories.Interfaces;
 using ClaudeComBook.API.Services;
-using ClaudeComBook.Shared.DTOs;
 using ClaudeComBook.Shared.DTOs.Auth;
 using ClaudeComBook.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ClaudeComBook.API.Controllers;
 
@@ -29,29 +27,23 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var user = await _repo.GetByLoginAsync(request.Login);
-        if (user == null) return Unauthorized(new { message = "Невірний логін або пароль" });
+        if (user == null)
+            return Unauthorized(new LoginResponse { Success = false, Message = "Невірний логін або пароль" });
+
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            return Unauthorized(new { message = "Невірний логін або пароль" });
-        
+            return Unauthorized(new LoginResponse { Success = false, Message = "Невірний логін або пароль" });
+
         var token = _jwt.GenerateToken(user);
 
-        return Ok(new
+        return Ok(new LoginResponse
         {
-            token,
-            user.Id,
-            user.Login,
-            user.FullName,
-            user.ShortName,
-            user.Role,
-            user.Position,
-            user.Organization,
-            user.Region,
-            user.District,
-            user.Village,
-            user.Street,
-            user.House,
-            user.Phone,
-            user.PostIndex
+            Success = true,
+            Token = token,
+            UserId = user.Id,
+            Login = user.Login,
+            FullName = user.FullName,
+            ShortName = user.ShortName,
+            Role = user.Role
         });
     }
 
@@ -113,9 +105,38 @@ public class AuthController : ControllerBase
         user.Organization = request.Organization ?? "";
         user.Phone = request.Phone ?? "";
         user.PostIndex = request.PostIndex ?? "";
+        user.IsActive = request.IsActive;
 
         var ok = await _repo.UpdateAsync(user);
         return ok ? NoContent() : BadRequest();
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("users")]
+    public async Task<IActionResult> GetUsers()
+    {
+        var users = await _repo.GetAllAsync();
+
+        var result = users.Select(user => new UserProfileResponse
+        {
+            Id = user.Id,
+            Login = user.Login,
+            FullName = user.FullName,
+            Role = user.Role,
+            Position = user.Position,
+            Organization = user.Organization,
+            Region = user.Region,
+            District = user.District,
+            Village = user.Village,
+            Street = user.Street,
+            House = user.House,
+            ShortName = user.ShortName,
+            Phone = user.Phone,
+            PostIndex = user.PostIndex,
+            IsActive = user.IsActive
+        });
+
+        return Ok(result);
     }
 
     [Authorize(Roles = "reader,user,admin")]
@@ -124,9 +145,25 @@ public class AuthController : ControllerBase
     {
         var user = await _repo.GetByIdAsync(id);
         if (user == null) return NotFound();
-        return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position,
-                        user.Organization, user.Region, user.District, user.Village,
-                        user.Street, user.House, user.ShortName, user.Phone, user.PostIndex});
+
+        return Ok(new UserProfileResponse
+        {
+            Id = user.Id,
+            Login = user.Login,
+            FullName = user.FullName,
+            Role = user.Role,
+            Position = user.Position,
+            Organization = user.Organization,
+            Region = user.Region,
+            District = user.District,
+            Village = user.Village,
+            Street = user.Street,
+            House = user.House,
+            ShortName = user.ShortName,
+            Phone = user.Phone,
+            PostIndex = user.PostIndex,
+            IsActive = user.IsActive
+        });
     }
 
     [Authorize(Roles = "reader,user,admin")]

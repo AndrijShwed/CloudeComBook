@@ -1,4 +1,4 @@
-﻿namespace ClaudeComBook.Shared.DTOs;
+﻿namespace ClaudeComBook.Shared.DTOs.Auth;
 
 public record UpdateUserRequest(
     string Login,
@@ -14,4 +14,5 @@ public record UpdateUserRequest(
     string? ShortName,
     string? Organization,
     string? Phone,
-    string? PostIndex);
+    string? PostIndex,
+    bool IsActive);

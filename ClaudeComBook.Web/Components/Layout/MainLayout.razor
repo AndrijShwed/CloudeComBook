@@ -1,4 +1,6 @@
-﻿@using MudBlazor
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
 @inherits LayoutComponentBase
 
 @using ClaudeComBook.Web.Theme
@@ -30,31 +32,50 @@
 
         <MudSpacer />
 
-        <MudMenu>
-            <ActivatorContent>
+        <AuthorizeView Context="authContext">
+            <Authorized>
+                <MudMenu>
+                    <ActivatorContent>
+                        <MudButton Variant="Variant.Text"
+                                   Color="Color.Inherit"
+                                   StartIcon="@Icons.Material.Filled.AccountCircle"
+                                   OnClick="@context.ToggleAsync">
+                            @DisplayName
+                        </MudButton>
+                    </ActivatorContent>
+
+                    <ChildContent>
+                        <MudText Class="px-4 pt-2 pb-1" Typo="Typo.caption" Color="Color.Secondary">
+                            Роль: @RoleName
+                        </MudText>
+
+                        <MudDivider Class="my-1" />
+
+                        <MudMenuItem Icon="@Icons.Material.Filled.Person" Href="/Account/Profile">
+                            Профіль
+                        </MudMenuItem>
+
+                        <MudMenuItem Icon="@Icons.Material.Filled.Settings">
+                            Налаштування
+                        </MudMenuItem>
+
+                        <MudDivider />
+
+                        <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout">
+                            Вийти
+                        </MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
+            </Authorized>
+            <NotAuthorized>
                 <MudButton Variant="Variant.Text"
                            Color="Color.Inherit"
-                           StartIcon="@Icons.Material.Filled.AccountCircle">
-                    АНДРІЙ
+                           StartIcon="@Icons.Material.Filled.Login"
+                           Href="/Account/Login">
+                    Увійти
                 </MudButton>
-            </ActivatorContent>
-
-            <ChildContent>
-                <MudMenuItem Icon="@Icons.Material.Filled.Person">
-                    Профіль
-                </MudMenuItem>
-
-                <MudMenuItem Icon="@Icons.Material.Filled.Settings">
-                    Налаштування
-                </MudMenuItem>
-
-                <MudDivider />
-
-                <MudMenuItem Icon="@Icons.Material.Filled.Logout">
-                    Вийти
-                </MudMenuItem>
-            </ChildContent>
-        </MudMenu>
+            </NotAuthorized>
+        </AuthorizeView>
 
     </MudAppBar>
 
@@ -63,6 +84,16 @@
                Elevation="1">
 
         <MudNavMenu Dense="true">
+
+            <AuthorizeView Roles="admin" Context="adminContext">
+                <Authorized>
+                    <MudNavLink Href="/Admin/Users"
+                                Icon="@Icons.Material.Filled.ManageAccounts">
+                        Користувачі
+                    </MudNavLink>
+                    <MudDivider Class="my-2" />
+                </Authorized>
+            </AuthorizeView>
 
             <MudNavLink Href="/" Match="NavLinkMatch.All"
                         Icon="@Icons.Material.Filled.Home">
@@ -111,9 +142,9 @@
     </MudDrawer>
 
     <MudMainContent Class="pa-6">
-
-        @Body
-
+        <div style="padding-top: 80px;">
+            @Body
+        </div>
     </MudMainContent>
 
 </MudLayout>
@@ -122,8 +153,34 @@
 {
     private bool _drawerOpen = true;
 
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private string DisplayName = "";
+    private string RoleName = "";
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthStateTask is not null)
+        {
+            var authState = await AuthStateTask;
+            var user = authState.User;
+
+            DisplayName = user.FindFirst("ShortName")?.Value ?? user.Identity?.Name ?? "";
+            RoleName = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
+        }
+    }
+
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private void Logout()
+    {
+        NavigationManager.NavigateTo("/Account/Logout", forceLoad: true);
     }
 }

@@ -1,4 +1,6 @@
-﻿using ClaudeComBook.Shared.Filters;
+﻿using ClaudeComBook.Shared.DTOs.Auth;
+using ClaudeComBook.Shared.DTOs;
+using ClaudeComBook.Shared.Filters;
 using ClaudeComBook.Shared.Models;
 using System.Net.Http.Json;
 
@@ -69,4 +71,44 @@ public class ApiService
         return await _http.GetFromJsonAsync<List<Village>>("api/villages")
                ?? new List<Village>();
     }
+
+    public async Task<UserProfileResponse?> GetProfileAsync(int userId)
+    {
+        var response = await _http.GetAsync($"api/auth/users/{userId}");
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        return await response.Content.ReadFromJsonAsync<UserProfileResponse>();
+    }
+
+    public async Task<bool> UpdateProfileAsync(int userId, UpdateSettingsRequest request)
+    {
+        var response = await _http.PutAsJsonAsync($"api/auth/users/{userId}/settings", request);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<List<UserProfileResponse>> GetUsersAsync()
+    {
+        return await _http.GetFromJsonAsync<List<UserProfileResponse>>("api/auth/users")
+               ?? new List<UserProfileResponse>();
+    }
+
+    public async Task<bool> RegisterUserAsync(RegisterRequest request)
+    {
+        var response = await _http.PostAsJsonAsync("api/auth/register", request);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteUserAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/auth/users/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> ToggleUserActiveAsync(int id, bool isActive)
+    {
+        var response = await _http.PutAsJsonAsync($"api/auth/users/{id}/toggle", isActive);
+        return response.IsSuccessStatusCode;
+    }
+
 }
