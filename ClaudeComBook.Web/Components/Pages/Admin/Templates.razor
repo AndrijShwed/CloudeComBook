@@ -40,25 +40,27 @@ else
             <MudTd DataLabel="Оновлено">
                 @(context.UpdatedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm") ?? "—")
             </MudTd>
-            <MudTd DataLabel="Дії">
-                <MudStack Row="true" Spacing="1">
-                    <MudFileUpload T="IBrowserFile" FilesChanged="@(file => UploadAsync(context.Type, file))" Accept=".docx">
-                        <ActivatorContent>
-                            <MudIconButton Icon="@Icons.Material.Filled.UploadFile"
-                                           Color="Color.Primary"
-                                           Size="Size.Small"
-                                           title="Завантажити/замінити" />
-                        </ActivatorContent>
-                    </MudFileUpload>
+                <MudTd DataLabel="Дії">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                        <MudFileUpload T="IBrowserFile" FilesChanged="@(file => UploadAsync(context.Type, file))" Accept=".docx">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="@(context.Exists ? Color.Warning : Color.Primary)"
+                                           StartIcon="@(context.Exists ? Icons.Material.Filled.Autorenew : Icons.Material.Filled.UploadFile)"
+                                           Size="Size.Small">
+                                    @(context.Exists ? "Замінити" : "Завантажити")
+                                </MudButton>
+                            </ActivatorContent>
+                        </MudFileUpload>
 
-                    @if (context.Exists)
-                    {
-                        <MudIconButton Icon="@Icons.Material.Filled.Download"
-                                       Color="Color.Default"
-                                       Size="Size.Small"
-                                       OnClick="@(() => DownloadAsync(context.Type))" />
-                    }
-                </MudStack>
+                        @if (context.Exists)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Download"
+                                           Color="Color.Default"
+                                           Size="Size.Small"
+                                           OnClick="@(() => DownloadAsync(context.Type))" />
+                        }
+                    </MudStack>
             </MudTd>
         </RowTemplate>
     </MudTable>

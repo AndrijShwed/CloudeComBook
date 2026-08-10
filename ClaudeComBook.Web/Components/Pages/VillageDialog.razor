@@ -1,0 +1,51 @@
+﻿@using ClaudeComBook.Shared.Models
+@using ClaudeComBook.Web.Services
+@inject ApiService Api
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string" @bind-Value="_name" Label="Назва населеного пункту" Required="true" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Зберегти</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public Village? Village { get; set; }
+
+    private string _name = "";
+
+    protected override void OnInitialized()
+    {
+        if (Village != null)
+            _name = Village.Name ?? "";
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_name))
+            return;
+
+        bool success;
+
+        if (Village == null)
+        {
+            success = await Api.CreateVillageAsync(new Village { Name = _name });
+        }
+        else
+        {
+            Village.Name = _name;
+            success = await Api.UpdateVillageAsync(Village);
+        }
+
+        MudDialog.Close(DialogResult.Ok(success));
+    }
+}

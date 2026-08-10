@@ -156,4 +156,80 @@ public class ApiService
 
         return (bytes, fileName);
     }
+
+    public async Task<List<Street>> GetStreetsAsync()
+    {
+        return await _http.GetFromJsonAsync<List<Street>>("api/streets")
+               ?? new List<Street>();
+    }
+
+    public async Task<bool> CreateVillageAsync(Village village)
+    {
+        var response = await _http.PostAsJsonAsync("api/villages", village);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateVillageAsync(Village village)
+    {
+        var response = await _http.PutAsJsonAsync($"api/villages/{village.Id}", village);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteVillageAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/villages/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> CreateStreetAsync(Street street)
+    {
+        var response = await _http.PostAsJsonAsync("api/streets", street);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateStreetAsync(Street street)
+    {
+        var response = await _http.PutAsJsonAsync($"api/streets/{street.Id}", street);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteStreetAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/streets/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<List<VillageStreet>> GetVillageStreetsAsync()
+    {
+        return await _http.GetFromJsonAsync<List<VillageStreet>>("api/villagestreets")
+               ?? new List<VillageStreet>();
+    }
+    public async Task<bool> CreateVillageStreetAsync(VillageStreet villageStreet)
+    {
+        var response = await _http.PostAsJsonAsync("api/villagestreets", villageStreet);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateVillageStreetAsync(VillageStreet villageStreet)
+    {
+        var response = await _http.PutAsJsonAsync($"api/villagestreets/{villageStreet.Id}", villageStreet);
+        return response.IsSuccessStatusCode;
+    }
+    public async Task<Village?> CreateVillageAndReturnAsync(Village village)
+    {
+        var response = await _http.PostAsJsonAsync("api/villages", village);
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        return await response.Content.ReadFromJsonAsync<Village>();
+    }
+
+    public async Task<Street?> CreateStreetAndReturnAsync(Street street)
+    {
+        var response = await _http.PostAsJsonAsync("api/streets", street);
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        return await response.Content.ReadFromJsonAsync<Street>();
+    }
 }

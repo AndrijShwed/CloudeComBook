@@ -120,21 +120,13 @@ public class DocumentTemplatesController : ControllerBase
         foreach (var type in DocumentTemplateTypes.All)
         {
             var template = await _repo.GetByTypeAsync(type);
-            bool exists = false;
-            DateTime? updatedAt = null;
-
-            if (template != null && !string.IsNullOrWhiteSpace(template.Name))
-            {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "DocTemplates", template.Name);
-                exists = System.IO.File.Exists(filePath);
-                updatedAt = template.UpdatedAt;
-            }
+            bool exists = template != null && !string.IsNullOrWhiteSpace(template.Name);
 
             result.Add(new DocumentTemplateStatusDto
             {
                 Type = type,
                 Exists = exists,
-                UpdatedAt = exists ? updatedAt : null
+                UpdatedAt = exists ? template!.UpdatedAt : null
             });
         }
 
