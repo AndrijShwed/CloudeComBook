@@ -71,6 +71,12 @@ public class AuthController : ControllerBase
     [HttpDelete("users/{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
+        var user = await _repo.GetByIdAsync(id);
+        if (user == null) return NotFound();
+
+        if (user.Role == "admin")
+            return BadRequest(new { message = "Видалення користувачів з роллю admin заборонено" });
+
         var ok = await _repo.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
     }

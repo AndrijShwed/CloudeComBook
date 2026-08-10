@@ -1,4 +1,6 @@
 ﻿using ClaudeComBook.API.Repositories.Interfaces;
+using ClaudeComBook.Shared.Constants;
+using ClaudeComBook.Shared.DTOs;
 using ClaudeComBook.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -108,6 +110,35 @@ public class DocumentTemplatesController : ControllerBase
             template.Name);
 
         return Ok(System.IO.File.Exists(filePath));
+    }
+
+    [HttpGet("status")]
+    public async Task<IActionResult> GetStatus()
+    {
+        var result = new List<DocumentTemplateStatusDto>();
+
+        foreach (var type in DocumentTemplateTypes.All)
+        {
+            var template = await _repo.GetByTypeAsync(type);
+            bool exists = false;
+            DateTime? updatedAt = null;
+
+            if (template != null && !string.IsNullOrWhiteSpace(template.Name))
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "DocTemplates", template.Name);
+                exists = System.IO.File.Exists(filePath);
+                updatedAt = template.UpdatedAt;
+            }
+
+            result.Add(new DocumentTemplateStatusDto
+            {
+                Type = type,
+                Exists = exists,
+                UpdatedAt = exists ? updatedAt : null
+            });
+        }
+
+        return Ok(result);
     }
 }
 

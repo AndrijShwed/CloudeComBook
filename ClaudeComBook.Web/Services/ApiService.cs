@@ -1,8 +1,10 @@
-﻿using ClaudeComBook.Shared.DTOs.Auth;
-using ClaudeComBook.Shared.DTOs;
+﻿using ClaudeComBook.Shared.DTOs;
+using ClaudeComBook.Shared.DTOs.Auth;
 using ClaudeComBook.Shared.Filters;
 using ClaudeComBook.Shared.Models;
+using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 
 namespace ClaudeComBook.Web.Services;
 
@@ -99,10 +101,22 @@ public class ApiService
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<bool> DeleteUserAsync(int id)
+    public async Task<(bool Success, string? Error)> DeleteUserAsync(int id)
     {
         var response = await _http.DeleteAsync($"api/auth/users/{id}");
-        return response.IsSuccessStatusCode;
+
+        if (response.IsSuccessStatusCode)
+            return (true, null);
+
+        string? error = null;
+        try
+        {
+            var body = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            body?.TryGetValue("message", out error);
+        }
+        catch { /* ігноруємо, якщо тіло не JSON */ }
+
+        return (false, error);
     }
 
     public async Task<bool> ToggleUserActiveAsync(int id, bool isActive)
@@ -111,4 +125,35 @@ public class ApiService
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<List<DocumentTemplateStatusDto>> GetTemplateStatusesAsync()
+    {
+        return await _http.GetFromJsonAsync<List<DocumentTemplateStatusDto>>("api/documenttemplates/status")
+               ?? new List<DocumentTemplateStatusDto>();
+    }
+
+    public async Task<bool> UploadTemplateAsync(string type, IBrowserFile file)
+    {
+        using var content = new MultipartFormDataContent();
+        var streamContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024));
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType is { Length: > 0 } ? file.ContentType : "application/octet-stream");
+        content.Add(streamContent, "file", file.Name);
+
+        var response = await _http.PostAsync($"api/documenttemplates/upload/{Uri.EscapeDataString(type)}", content);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<(byte[] Bytes, string FileName)?> DownloadTemplateAsync(string type)
+    {
+        var response = await _http.GetAsync($"api/documenttemplates/download/{Uri.EscapeDataString(type)}");
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                       ?? response.Content.Headers.ContentDisposition?.FileName
+                       ?? $"{type}.docx";
+        fileName = fileName.Trim('"');
+
+        return (bytes, fileName);
+    }
 }

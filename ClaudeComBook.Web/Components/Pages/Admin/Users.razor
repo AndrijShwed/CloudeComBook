@@ -46,10 +46,13 @@ else
                            Color="Color.Success" />
             </MudTd>
             <MudTd DataLabel="Дії">
-                <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                               Color="Color.Error"
-                               Size="Size.Small"
-                               OnClick="@(() => DeleteAsync(context.Id, context.Login))" />
+                @if (context.Role != "admin")
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Size="Size.Small"
+                                   OnClick="@(() => DeleteAsync(context.Id, context.Login))" />
+                }
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -95,7 +98,7 @@ else
         if (confirmed != true)
             return;
 
-        var success = await Api.DeleteUserAsync(id);
+        var (success, error) = await Api.DeleteUserAsync(id);
 
         if (success)
         {
@@ -104,7 +107,7 @@ else
         }
         else
         {
-            Snackbar.Add("Не вдалося видалити користувача", Severity.Error);
+            Snackbar.Add(error ?? "Не вдалося видалити користувача", Severity.Error);
         }
     }
 
