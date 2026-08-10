@@ -42,16 +42,17 @@ else
             </MudTd>
                 <MudTd DataLabel="Дії">
                     <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                        <MudFileUpload T="IBrowserFile" FilesChanged="@(file => UploadAsync(context.Type, file))" Accept=".docx">
-                            <ActivatorContent>
-                                <MudButton Variant="Variant.Outlined"
-                                           Color="@(context.Exists ? Color.Warning : Color.Primary)"
-                                           StartIcon="@(context.Exists ? Icons.Material.Filled.Autorenew : Icons.Material.Filled.UploadFile)"
-                                           Size="Size.Small">
-                                    @(context.Exists ? "Замінити" : "Завантажити")
-                                </MudButton>
-                            </ActivatorContent>
-                        </MudFileUpload>
+                    <MudFileUpload T="IBrowserFile" FilesChanged="@(file => UploadAsync(context.Type, file))" Accept=".docx">
+                        <CustomContent Context="fileUpload">
+                            <MudButton Variant="Variant.Filled"
+                                       Color="@(context.Exists ? Color.Warning : Color.Primary)"
+                                       StartIcon="@(context.Exists ? Icons.Material.Filled.Autorenew : Icons.Material.Filled.UploadFile)"
+                                       Size="Size.Small"
+                                       OnClick="@fileUpload.OpenFilePickerAsync">
+                                @(context.Exists ? "Замінити" : "Завантажити")
+                            </MudButton>
+                        </CustomContent>
+                    </MudFileUpload>
 
                         @if (context.Exists)
                         {

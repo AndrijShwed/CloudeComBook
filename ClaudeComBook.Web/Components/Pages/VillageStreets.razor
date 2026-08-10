@@ -3,6 +3,8 @@
 @using ClaudeComBook.Web.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+@inject IDialogService DialogService
 @inject ApiService Api
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
@@ -48,6 +50,7 @@ else
             <MudTh>Стара назва вулиці</MudTh>
             <MudTh>Дата зміни назви</MudTh>
             <MudTh>Документ</MudTh>
+            <MudTh>Дії</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Населений пункт">@context.VillageName</MudTd>
@@ -55,30 +58,46 @@ else
             <MudTd DataLabel="Стара назва вулиці">@context.OldStreetName</MudTd>
             <MudTd DataLabel="Дата зміни назви">@context.RenameDateFormatted</MudTd>
             <MudTd DataLabel="Документ">
-                <MudStack Row="true" Spacing="1">
-                    @if (context.HasFile)
-                    {
-                        <MudButton Variant="Variant.Outlined"
-                                   Size="Size.Small"
-                                   OnClick="@(() => OpenDocumentAsync(context))">
-                            Відкрити
-                        </MudButton>
-                    }
+                @if (!string.IsNullOrWhiteSpace(context.OldStreetName))
+                {
+                    <MudStack Row="true" Spacing="1">
+                        @if (context.HasFile)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       OnClick="@(() => OpenDocumentAsync(context))">
+                                Відкрити
+                            </MudButton>
+                        }
 
-                    <AuthorizeView Roles="user,admin" Context="uploadContext">
-                        <Authorized>
-                            <MudFileUpload T="IBrowserFile" FilesChanged="@(file => ReplaceDocumentAsync(context, file))">
-                                <ActivatorContent>
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Secondary"
-                                               Size="Size.Small">
-                                        Замінити документ
-                                    </MudButton>
-                                </ActivatorContent>
-                            </MudFileUpload>
-                        </Authorized>
-                    </AuthorizeView>
-                </MudStack>
+                        <AuthorizeView Roles="user,admin" Context="uploadContext">
+                            <Authorized>
+                                <MudFileUpload T="IBrowserFile" FilesChanged="@(file => ReplaceDocumentAsync(context, file))">
+                                    <CustomContent Context="fileUpload">
+                                        <MudButton Variant="Variant.Filled"
+                                                   Color="@(context.HasFile ? Color.Warning : Color.Success)"
+                                                   Size="Size.Small"
+                                                   OnClick="@fileUpload.OpenFilePickerAsync">
+                                            @(context.HasFile ? "Замінити документ" : "Завантажити")
+                                        </MudButton>
+                                    </CustomContent>
+                                </MudFileUpload>
+                            </Authorized>
+                        </AuthorizeView>
+                    </MudStack>
+                }
+            </MudTd>
+            <MudTd DataLabel="Дії">
+                <AuthorizeView Roles="admin" Context="renameContext">
+                    <Authorized>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       Title="Перейменувати вулицю"
+                                       OnClick="@(() => OpenRenameDialog(context))" />
+                    </Authorized>
+                </AuthorizeView>
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -224,6 +243,27 @@ else
                 return "image/png";
         }
         return "application/octet-stream";
+    }
+
+    private async Task OpenRenameDialog(VillageStreet item)
+    {
+        var parameters = new DialogParameters<RenameStreetDialog>
+    {
+        { x => x.Item, item }
+    };
+
+        var dialog = await DialogService.ShowAsync<RenameStreetDialog>("Перейменувати вулицю", parameters);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false } && result.Data is bool success && success)
+        {
+            Snackbar.Add("Зміни збережено", Severity.Success);
+            await LoadAsync();
+        }
+        else if (result is { Canceled: false })
+        {
+            Snackbar.Add("Не вдалося зберегти зміни", Severity.Error);
+        }
     }
 
     private static string GuessExtension(string contentType) => contentType switch
