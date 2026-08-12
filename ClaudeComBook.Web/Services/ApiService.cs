@@ -232,4 +232,40 @@ public class ApiService
 
         return await response.Content.ReadFromJsonAsync<Street>();
     }
+
+    public async Task<List<House>> GetHousesByVillageStreetIdAsync(int villageStreetId)
+    {
+        return await _http.GetFromJsonAsync<List<House>>($"api/houses/by-villagestreet/{villageStreetId}")
+               ?? new List<House>();
+    }
+
+    public async Task<bool> CreateHouseAsync(House house)
+    {
+        var response = await _http.PostAsJsonAsync("api/houses", house);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateHouseAsync(House house)
+    {
+        var response = await _http.PutAsJsonAsync($"api/houses/{house.IdHouses}", house);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<(bool Success, string? Error)> DeleteHouseAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/houses/{id}");
+
+        if (response.IsSuccessStatusCode)
+            return (true, null);
+
+        string? error = null;
+        try
+        {
+            var body = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            body?.TryGetValue("message", out error);
+        }
+        catch { /* ігноруємо, якщо тіло не JSON */ }
+
+        return (false, error);
+    }
 }

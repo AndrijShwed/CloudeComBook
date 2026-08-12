@@ -20,5 +20,6 @@ namespace ClaudeComBook.API.Repositories.Interfaces
         Task<bool> ExistsAsync(int villageStreetId, string numbOfHouse);
         Task<IEnumerable<(string Village, decimal TotalArea, decimal LivingArea)>> GetAreaByVillageAsync();
         Task<IEnumerable<dynamic>> GetRoomCountByVillageAsync();
+        Task<bool> HasRegisteredPeopleAsync(int id);
     }
 }

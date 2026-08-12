@@ -76,8 +76,23 @@ public class HouseRepository : IHouseRepository
         return rows > 0;
     }
 
+    public async Task<bool> HasRegisteredPeopleAsync(int id)
+    {
+        using var conn = _db.CreateConnection();
+        var count = await conn.ExecuteScalarAsync<int>(
+            @"SELECT COUNT(*) FROM people p
+          INNER JOIN houses h ON h.villagestreetId = p.villagestreetId
+                              AND h.numb_of_house = p.numb_of_house
+          WHERE h.idhouses = @id",
+            new { id });
+        return count > 0;
+    }
+
     public async Task<bool> DeleteAsync(int id)
     {
+        if (await HasRegisteredPeopleAsync(id))
+            throw new InvalidOperationException("Неможливо видалити будинок: у ньому зареєстровані люди.");
+
         using var conn = _db.CreateConnection();
         var rows = await conn.ExecuteAsync(
             "DELETE FROM houses WHERE idhouses = @id", new { id });

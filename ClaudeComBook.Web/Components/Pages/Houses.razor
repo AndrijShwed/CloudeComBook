@@ -1,0 +1,223 @@
+﻿@page "/houses"
+@using ClaudeComBook.Shared.Models
+@using ClaudeComBook.Web.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject IDialogService DialogService
+@inject ApiService Api
+@inject ISnackbar Snackbar
+@attribute [Authorize]
+
+<PageTitle>Будинки</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Будинки</MudText>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudGrid>
+        <MudItem xs="12" md="5">
+            <MudSelect T="int?" Label="Населений пункт"
+                       Value="_selectedVillageId"
+                       ValueChanged="OnVillageChangedAsync">
+                @foreach (var v in _villages)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)v.Id)">@v.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="5">
+            <MudSelect T="int?" Label="Вулиця"
+                       Value="_selectedVillageStreetId"
+                       ValueChanged="OnStreetChangedAsync"
+                       Disabled="_selectedVillageId == null">
+                @foreach (var vs in _availableStreets)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)vs.Id)">@vs.StreetName</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2" Class="d-flex align-center">
+            <AuthorizeView Roles="admin" Context="addContext">
+                <Authorized>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               Disabled="_selectedVillageStreetId == null"
+                               OnClick="@(() => OpenHouseDialog(null))">
+                        Додати будинок
+                    </MudButton>
+                </Authorized>
+            </AuthorizeView>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_selectedVillageStreetId == null)
+{
+    <MudAlert Severity="Severity.Info">Оберіть населений пункт і вулицю, щоб побачити будинки</MudAlert>
+}
+else if (_loadingHouses)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="@_houses" Hover="true" Dense="true">
+        <HeaderContent>
+            <MudTh>№ будинку</MudTh>
+            <MudTh>Прізвище</MudTh>
+            <MudTh>Ім'я</MudTh>
+            <MudTh>По батькові</MudTh>
+            <MudTh>Заг. площа</MudTh>
+            <MudTh>Житл. площа</MudTh>
+            <MudTh>К-сть кімнат</MudTh>
+            <MudTh>Дії</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="№ будинку">@context.NumbOfHouse</MudTd>
+            <MudTd DataLabel="Прізвище">@context.LastName</MudTd>
+            <MudTd DataLabel="Ім'я">@context.Name</MudTd>
+            <MudTd DataLabel="По батькові">@context.Surname</MudTd>
+            <MudTd DataLabel="Заг. площа">@context.TotalArea</MudTd>
+            <MudTd DataLabel="Житл. площа">@context.LivingArea</MudTd>
+            <MudTd DataLabel="К-сть кімнат">@context.TotalOfRooms</MudTd>
+            <MudTd DataLabel="Дії">
+                <AuthorizeView Roles="admin" Context="actionsContext">
+                    <Authorized>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       Title="Редагувати"
+                                       OnClick="@(() => OpenHouseDialog(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       Title="Видалити"
+                                       OnClick="@(() => DeleteHouseAsync(context))" />
+                    </Authorized>
+                </AuthorizeView>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<Village> _villages = new();
+    private List<VillageStreet> _villageStreets = new();
+    private List<VillageStreet> _availableStreets = new();
+    private List<House> _houses = new();
+
+    private int? _selectedVillageId;
+    private int? _selectedVillageStreetId;
+    private bool _loadingHouses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _villages = await Api.GetVillagesAsync();
+        _villageStreets = await Api.GetVillageStreetsAsync();
+    }
+
+    private Task OnVillageChangedAsync(int? villageId)
+    {
+        _selectedVillageId = villageId;
+        _selectedVillageStreetId = null;
+        _houses.Clear();
+
+        _availableStreets = villageId == null
+            ? new List<VillageStreet>()
+            : _villageStreets.Where(vs => vs.VillageId == villageId && vs.IsActive).ToList();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnStreetChangedAsync(int? villageStreetId)
+    {
+        _selectedVillageStreetId = villageStreetId;
+        await LoadHousesAsync();
+    }
+
+    private async Task LoadHousesAsync()
+    {
+        if (_selectedVillageStreetId == null)
+        {
+            _houses.Clear();
+            return;
+        }
+
+        _loadingHouses = true;
+        var list = await Api.GetHousesByVillageStreetIdAsync(_selectedVillageStreetId.Value);
+        _houses = list
+            .OrderBy(h => GetHouseNumberSortKey(h.NumbOfHouse))
+            .ThenBy(h => h.NumbOfHouse, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        _loadingHouses = false;
+    }
+
+    private static int GetHouseNumberSortKey(string? numb)
+    {
+        if (string.IsNullOrWhiteSpace(numb))
+            return int.MaxValue;
+
+        var digits = new string(numb.TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(digits, out var n) ? n : int.MaxValue;
+    }
+
+    private async Task OpenHouseDialog(House? item)
+    {
+        var isNew = item == null;
+        var model = item == null
+            ? new House { VillageStreetId = _selectedVillageStreetId!.Value }
+            : new House
+            {
+                IdHouses = item.IdHouses,
+                VillageStreetId = item.VillageStreetId,
+                NumbOfHouse = item.NumbOfHouse,
+                LastName = item.LastName,
+                Name = item.Name,
+                Surname = item.Surname,
+                TotalArea = item.TotalArea,
+                LivingArea = item.LivingArea,
+                TotalOfRooms = item.TotalOfRooms
+            };
+
+        var parameters = new DialogParameters<HouseDialog>
+        {
+            { x => x.Item, model }
+        };
+
+        var dialog = await DialogService.ShowAsync<HouseDialog>(
+            isNew ? "Додати будинок" : "Редагувати будинок", parameters);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false } && result.Data is bool success && success)
+        {
+            Snackbar.Add("Збережено", Severity.Success);
+            await LoadHousesAsync();
+        }
+        else if (result is { Canceled: false })
+        {
+            Snackbar.Add("Не вдалося зберегти", Severity.Error);
+        }
+    }
+
+    private async Task DeleteHouseAsync(House item)
+    {
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "Підтвердження",
+            $"Видалити будинок №{item.NumbOfHouse}?",
+            yesText: "Видалити", cancelText: "Скасувати");
+
+        if (confirmed != true) return;
+
+        var (success, error) = await Api.DeleteHouseAsync(item.IdHouses);
+        if (success)
+        {
+            Snackbar.Add("Видалено", Severity.Success);
+            await LoadHousesAsync();
+        }
+        else
+        {
+            Snackbar.Add(error ?? "Не вдалося видалити", Severity.Error);
+        }
+    }
+}

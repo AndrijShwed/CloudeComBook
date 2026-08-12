@@ -88,7 +88,14 @@ public class HousesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var ok = await _repo.DeleteAsync(id);
-        return ok ? NoContent() : NotFound();
+        try
+        {
+            var ok = await _repo.DeleteAsync(id);
+            return ok ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 }
