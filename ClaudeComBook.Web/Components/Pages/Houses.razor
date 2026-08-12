@@ -62,7 +62,8 @@ else if (_loadingHouses)
 }
 else
 {
-    <MudTable Items="@_houses" Hover="true" Dense="true">
+    <MudTable Items="@_houses" Hover="true" Dense="true" FixedHeader="true"
+              Height="calc(100vh - 330px)">
         <HeaderContent>
             <MudTh>№ будинку</MudTh>
             <MudTh>Прізвище</MudTh>

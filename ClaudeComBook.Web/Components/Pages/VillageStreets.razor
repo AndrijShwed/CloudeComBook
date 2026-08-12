@@ -44,7 +44,8 @@
 }
 else
 {
-    <MudTable Items="@_villageStreets" Hover="true" Dense="true">
+    <MudTable Items="@_villageStreets" Hover="true" Dense="true" FixedHeader="true"
+              Height="calc(100vh - 330px)">
         <HeaderContent>
             <MudTh>Населений пункт</MudTh>
             <MudTh>Вулиця</MudTh>

@@ -30,7 +30,8 @@
 }
 else
 {
-    <MudTable Items="@_streets" Hover="true" Dense="true">
+    <MudTable Items="@_streets" Hover="true" Dense="true" FixedHeader="true"
+              Height="calc(100vh - 330px)">
         <HeaderContent>
             <MudTh>Назва</MudTh>
             <MudTh>Дії</MudTh>

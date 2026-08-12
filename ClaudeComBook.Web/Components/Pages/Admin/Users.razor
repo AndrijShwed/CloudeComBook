@@ -25,7 +25,8 @@
 }
 else
 {
-    <MudTable Items="@_users" Hover="true" Dense="true">
+    <MudTable Items="@_users" Hover="true" Dense="true" FixedHeader="true"
+              Height="calc(100vh - 330px)">
         <HeaderContent>
             <MudTh>Логін</MudTh>
             <MudTh>ПІБ</MudTh>

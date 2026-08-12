@@ -18,7 +18,8 @@
 }
 else
 {
-    <MudTable Items="@_statuses" Hover="true" Dense="true">
+    <MudTable Items="@_statuses" Hover="true" Dense="true" FixedHeader="true"
+              Height="calc(100vh - 330px)">
         <HeaderContent>
             <MudTh>Тип довідки</MudTh>
             <MudTh>Статус</MudTh>
