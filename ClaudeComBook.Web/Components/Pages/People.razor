@@ -216,7 +216,15 @@
 
             </MudGrid>
 
-            <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-2" Spacing="2">
+            <MudStack Row="true"
+                      AlignItems="AlignItems.Center"
+                      Class="mt-2" Spacing="2">
+
+                <MudText Typo="Typo.body2" Class="mb-2">
+                <b>Кількість записів: @Vm.People.Count</b>
+                </MudText>
+
+                <MudSpacer />
 
                 <MudButton Variant="Variant.Outlined"
                            Size="Size.Small"
@@ -242,7 +250,8 @@
                   Hover="true" Dense="true" FixedHeader="true"
                   Height="calc(100vh - 330px)"
                   Striped="true"
-                  Loading="Vm.Loading">
+                  Loading="Vm.Loading"
+                  RowClassFunc="GetRowClass">
 
             <HeaderContent>
                 <MudTh>Прізвище</MudTh>
@@ -256,7 +265,7 @@
                 <MudTh>Будинок</MudTh>
                 <MudTh>Реєстрація</MudTh>
             </HeaderContent>
-
+          
             <RowTemplate>
                 <MudTd>@context.LastName</MudTd>
                 <MudTd>@context.Name</MudTd>
@@ -276,6 +285,18 @@
 
 </MudContainer>
 
+<style>
+    .row-pomer td {
+        background-color: #343a40 !important;
+        color: white !important;
+    }
+
+    .row-vybuv td {
+        background-color: #e8a0b5 !important;
+        color: white !important;
+    }
+</style>
+
 @code
 {
     protected override async Task OnInitializedAsync()
@@ -286,6 +307,24 @@
     private async Task ClearFilter()
     {
         Vm.ClearFilter();
-        await Vm.LoadPeopleAsync();
+        // await Vm.LoadPeopleAsync();
+    }
+
+    private string GetRowClass(Person context, int rowNumber)
+    {
+
+        if (context.Registr == "ні")
+        {
+            if (context.Status == "помер" || context.Status == "загинув на війні")
+            {
+                return "row-pomer";
+            }
+            else
+            {
+                return "row-vybuv";
+            }
+        }
+        
+        return string.Empty;
     }
 }

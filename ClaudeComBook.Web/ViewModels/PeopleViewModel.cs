@@ -23,7 +23,7 @@ public class PeopleViewModel : BaseViewModel
 
     public List<House> Houses { get; private set; } = new();
 
-    public bool RegisteredYes { get; set; }
+    public bool RegisteredYes { get; set; } = true;
     public bool RegisteredNo { get; set; }
 
     private bool _loading;
@@ -38,8 +38,8 @@ public class PeopleViewModel : BaseViewModel
     {
         Villages = await _api.GetVillagesAsync();
         VillageStreets = await _api.GetVillageStreetsAsync();
-
-        await LoadPeopleAsync();
+        UpdateRegistrFilter();
+        //await LoadPeopleAsync();
     }
 
     public List<VillageStreet> GetStreetsForVillage(int? villageId) =>
@@ -129,7 +129,7 @@ public class PeopleViewModel : BaseViewModel
         Filter.StatusYear = null;
 
         Houses = new List<House>();
-        RegisteredYes = false;
+        RegisteredYes = true;
         RegisteredNo = false;
     }
 }
