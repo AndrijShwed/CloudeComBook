@@ -1,0 +1,278 @@
+﻿@page "/village-streets"
+@using CloudeComBook.Shared.Models
+@using CloudeComBook.Web.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IDialogService DialogService
+@inject ApiService Api
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+@attribute [Authorize]
+
+<PageTitle>Вулиці в населених пунктах</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Вулиці в населених пунктах</MudText>
+
+<AuthorizeView Roles="user,admin" Context="authContext">
+    <Authorized>
+        <MudPaper Class="pa-4 mb-4">
+            <MudGrid>
+                <MudItem xs="12" md="5">
+                    <MudTextField T="string" @bind-Value="_newVillageName" Label="Введіть назву населеного пункту" />
+                </MudItem>
+                <MudItem xs="12" md="5">
+                    <MudTextField T="string" @bind-Value="_newStreetName" Label="Введіть назву вулиці" />
+                </MudItem>
+                <MudItem xs="12" md="2" Class="d-flex align-center">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               OnClick="AddPairAsync">
+                        Додати в таблицю
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </Authorized>
+</AuthorizeView>
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="@_villageStreets" Hover="true" Dense="true" FixedHeader="true"
+              Height="calc(100vh - 330px)">
+        <HeaderContent>
+            <MudTh>Населений пункт</MudTh>
+            <MudTh>Вулиця</MudTh>
+            <MudTh>Стара назва вулиці</MudTh>
+            <MudTh>Дата зміни назви</MudTh>
+            <MudTh>Документ</MudTh>
+            <MudTh>Дії</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Населений пункт">@context.VillageName</MudTd>
+            <MudTd DataLabel="Вулиця">@context.StreetName</MudTd>
+            <MudTd DataLabel="Стара назва вулиці">@context.OldStreetName</MudTd>
+            <MudTd DataLabel="Дата зміни назви">@context.RenameDateFormatted</MudTd>
+            <MudTd DataLabel="Документ">
+                @if (!string.IsNullOrWhiteSpace(context.OldStreetName))
+                {
+                    <MudStack Row="true" Spacing="1">
+                        @if (context.HasFile)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       OnClick="@(() => OpenDocumentAsync(context))">
+                                Відкрити
+                            </MudButton>
+                        }
+
+                        <AuthorizeView Roles="user,admin" Context="uploadContext">
+                            <Authorized>
+                                <MudFileUpload T="IBrowserFile" FilesChanged="@(file => ReplaceDocumentAsync(context, file))">
+                                    <CustomContent Context="fileUpload">
+                                        <MudButton Variant="Variant.Filled"
+                                                   Color="@(context.HasFile ? Color.Warning : Color.Success)"
+                                                   Size="Size.Small"
+                                                   OnClick="@fileUpload.OpenFilePickerAsync">
+                                            @(context.HasFile ? "Замінити документ" : "Завантажити")
+                                        </MudButton>
+                                    </CustomContent>
+                                </MudFileUpload>
+                            </Authorized>
+                        </AuthorizeView>
+                    </MudStack>
+                }
+            </MudTd>
+            <MudTd DataLabel="Дії">
+                <AuthorizeView Roles="admin" Context="renameContext">
+                    <Authorized>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       Title="Перейменувати вулицю"
+                                       OnClick="@(() => OpenRenameDialog(context))" />
+                    </Authorized>
+                </AuthorizeView>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private bool _loading = true;
+    private List<VillageStreet> _villageStreets = new();
+    private List<Village> _villages = new();
+    private List<Street> _streets = new();
+
+    private string _newVillageName = "";
+    private string _newStreetName = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _villageStreets = await Api.GetVillageStreetsAsync();
+        _villages = await Api.GetVillagesAsync();
+        _streets = await Api.GetStreetsAsync();
+        _loading = false;
+    }
+
+    private async Task AddPairAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_newVillageName) || string.IsNullOrWhiteSpace(_newStreetName))
+        {
+            Snackbar.Add("Введіть назву населеного пункту і вулиці", Severity.Warning);
+            return;
+        }
+
+        var villageName = _newVillageName.Trim();
+        var streetName = _newStreetName.Trim();
+
+        var village = _villages.FirstOrDefault(v =>
+            string.Equals(v.Name, villageName, StringComparison.OrdinalIgnoreCase));
+
+        int villageId;
+        if (village != null)
+        {
+            villageId = village.Id;
+        }
+        else
+        {
+            var createdVillage = await Api.CreateVillageAndReturnAsync(new Village { Name = villageName });
+            if (createdVillage == null)
+            {
+                Snackbar.Add("Не вдалося створити населений пункт", Severity.Error);
+                return;
+            }
+            villageId = createdVillage.Id;
+        }
+
+        var street = _streets.FirstOrDefault(s =>
+            string.Equals(s.Name, streetName, StringComparison.OrdinalIgnoreCase));
+
+        int streetId;
+        if (street != null)
+        {
+            streetId = street.Id;
+        }
+        else
+        {
+            var createdStreet = await Api.CreateStreetAndReturnAsync(new Street { Name = streetName });
+            if (createdStreet == null)
+            {
+                Snackbar.Add("Не вдалося створити вулицю", Severity.Error);
+                return;
+            }
+            streetId = createdStreet.Id;
+        }
+
+        var success = await Api.CreateVillageStreetAsync(new VillageStreet
+        {
+            VillageId = villageId,
+            StreetId = streetId,
+            IsActive = true
+        });
+
+        if (success)
+        {
+            Snackbar.Add("Додано", Severity.Success);
+            _newVillageName = "";
+            _newStreetName = "";
+            await LoadAsync();
+        }
+        else
+        {
+            Snackbar.Add("Не вдалося додати (можливо, така пара вже існує)", Severity.Error);
+        }
+    }
+
+    private async Task ReplaceDocumentAsync(VillageStreet item, IBrowserFile file)
+    {
+        if (file == null) return;
+
+        using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+
+        item.FileData = ms.ToArray();
+
+        var success = await Api.UpdateVillageStreetAsync(item);
+
+        if (success)
+        {
+            Snackbar.Add("Документ оновлено", Severity.Success);
+            await LoadAsync();
+        }
+        else
+        {
+            Snackbar.Add("Не вдалося завантажити документ", Severity.Error);
+        }
+    }
+
+    private async Task OpenDocumentAsync(VillageStreet item)
+    {
+        if (item.FileData == null || item.FileData.Length == 0)
+            return;
+
+        var contentType = GuessContentType(item.FileData);
+        var extension = GuessExtension(contentType);
+        var fileName = $"{item.VillageName}_{item.StreetName}{extension}";
+
+        var base64 = Convert.ToBase64String(item.FileData);
+        await JS.InvokeVoidAsync("downloadFileFromBytes", fileName, contentType, base64);
+    }
+
+    private static string GuessContentType(byte[] data)
+    {
+        if (data.Length >= 4)
+        {
+            if (data[0] == 0x25 && data[1] == 0x50 && data[2] == 0x44 && data[3] == 0x46)
+                return "application/pdf";
+            if (data[0] == 0xFF && data[1] == 0xD8)
+                return "image/jpeg";
+            if (data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47)
+                return "image/png";
+        }
+        return "application/octet-stream";
+    }
+
+    private async Task OpenRenameDialog(VillageStreet item)
+    {
+        var parameters = new DialogParameters<RenameStreetDialog>
+    {
+        { x => x.Item, item }
+    };
+
+        var dialog = await DialogService.ShowAsync<RenameStreetDialog>("Перейменувати вулицю", parameters);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false } && result.Data is bool success && success)
+        {
+            Snackbar.Add("Зміни збережено", Severity.Success);
+            await LoadAsync();
+        }
+        else if (result is { Canceled: false })
+        {
+            Snackbar.Add("Не вдалося зберегти зміни", Severity.Error);
+        }
+    }
+
+    private static string GuessExtension(string contentType) => contentType switch
+    {
+        "application/pdf" => ".pdf",
+        "image/jpeg" => ".jpg",
+        "image/png" => ".png",
+        _ => ".bin"
+    };
+}

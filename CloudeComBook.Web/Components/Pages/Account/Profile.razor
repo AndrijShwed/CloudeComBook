@@ -1,0 +1,182 @@
+﻿@page "/Account/Profile"
+@using System.Security.Claims
+@using CloudeComBook.Shared.DTOs
+@using CloudeComBook.Shared.DTOs.Auth
+@using CloudeComBook.Web.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject ApiService Api
+@inject ISnackbar Snackbar
+@attribute [Authorize]
+
+<PageTitle>Профіль</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Мій профіль</MudText>
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (_profile == null)
+{
+    <MudAlert Severity="Severity.Error">Не вдалося завантажити профіль.</MudAlert>
+}
+else
+{
+    <MudPaper Class="pa-6" MaxWidth="600px">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField T="string" Label="Логін" Value="@_profile.Login" ReadOnly="true" />
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudTextField T="string" Label="Роль" Value="@_profile.Role" ReadOnly="true" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.FullName" Label="Повне ім'я" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.ShortName" Label="Коротке ім'я" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.Position" Label="Посада" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.Organization" Label="Організація" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.Region" Label="Область" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.District" Label="Район" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.Village" Label="Населений пункт" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.Street" Label="Вулиця" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.House" Label="Будинок" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.Phone" Label="Телефон" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_form.PostIndex" Label="Поштовий індекс" />
+            </MudItem>
+
+            <MudItem xs="12" Class="d-flex justify-end mt-4">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Disabled="_saving"
+                           OnClick="SaveAsync">
+                    @(_saving ? "Збереження..." : "Зберегти")
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private bool _loading = true;
+    private bool _saving = false;
+    private int _userId;
+    private UserProfileResponse? _profile;
+
+    private ProfileForm _form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthStateTask is not null)
+        {
+            var authState = await AuthStateTask;
+            var idClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(idClaim, out var id))
+            {
+                _userId = id;
+                _profile = await Api.GetProfileAsync(_userId);
+
+                if (_profile != null)
+                {
+                    _form = new ProfileForm
+                    {
+                        FullName = _profile.FullName,
+                        ShortName = _profile.ShortName,
+                        Position = _profile.Position,
+                        Organization = _profile.Organization,
+                        Region = _profile.Region,
+                        District = _profile.District,
+                        Village = _profile.Village,
+                        Street = _profile.Street,
+                        House = _profile.House,
+                        Phone = _profile.Phone,
+                        PostIndex = _profile.PostIndex
+                    };
+                }
+            }
+        }
+
+        _loading = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        _saving = true;
+
+        var request = new UpdateSettingsRequest(
+            _form.FullName,
+            _form.Position,
+            _form.Region,
+            _form.District,
+            _form.Village,
+            _form.Street,
+            _form.House,
+            _form.ShortName,
+            _form.Organization,
+            _form.Phone,
+            _form.PostIndex);
+
+        var success = await Api.UpdateProfileAsync(_userId, request);
+
+        _saving = false;
+
+        if (success)
+        {
+            Snackbar.Add("Профіль оновлено", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Не вдалося зберегти зміни", Severity.Error);
+        }
+    }
+
+    private class ProfileForm
+    {
+        public string? FullName { get; set; }
+        public string? ShortName { get; set; }
+        public string? Position { get; set; }
+        public string? Organization { get; set; }
+        public string? Region { get; set; }
+        public string? District { get; set; }
+        public string? Village { get; set; }
+        public string? Street { get; set; }
+        public string? House { get; set; }
+        public string? Phone { get; set; }
+        public string? PostIndex { get; set; }
+    }
+}

@@ -1,0 +1,102 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CloudeComBook.Desktop.Views.PersonalSettingsView"
+        Title="Особисті налаштування"
+        Width="400" Height="680"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="#3F51B5">
+
+	<Window.Styles>
+		<Style Selector="TextBox /template/ ScrollViewer">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+		<TextBlock Grid.Row="0"
+				   Text="Особисті налаштування"
+				   Foreground="White"
+				   FontSize="18"
+				   FontWeight="Bold"
+				   FontFamily="Comic Sans MS"
+				   Margin="0,0,0,20"/>
+
+		<ScrollViewer Grid.Row="1"
+					  VerticalScrollBarVisibility="Auto">
+
+			<StackPanel Spacing="15">
+
+				<StackPanel>
+					<TextBlock Text="Посада підписувача" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="PositionBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="ПІБ підписувача" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="FullNameBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Ім'я ПРІЗВИЩЕ" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="ShortNameBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Організація" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="OrganizationBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Область" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="RegionBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Район" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="DistrictBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Населений пункт" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="VillageBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Вулиця" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="StreetBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Будинок" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="HouseBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Телефон" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="PhoneBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Text="Поштовий індекс" Foreground="White" Margin="0,0,0,5"/>
+					<TextBox Name="PostIndexBox" Background="White" Foreground="Black"/>
+				</StackPanel>
+
+			</StackPanel>
+
+		</ScrollViewer>
+
+		<Button Grid.Row="2"
+				Content="Зберегти"
+				Background="#4CAF50"
+				Foreground="White"
+				FontWeight="Bold"
+				HorizontalAlignment="Stretch"
+				HorizontalContentAlignment="Center"
+				Padding="0,12"
+				Margin="0,20,0,0"
+				Click="OnSaveClick"/>
+
+	</Grid>
+</Window>

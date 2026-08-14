@@ -1,0 +1,135 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CloudeComBook.Desktop.ViewModels"
+        x:Class="CloudeComBook.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Головна"
+        Width="900" Height="650"
+        Background="#64C8E8">
+
+	<Grid RowDefinitions="Auto,*,Auto">
+
+		<!-- Верхня панель з іменем користувача -->
+		<Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,5">
+			<TextBlock Grid.Column="1" Name="UserLabel"
+                       Text="llabelUser"
+                       VerticalAlignment="Center"
+                       Margin="0,0,15,0"
+                       FontSize="14"/>
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,15,0">
+				<Button Name="TemplatesBtn" Content="Шаблони"
+						Background="#9C27B0" Foreground="White"
+						FontSize="12" Padding="8,4" Margin="0,0,10,0"
+						Click="OnTemplatesClick"/>
+				<Button Name="SettingsBtn" Content="⚙ Налаштування"
+						Background="#607D8B" Foreground="White"
+						FontSize="12" Padding="8,4" Margin="0,0,10,0"
+						Click="OnSettingsClick"/>
+				<!-- <TextBlock Name="UserLabel" Text="llabelUser" FontSize="14"/> -->
+			</StackPanel>
+			<Button Grid.Column="2" Name="UsersBtn"
+                    Content="👥 Користувачі"
+                    Background="#3F51B5" Foreground="White"
+                    FontSize="13" Padding="10,5"
+                    Margin="0,0,20,0"
+                    IsVisible="False"
+                    Click="OnUsersClick"/>
+		</Grid>
+
+		<!-- Сітка кнопок 3x3 -->
+		<UniformGrid Grid.Row="1" Columns="3" Margin="40">
+			<!-- Домогосподарства -->
+			<Button Margin="15" Background="White" CornerRadius="15"
+                    HorizontalContentAlignment="Center"
+                    Click="OnHouseholdsClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="90" Height="90" Source="/Assets/house.png"/>
+					<TextBlock Text="Домогосподарства" FontFamily="Comic Sans MS" Foreground="Black"
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+			<!-- Населення -->
+			<Button Margin="15" Background="White" CornerRadius="15"
+                    HorizontalContentAlignment="Center"
+                    Click="OnPeopleClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="155" Height="90" Source="/Assets/people.png"/>
+					<TextBlock Text="Населення" FontFamily="Comic Sans MS" Foreground="Black"
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+			<!-- Підприємства -->
+			<Button Margin="15" Background="White" CornerRadius="15"
+                    HorizontalContentAlignment="Center"
+                    Click="OnEnterprisesClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="90" Source="/Assets/enterprise.png"/>
+					<TextBlock Text="Підприємства" FontFamily="Comic Sans MS" Foreground="Black"
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+			<!-- Кількість населення -->
+			<Button Margin="15" Background="#FFE4E8" CornerRadius="15"
+                    HorizontalContentAlignment="Center"
+                    Click="OnPopulationClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="90" Source="/Assets/village.png"/>
+					<TextBlock Text="Кількість населення" FontFamily="Comic Sans MS" Foreground="Black"
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+			<!-- Заміна назви вулиці -->
+			<Button Margin="15" Background="White" CornerRadius="15"
+                    HorizontalContentAlignment="Center"
+                    Click="OnRenameStreetClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="90" Height="90" Source="/Assets/street.png"/>
+					<TextBlock Text="Заміна назви вулиці" FontFamily="Comic Sans MS" Foreground="Black"
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+			<!-- Худоба та птиця -->
+			<Button Margin="15" Background="#FFF3E0" CornerRadius="15"
+                    HorizontalContentAlignment="Center"
+                    Click="OnAnimalsClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="90" Source="/Assets/anymals.png"/>
+					<TextBlock Text="Худоба та птиця" FontFamily="Comic Sans MS" Foreground="Black"
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+			<!-- Населені пункти та вулиці -->
+			<Button Margin="15" Background="White" CornerRadius="15"
+                    HorizontalContentAlignment="Center"
+                    Click="OnVillagesStreetsClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="90" Source="/Assets/start.png"/>
+					<TextBlock Text="Населені пункти та вулиці" FontFamily="Comic Sans MS" Foreground="Black"
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+			<!-- Земля -->
+			<Button Margin="15" Background="#E8F5E9" CornerRadius="15"
+                    HorizontalContentAlignment="Center"
+                    Click="OnLandClick">
+				<StackPanel HorizontalAlignment="Center" Margin="10">
+					<Image Width="150" Height="90" Source="/Assets/land.png"/>
+					<TextBlock Text="Земля" FontFamily="Comic Sans MS" Foreground="Black"
+                               FontSize="16" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+				</StackPanel>
+			</Button>
+		</UniformGrid>
+
+		<!-- Нижня панель для адміна -->
+		<StackPanel Grid.Row="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,5,20,10">
+			<Button Name="AdminPanelBtn"
+                    Content="⚙ Адмін панель"
+                    Background="#F44336" Foreground="White"
+                    FontSize="13" Padding="10,5"
+                    IsVisible="False"
+                    Click="OnAdminPanelClick"/>
+		</StackPanel>
+
+	</Grid>
+</Window>
