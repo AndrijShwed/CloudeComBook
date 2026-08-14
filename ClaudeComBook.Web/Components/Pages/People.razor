@@ -5,10 +5,26 @@
 @using ClaudeComBook.Web.Services
 @using ClaudeComBook.Web.ViewModels
 @using ClaudeComBook.Web.Helpers
-
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject ApiService Api
 @inject PeopleViewModel Vm
 
 <PageTitle>Люди</PageTitle>
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
+    <MudText Typo="Typo.h6">Список людей</MudText>
+    <AuthorizeView Roles="user,admin" Context="addContext">
+        <Authorized>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                       OnClick="@(() => OpenPersonDialog(null))">
+                Додати людину
+            </MudButton>
+        </Authorized>
+    </AuthorizeView>
+</MudStack>
 
 <MudContainer MaxWidth="MaxWidth.False">
 
@@ -96,9 +112,9 @@
                             </MudSelect>
                         </MudItem>
 
-                        <MudItem xs="12" sm="6" md="1">
+                        <MudItem xs="12" sm="6" md="2">
                             <MudNumericField @bind-Value="Vm.Filter.StatusYear"
-                                             Label="Рік"
+                                             Label="Рік зміни статусу"
                                              Variant="Variant.Outlined"
                                              Margin="Margin.Dense"
                                              Size="Size.Small" />
@@ -199,13 +215,13 @@
                                 <MudCheckBox T="bool"
                                              Value="Vm.RegisteredYes"
                                              ValueChanged="Vm.SetRegisteredYes"
-                                             Label="Реєстр: так"
+                                             Label="Реєстрація: так"
                                              Dense="true" />
 
                                 <MudCheckBox T="bool"
                                              Value="Vm.RegisteredNo"
                                              ValueChanged="Vm.SetRegisteredNo"
-                                             Label="Реєстр: ні"
+                                             Label="Реєстрація: ні"
                                              Dense="true" />
 
                             </MudStack>
@@ -226,10 +242,11 @@
 
                 <MudSpacer />
 
-                <MudButton Variant="Variant.Outlined"
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary"
                            Size="Size.Small"
                            OnClick="ClearFilter">
-                    Очистити
+                    Очистити фільтри
                 </MudButton>
 
                 <MudButton Variant="Variant.Filled"
@@ -264,6 +281,7 @@
                 <MudTh>Вулиця</MudTh>
                 <MudTh>Будинок</MudTh>
                 <MudTh>Реєстрація</MudTh>
+                <MudTh>Дії</MudTh>
             </HeaderContent>
           
             <RowTemplate>
@@ -277,6 +295,24 @@
                 <MudTd>@context.StreetName</MudTd>
                 <MudTd>@context.NumbOfHouse</MudTd>
                 <MudTd>@context.Registr</MudTd>
+                <MudTd>
+                    <AuthorizeView Roles="user,admin" Context="editContext">
+                        <Authorized>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           OnClick="@(() => OpenPersonDialog(context))" />
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="admin" Context="deleteContext">
+                        <Authorized>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           Color="Color.Error"
+                                           Size="Size.Small"
+                                           OnClick="@(() => DeletePersonAsync(context))" />
+                        </Authorized>
+                    </AuthorizeView>
+                </MudTd>
             </RowTemplate>
 
         </MudTable>
@@ -326,5 +362,80 @@
         }
         
         return string.Empty;
+    }
+
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    private async Task OpenPersonDialog(Person? item)
+    {
+        var isNew = item == null;
+        var model = item == null
+            ? new Person()
+            : new Person
+            {
+                PeopleId = item.PeopleId,
+                LastName = item.LastName,
+                Name = item.Name,
+                Surname = item.Surname,
+                Sex = item.Sex,
+                DateOfBirth = item.DateOfBirth,
+                NumbOfHouse = item.NumbOfHouse,
+                Passport = item.Passport,
+                IdKod = item.IdKod,
+                PhoneNumber = item.PhoneNumber,
+                Status = item.Status,
+                Registr = item.Registr,
+                MilID = item.MilID,
+                VillageStreetId = item.VillageStreetId,
+                Description = item.Description
+            };
+
+        var parameters = new DialogParameters<PersonDialog>
+    {
+        { x => x.Item, model }
+    };
+
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Large,
+            FullWidth = true,
+            CloseButton = true
+        };
+
+        var dialog = await DialogService.ShowAsync<PersonDialog>(
+            isNew ? "Додати людину" : "Редагувати людину", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false } && result.Data is bool success && success)
+        {
+            Snackbar.Add("Збережено", Severity.Success);
+            Vm.ClearFilter();
+        }
+        else if (result is { Canceled: false })
+        {
+            Snackbar.Add("Не вдалося зберегти", Severity.Error);
+        }
+    }
+
+    private async Task DeletePersonAsync(Person item)
+    {
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "Підтвердження",
+            $"Видалити {item.LastName} {item.Name}?",
+            yesText: "Видалити", cancelText: "Скасувати");
+
+        if (confirmed != true) return;
+
+        var success = await Api.DeletePersonAsync(item.PeopleId);
+        if (success)
+        {
+            Snackbar.Add("Видалено", Severity.Success);
+            await Vm.LoadPeopleAsync();
+        }
+        else
+        {
+            Snackbar.Add("Не вдалося видалити", Severity.Error);
+        }
     }
 }

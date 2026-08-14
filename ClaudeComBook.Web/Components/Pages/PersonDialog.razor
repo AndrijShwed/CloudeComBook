@@ -1,0 +1,251 @@
+﻿@using ClaudeComBook.Shared.Models
+@using ClaudeComBook.Web.Services
+@using ClaudeComBook.Web.Helpers
+@using MudBlazor
+@inject ApiService Api
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+
+            <MudGrid Spacing="2">
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField Value="Item.LastName"
+                                  Immediate="true"
+                                  ValueChanged="@((string? v) => Item.LastName = TextHelper.CapitalizeFirst(v))"
+                                  Label="Прізвище" Required="true" RequiredError="Обов'язкове поле" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField Value="Item.Name"
+                                  Immediate="true"  
+                                  ValueChanged="@((string? v) => Item.Name = TextHelper.CapitalizeFirst(v))"
+                                  Label="Ім'я" Required="true" RequiredError="Обов'язкове поле" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField Value="Item.Surname"
+                                  Immediate="true"
+                                  ValueChanged="@((string? v) => Item.Surname = TextHelper.CapitalizeFirst(v))"
+                                  Label="По батькові" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="string" @bind-Value="Item.Sex" Label="Стать">
+                        <MudSelectItem T="string" Value="@("чол")">Чоловіча</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("жін")">Жіноча</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudDatePicker @bind-Date="_dateOfBirth" Label="Дата народження" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="string" @bind-Value="Item.Registr" Label="Реєстрація">
+                        <MudSelectItem T="string" Value="@("так")">так</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("ні")">ні</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="int?" Label="Населений пункт"
+                               Value="_villageId"
+                               ValueChanged="OnVillageChangedAsync"
+                               Required="true"
+                               RequiredError="Обов'язкове поле">
+                        @foreach (var v in _villages)
+                        {
+                            <MudSelectItem T="int?" Value="@((int?)v.Id)">@v.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="int?" Label="Вулиця"
+                               Value="_streetId"
+                               ValueChanged="OnStreetChangedAsync"
+                               Disabled="_villageId == null"
+                               Required="true"
+                               RequiredError="Обов'язкове поле">
+                        @foreach (var vs in _availableStreets)
+                        {
+                            <MudSelectItem T="int?" Value="@((int?)vs.StreetId)">@vs.StreetName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="string" Label="Будинок"
+                               @bind-Value="Item.NumbOfHouse"
+                               Disabled="_streetId == null"
+                               Required="true"
+                               RequiredError="Обов'язкове поле">
+                        @foreach (var h in _availableHouses)
+                        {
+                            <MudSelectItem T="string" Value="@h.NumbOfHouse">@h.NumbOfHouse</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="string" @bind-Value="Item.Status" Label="Статус" Clearable="true">
+                        <MudSelectItem T="string" Value="@("помер")">помер</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("ЗСУ")">ЗСУ</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("одинокий")">одинокий</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("ВПО")">ВПО</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("безвісти")">безвісти</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("не проживає")">не проживає</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("відстрочка")">відстрочка</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("багатодітний")">багатодітний</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("виключений з в/о")">виключений з в/о</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("бронь")">бронь</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("загинув на війні")">загинув на війні</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="Item.MilID" Label="Військовий ID" />
+                </MudItem>
+                
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="Item.IdKod" Label="ІПН" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="Item.PhoneNumber" Label="Телефон" />
+                </MudItem>
+
+                <MudItem xs="12" sm="8">
+                    <MudTextField @bind-Value="Item.Passport" Label="Паспорт" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="Item.Description" Label="Опис" Lines="2" />
+                </MudItem>
+
+            </MudGrid>
+
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync">Зберегти</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public Person Item { get; set; } = new();
+
+    private MudForm _form = default!;
+
+    private List<Village> _villages = new();
+    private List<VillageStreet> _villageStreets = new();
+    private List<VillageStreet> _availableStreets = new();
+    private List<House> _availableHouses = new();
+
+    private int? _villageId;
+    private int? _streetId;
+    private DateTime? _dateOfBirth
+    {
+        get => Item.DateOfBirth;
+        set => Item.DateOfBirth = value;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _villages = await Api.GetVillagesAsync();
+        _villageStreets = await Api.GetVillageStreetsAsync();
+
+        if (Item.VillageStreetId is int vsId)
+        {
+            var vs = _villageStreets.FirstOrDefault(x => x.Id == vsId);
+            if (vs != null)
+            {
+                _villageId = vs.VillageId;
+                _streetId = vs.StreetId;
+                _availableStreets = _villageStreets.Where(x => x.VillageId == vs.VillageId && x.IsActive).ToList();
+                var houses = await Api.GetHousesByVillageStreetIdAsync(vsId);
+                _availableHouses = houses
+                    .OrderBy(h => GetHouseNumberSortKey(h.NumbOfHouse))
+                    .ThenBy(h => h.NumbOfHouse, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+        }
+    }
+
+    private Task OnVillageChangedAsync(int? villageId)
+    {
+        _villageId = villageId;
+        _streetId = null;
+        Item.VillageStreetId = null;
+        Item.NumbOfHouse = null;
+        _availableHouses = new List<House>();
+
+        _availableStreets = villageId == null
+            ? new List<VillageStreet>()
+            : _villageStreets.Where(vs => vs.VillageId == villageId && vs.IsActive).ToList();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnStreetChangedAsync(int? streetId)
+    {
+        _streetId = streetId;
+        Item.NumbOfHouse = null;
+
+        var vs = _availableStreets.FirstOrDefault(x => x.StreetId == streetId);
+        Item.VillageStreetId = vs?.Id;
+
+        var houses = await Api.GetHousesByVillageStreetIdAsync(vs.Id);
+        _availableHouses = houses
+            .OrderBy(h => GetHouseNumberSortKey(h.NumbOfHouse))
+            .ThenBy(h => h.NumbOfHouse, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private async Task SaveAsync()
+    {
+        await _form.ValidateAsync();
+
+        if (!_form.IsValid)
+            return;
+
+        if (Item.PeopleId == 0)
+        {
+            var exists = await Api.PersonExistsAsync(
+                Item.LastName ?? "", Item.Name ?? "", Item.Surname, Item.DateOfBirth);
+
+            if (exists)
+            {
+                var confirmed = await DialogService.ShowMessageBoxAsync(
+                    "Можливий дублікат",
+                    "Людина з таким прізвищем, ім'ям, по батькові та датою народження вже є в реєстрі. Зберегти все одно?",
+                    yesText: "Зберегти", cancelText: "Скасувати");
+
+                if (confirmed != true)
+                    return;
+            }
+        }
+
+        bool success = Item.PeopleId == 0
+            ? await Api.CreatePersonAsync(Item)
+            : await Api.UpdatePersonAsync(Item);
+
+        MudDialog.Close(DialogResult.Ok(success));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private static int GetHouseNumberSortKey(string? numb)
+    {
+        if (string.IsNullOrWhiteSpace(numb))
+            return int.MaxValue;
+
+        var digits = new string(numb.TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(digits, out var n) ? n : int.MaxValue;
+    }
+}

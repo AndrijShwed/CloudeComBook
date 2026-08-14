@@ -120,7 +120,7 @@ public class PeopleViewModel : BaseViewModel
         Filter.Surname = string.Empty;
         Filter.Sex = null;
         Filter.Status = null;
-        Filter.Registr = null;
+        Filter.Registr = RegisteredYes ? "так" : null;
         Filter.VillageId = null;
         Filter.StreetId = null;
         Filter.HouseNumb = string.Empty;

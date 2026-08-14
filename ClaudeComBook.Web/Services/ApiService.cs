@@ -268,4 +268,40 @@ public class ApiService
 
         return (false, error);
     }
+    public async Task<bool> CreatePersonAsync(Person person)
+    {
+        var response = await _http.PostAsJsonAsync("api/people", person);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdatePersonAsync(Person person)
+    {
+        var response = await _http.PutAsJsonAsync($"api/people/{person.PeopleId}", person);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeletePersonAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/people/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> PersonExistsAsync(string lastName, string name, string? surname, DateTime? dateOfBirth)
+    {
+        var query = new List<string>
+    {
+        $"lastName={Uri.EscapeDataString(lastName)}",
+        $"name={Uri.EscapeDataString(name)}"
+    };
+
+        if (!string.IsNullOrWhiteSpace(surname))
+            query.Add($"surname={Uri.EscapeDataString(surname)}");
+
+        if (dateOfBirth.HasValue)
+            query.Add($"dateOfBirth={dateOfBirth.Value:yyyy-MM-dd}");
+
+        var url = "api/people/exists?" + string.Join("&", query);
+
+        return await _http.GetFromJsonAsync<bool>(url);
+    }
 }
