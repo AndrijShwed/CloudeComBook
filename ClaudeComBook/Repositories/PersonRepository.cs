@@ -53,11 +53,11 @@ public class PersonRepository : IPersonRepository
           LEFT JOIN villages v ON vs.villageId = v.id
           LEFT JOIN streets s ON vs.streetId = s.id
           WHERE
-            (@lastName IS NULL OR p.lastname LIKE CONCAT('%', @lastName, '%'))
-            AND (@name IS NULL OR p.name LIKE CONCAT('%', @name, '%'))
-            AND (@surname IS NULL OR p.surname LIKE CONCAT('%', @surname, '%'))
+            (@lastName IS NULL OR LOWER(p.lastname) LIKE CONCAT(LOWER(@lastName), '%'))
+            AND (@name IS NULL OR LOWER(p.name) LIKE CONCAT(LOWER(@name), '%'))
+            AND (@surname IS NULL OR LOWER(p.surname) LIKE CONCAT(LOWER(@surname), '%'))
             AND (@sex IS NULL OR LOWER(p.sex) = LOWER(@sex))
-            AND (@status IS NULL OR LOWER(p.status) LIKE CONCAT('%', LOWER(@status), '%'))
+            AND (@status IS NULL OR LOWER(p.status) LIKE CONCAT(LOWER(@status), '%'))
             AND (@statusYear IS NULL OR YEAR(p.m_date) = @statusYear)
             AND (@registr IS NULL OR p.registr = @registr)
             AND (@houseNumb IS NULL OR p.numb_of_house = @houseNumb)

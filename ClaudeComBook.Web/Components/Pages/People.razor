@@ -4,6 +4,7 @@
 @using ClaudeComBook.Shared.Filters
 @using ClaudeComBook.Web.Services
 @using ClaudeComBook.Web.ViewModels
+@using ClaudeComBook.Web.Helpers
 
 @inject PeopleViewModel Vm
 
@@ -11,82 +12,262 @@
 
 <MudContainer MaxWidth="MaxWidth.False">
 
-    <MudPaper Class="pa-4 mb-4">
+    <MudExpansionPanels Class="mb-2" Elevation="1">
+        <MudExpansionPanel Text="Реєстр жителів — фільтри" Expanded="true" Dense="true">
 
-        <MudText Typo="Typo.h4">
-            Реєстр жителів
-        </MudText>
+            <MudGrid Spacing="2">
 
-        <MudDivider Class="my-3" />
+                <MudItem xs="12">
+                    <MudGrid Spacing="2">
 
-        <MudGrid>
+                        <MudItem xs="12" sm="6" md="2">
+                            <MudTextField Value="Vm.Filter.LastName"
+                                          Immediate="true"
+                                          ValueChanged="@((string? v) => Vm.Filter.LastName = TextHelper.CapitalizeFirst(v))"
+                                          Label="Прізвище"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense"
+                                          Size="Size.Small" />
+                        </MudItem>
 
-            <MudItem xs="12" md="4">
-                <MudTextField @bind-Value="Vm.Filter.LastName"
-                              Label="Прізвище"
-                              Variant="Variant.Outlined" />
-            </MudItem>
+                        <MudItem xs="12" sm="6" md="2">
+                            <MudTextField Value="Vm.Filter.Name"
+                                          Immediate="true"
+                                          ValueChanged="@((string? v) => Vm.Filter.Name = TextHelper.CapitalizeFirst(v))"
+                                          Label="Ім'я"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense"
+                                          Size="Size.Small" />
+                        </MudItem>
 
-            <MudItem xs="12" md="4">
-                <MudTextField @bind-Value="Vm.Filter.Name"
-                              Label="Ім'я"
-                              Variant="Variant.Outlined" />
-            </MudItem>
+                        <MudItem xs="12" sm="6" md="2">
+                            <MudTextField Value="Vm.Filter.Surname"
+                                          Immediate="true"
+                                          ValueChanged="@((string? v) => Vm.Filter.Surname = TextHelper.CapitalizeFirst(v))"
+                                          Label="По батькові"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense"
+                                          Size="Size.Small" />
+                        </MudItem>
 
-            <MudItem xs="12" md="4">
-                <MudTextField @bind-Value="Vm.Filter.Surname"
-                              Label="По батькові"
-                              Variant="Variant.Outlined" />
-            </MudItem>
+                        <MudItem xs="12" sm="6" md="2">
+                            <MudSelect T="string"
+                                       Label="Стать"
+                                       Value="Vm.Filter.Sex"
+                                       ValueChanged="@((string? v) => Vm.Filter.Sex = v)"
+                                       Variant="Variant.Outlined"
+                                       Clearable="true"
+                                       Margin="Margin.Dense"
+                                       Dense="true">
 
-        </MudGrid>
+                                <MudSelectItem T="string" Value="@("чол")">
+                                    Чоловіча
+                                </MudSelectItem>
 
-        <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-4">
+                                <MudSelectItem T="string" Value="@("жін")">
+                                    Жіноча
+                                </MudSelectItem>
 
-           @*  <MudButton Variant="Variant.Outlined"
-                       OnClick="ClearFilter">
+                            </MudSelect>
+                        </MudItem>
 
-                Очистити
+                        <MudItem xs="12" sm="6" md="2">
+                            <MudSelect T="string"
+                                       Label="Статус"
+                                       Value="Vm.Filter.Status"
+                                       ValueChanged="@((string? v) => Vm.Filter.Status = v)"
+                                       Variant="Variant.Outlined"
+                                       Clearable="true"
+                                       Margin="Margin.Dense"
+                                       Dense="true">
 
-            </MudButton> *@
+                                <MudSelectItem T="string" Value="@("помер")">помер</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("ЗСУ")">ЗСУ</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("одинокий")">одинокий</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("ВПО")">ВПО</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("безвісти")">безвісти</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("не проживає")">не проживає</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("відстрочка")">відстрочка</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("багатодітний")">багатодітний</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("виключений з в/о")">виключений з в/о</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("бронь")">бронь</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("загинув на війні")">загинув на війні</MudSelectItem>
 
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       OnClick="Vm.LoadPeopleAsync">
+                            </MudSelect>
+                        </MudItem>
 
-                Пошук
+                        <MudItem xs="12" sm="6" md="1">
+                            <MudNumericField @bind-Value="Vm.Filter.StatusYear"
+                                             Label="Рік"
+                                             Variant="Variant.Outlined"
+                                             Margin="Margin.Dense"
+                                             Size="Size.Small" />
+                        </MudItem>
 
-            </MudButton>
+                        
 
-        </MudStack>
+                    </MudGrid>
+                </MudItem>
 
-    </MudPaper>
+                <MudItem xs="12">
+                    <MudGrid Spacing="2">
+
+                        <MudItem xs="12" sm="4" md="2">
+                            <MudSelect T="int?"
+                                       Label="Населений пункт"
+                                       Value="Vm.Filter.VillageId"
+                                       ValueChanged="Vm.OnVillageChanged"
+                                       Variant="Variant.Outlined"
+                                       Clearable="true"
+                                       Margin="Margin.Dense"
+                                       Dense="true">
+
+                                @foreach (var v in Vm.Villages)
+                                {
+                                    <MudSelectItem T="int?" Value="@((int?)v.Id)">
+                                        @v.Name
+                                    </MudSelectItem>
+                                }
+
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="4" md="2">
+                            <MudSelect T="int?"
+                                       Label="Вулиця"
+                                       Value="Vm.Filter.StreetId"
+                                       ValueChanged="Vm.OnStreetChangedAsync"
+                                       Variant="Variant.Outlined"
+                                       Clearable="true"
+                                       Disabled="Vm.Filter.VillageId == null"
+                                       Margin="Margin.Dense"
+                                       Dense="true">
+
+                                @foreach (var vs in Vm.GetStreetsForVillage(Vm.Filter.VillageId))
+                                {
+                                    <MudSelectItem T="int?" Value="@((int?)vs.StreetId)">
+                                        @vs.StreetName
+                                    </MudSelectItem>
+                                }
+
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="4" md="2">
+                            <MudSelect T="string"
+                                       Label="Будинок"
+                                       Value="Vm.Filter.HouseNumb"
+                                       ValueChanged="@((string? v) => Vm.Filter.HouseNumb = v)"
+                                       Variant="Variant.Outlined"
+                                       Clearable="true"
+                                       Disabled="Vm.Filter.StreetId == null"
+                                       Margin="Margin.Dense"
+                                       Dense="true">
+
+                                @foreach (var h in Vm.Houses)
+                                {
+                                    <MudSelectItem T="string" Value="@h.NumbOfHouse">
+                                        @h.NumbOfHouse
+                                    </MudSelectItem>
+                                }
+
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6" md="1">
+                            <MudNumericField @bind-Value="Vm.Filter.AgeFrom"
+                                             Label="Вік від"
+                                             Variant="Variant.Outlined"
+                                             Margin="Margin.Dense"
+                                             Size="Size.Small" />
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6" md="1">
+                            <MudNumericField @bind-Value="Vm.Filter.AgeTo"
+                                             Label="Вік до"
+                                             Variant="Variant.Outlined"
+                                             Margin="Margin.Dense"
+                                             Size="Size.Small" />
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudStack Row="true"
+                                      AlignItems="AlignItems.Center"
+                                      Spacing="2"
+                                      Class="mt-1">
+
+                                <MudCheckBox T="bool"
+                                             Value="Vm.RegisteredYes"
+                                             ValueChanged="Vm.SetRegisteredYes"
+                                             Label="Реєстр: так"
+                                             Dense="true" />
+
+                                <MudCheckBox T="bool"
+                                             Value="Vm.RegisteredNo"
+                                             ValueChanged="Vm.SetRegisteredNo"
+                                             Label="Реєстр: ні"
+                                             Dense="true" />
+
+                            </MudStack>
+                        </MudItem>
+
+                    </MudGrid>
+                </MudItem>
+
+            </MudGrid>
+
+            <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-2" Spacing="2">
+
+                <MudButton Variant="Variant.Outlined"
+                           Size="Size.Small"
+                           OnClick="ClearFilter">
+                    Очистити
+                </MudButton>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Small"
+                           OnClick="Vm.LoadPeopleAsync">
+                    Пошук
+                </MudButton>
+
+            </MudStack>
+
+        </MudExpansionPanel>
+    </MudExpansionPanels>
 
     <MudPaper Class="pa-2">
 
         <MudTable Items="Vm.People"
-                  Hover="true"
-                  Dense="true"
+                  Hover="true" Dense="true" FixedHeader="true"
+                  Height="calc(100vh - 330px)"
                   Striped="true"
-                  Loading="Vm.Loading" FixedHeader="true"
-                  Height="calc(100vh - 330px)">
+                  Loading="Vm.Loading">
 
             <HeaderContent>
-
                 <MudTh>Прізвище</MudTh>
                 <MudTh>Ім'я</MudTh>
                 <MudTh>По батькові</MudTh>
                 <MudTh>Дата народження</MudTh>
-
+                <MudTh>Стать</MudTh>
+                <MudTh>Статус</MudTh>
+                <MudTh>Населений пункт</MudTh>
+                <MudTh>Вулиця</MudTh>
+                <MudTh>Будинок</MudTh>
+                <MudTh>Реєстрація</MudTh>
             </HeaderContent>
 
             <RowTemplate>
-
                 <MudTd>@context.LastName</MudTd>
                 <MudTd>@context.Name</MudTd>
                 <MudTd>@context.Surname</MudTd>
                 <MudTd>@context.DateOfBirth?.ToString("dd.MM.yyyy")</MudTd>
-
+                <MudTd>@context.Sex</MudTd>
+                <MudTd>@context.Status</MudTd>
+                <MudTd>@context.VillageName</MudTd>
+                <MudTd>@context.StreetName</MudTd>
+                <MudTd>@context.NumbOfHouse</MudTd>
+                <MudTd>@context.Registr</MudTd>
             </RowTemplate>
 
         </MudTable>
@@ -97,7 +278,6 @@
 
 @code
 {
-
     protected override async Task OnInitializedAsync()
     {
         await Vm.InitializeAsync();
@@ -107,10 +287,5 @@
     {
         Vm.ClearFilter();
         await Vm.LoadPeopleAsync();
-    }
-
-    private void AddPerson()
-    {
-
     }
 }
