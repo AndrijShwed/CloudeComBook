@@ -42,9 +42,20 @@ public class AnymalsController : ControllerBase
     [FromQuery] string? lastName = null,
     [FromQuery] string? name = null,
     [FromQuery] string? surname = null,
-    [FromQuery] string? village = null)
+    [FromQuery] string? village = null,
+    [FromQuery] bool hasCovs = false,
+    [FromQuery] bool hasHorses = false,
+    [FromQuery] bool hasPigs = false,
+    [FromQuery] bool hasSheeps = false,
+    [FromQuery] bool hasGoats = false,
+    [FromQuery] bool hasBirds = false,
+    [FromQuery] bool hasRabbits = false,
+    [FromQuery] bool hasBeeses = false)
     {
-        var result = await _repo.SearchAsync(lastName, name, surname, village);
+        var result = await _repo.SearchAsync(
+            lastName, name, surname, village,
+            hasCovs, hasHorses, hasPigs, hasSheeps,
+            hasGoats, hasBirds, hasRabbits, hasBeeses);
         return Ok(result);
     }
 

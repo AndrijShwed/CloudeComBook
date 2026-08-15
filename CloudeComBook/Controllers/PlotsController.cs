@@ -46,6 +46,19 @@ public class PlotsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("exists")]
+    public async Task<IActionResult> Exists(
+    [FromQuery] string? cadastr = null,
+    [FromQuery] string? village = null,
+    [FromQuery] string? street = null,
+    [FromQuery] string? houseNumb = null,
+    [FromQuery] string? plotType = null,
+    [FromQuery] int? excludeId = null)
+    {
+        var exists = await _repo.ExistsAsync(cadastr, village, street, houseNumb, plotType, excludeId);
+        return Ok(exists);
+    }
+
     [Authorize(Roles = "user,admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Plot plot)
@@ -71,5 +84,6 @@ public class PlotsController : ControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    
 }
 

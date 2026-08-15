@@ -3,6 +3,7 @@
 @using CloudeComBook.Web.Helpers
 @using MudBlazor
 @inject ApiService Api
+@inject IDialogService DialogService
 
 <MudDialog>
     <DialogContent>
@@ -103,6 +104,21 @@
 
         if (!_form.IsValid)
             return;
+
+        var exists = await Api.PlotExistsAsync(
+            Item.Cadastr, Item.Village, Item.Street, Item.HouseNumb, Item.PlotType,
+            Item.Id == 0 ? null : Item.Id);
+
+        if (exists)
+        {
+            var confirmed = await DialogService.ShowMessageBoxAsync(
+                "Можливий дублікат",
+                "Ділянка з таким кадастровим номером, або з такою ж адресою (для типу ОЖБ), вже є в реєстрі. Зберегти все одно?",
+                yesText: "Зберегти", cancelText: "Скасувати");
+
+            if (confirmed != true)
+                return;
+        }
 
         bool success = Item.Id == 0
             ? await Api.CreatePlotAsync(Item)

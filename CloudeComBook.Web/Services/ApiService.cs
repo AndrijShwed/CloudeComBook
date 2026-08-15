@@ -364,4 +364,110 @@ public class ApiService
         var response = await _http.DeleteAsync($"api/Plots/{id}");
         return response.IsSuccessStatusCode;
     }
+
+    public async Task<bool> PlotExistsAsync(string? cadastr, 
+        string? village, string? street, string? houseNumb,
+        string? plotType, int? excludeId = null)
+    {
+        var query = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(cadastr))
+            query.Add($"cadastr={Uri.EscapeDataString(cadastr)}");
+
+        if (!string.IsNullOrWhiteSpace(village))
+            query.Add($"village={Uri.EscapeDataString(village)}");
+
+        if (!string.IsNullOrWhiteSpace(street))
+            query.Add($"street={Uri.EscapeDataString(street)}");
+
+        if (!string.IsNullOrWhiteSpace(houseNumb))
+            query.Add($"houseNumb={Uri.EscapeDataString(houseNumb)}");
+
+        if (!string.IsNullOrWhiteSpace(plotType))
+            query.Add($"plotType={Uri.EscapeDataString(plotType)}");
+
+        if (excludeId.HasValue)
+            query.Add($"excludeId={excludeId}");
+
+        var url = "api/Plots/exists";
+        if (query.Count > 0)
+            url += "?" + string.Join("&", query);
+
+        return await _http.GetFromJsonAsync<bool>(url);
+    }
+
+    public async Task<List<Anymal>> GetAnymalsAsync(AnymalFilter? filter = null)
+    {
+        filter ??= new AnymalFilter();
+
+        var query = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(filter.LastName))
+            query.Add($"lastName={Uri.EscapeDataString(filter.LastName)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+            query.Add($"name={Uri.EscapeDataString(filter.Name)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.Surname))
+            query.Add($"surname={Uri.EscapeDataString(filter.Surname)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.Village))
+            query.Add($"village={Uri.EscapeDataString(filter.Village)}");
+
+        if (filter.HasCovs) query.Add("hasCovs=true");
+        if (filter.HasHorses) query.Add("hasHorses=true");
+        if (filter.HasPigs) query.Add("hasPigs=true");
+        if (filter.HasSheeps) query.Add("hasSheeps=true");
+        if (filter.HasGoats) query.Add("hasGoats=true");
+        if (filter.HasBirds) query.Add("hasBirds=true");
+        if (filter.HasRabbits) query.Add("hasRabbits=true");
+        if (filter.HasBeeses) query.Add("hasBeeses=true");
+
+        var url = "api/Anymals/search";
+        if (query.Count > 0)
+            url += "?" + string.Join("&", query);
+
+        return await _http.GetFromJsonAsync<List<Anymal>>(url)
+               ?? new List<Anymal>();
+    }
+
+    public async Task<bool> AnymalExistsAsync(string lastName, string name, string? surname, string village)
+    {
+        var query = new List<string>
+    {
+        $"lastName={Uri.EscapeDataString(lastName)}",
+        $"name={Uri.EscapeDataString(name)}",
+        $"village={Uri.EscapeDataString(village)}"
+    };
+
+        if (!string.IsNullOrWhiteSpace(surname))
+            query.Add($"surname={Uri.EscapeDataString(surname)}");
+
+        var url = "api/Anymals/exists?" + string.Join("&", query);
+        return await _http.GetFromJsonAsync<bool>(url);
+    }
+
+    public async Task<bool> CreateAnymalAsync(Anymal anymal)
+    {
+        var response = await _http.PostAsJsonAsync("api/Anymals", anymal);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateAnymalAsync(Anymal anymal)
+    {
+        var response = await _http.PutAsJsonAsync($"api/Anymals/{anymal.AnymalsId}", anymal);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteAnymalAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/Anymals/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<List<AnymalVillageStatisticsDto>> GetAnymalStatisticsAsync()
+    {
+        return await _http.GetFromJsonAsync<List<AnymalVillageStatisticsDto>>("api/Anymals/statistics")
+               ?? new List<AnymalVillageStatisticsDto>();
+    }
 }

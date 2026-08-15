@@ -120,5 +120,28 @@ public class PlotRepository : IPlotRepository
                 cadastr
             });
     }
+
+    public async Task<bool> ExistsAsync(string? cadastr, 
+        string? village, string? street, string? houseNumb, 
+        string? plotType, int? excludeId = null)
+    {
+        using var conn = _db.CreateConnection();
+
+        var count = await conn.ExecuteScalarAsync<int>(
+            @"SELECT COUNT(*) FROM plot
+          WHERE (@excludeId IS NULL OR id != @excludeId)
+          AND (
+              (@cadastr IS NOT NULL AND cadastr = @cadastr)
+              OR (
+                  LOWER(TRIM(@plotType)) = 'ожб'
+                  AND LOWER(TRIM(village)) = LOWER(TRIM(@village))
+                  AND LOWER(TRIM(street)) = LOWER(TRIM(@street))
+                  AND LOWER(TRIM(housenumb)) = LOWER(TRIM(@houseNumb))
+              )
+          )",
+            new { cadastr, village, street, houseNumb, plotType, excludeId });
+
+        return count > 0;
+    }
 }
 

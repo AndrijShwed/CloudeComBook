@@ -1,7 +1,8 @@
-﻿using Dapper;
-using CloudeComBook.API.Data;
-using CloudeComBook.Shared.Models;
+﻿using CloudeComBook.API.Data;
 using CloudeComBook.API.Repositories.Interfaces;
+using CloudeComBook.Shared.DTOs;
+using CloudeComBook.Shared.Models;
+using Dapper;
 
 namespace CloudeComBook.API.Repositories;
 
@@ -88,40 +89,71 @@ public class AnymalRepository : IAnymalRepository
     string? lastName = null,
     string? name = null,
     string? surname = null,
-    string? village = null)
+    string? village = null,
+    bool hasCovs = false,
+    bool hasHorses = false,
+    bool hasPigs = false,
+    bool hasSheeps = false,
+    bool hasGoats = false,
+    bool hasBirds = false,
+    bool hasRabbits = false,
+    bool hasBeeses = false)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<Anymal>(
             @"SELECT 
-            anymalsId AS AnymalsId,
-            lastname AS LastName,
-            name AS Name,
-            surname AS Surname,
-            village AS Village,
-            anymals AS Anymals,
-            covs AS Covs,
-            pigs AS Pigs,
-            sheeps AS Sheeps,
-            goats AS Goats,
-            horses AS Horses,
-            birds AS Birds,
-            rabbits AS Rabbits,
-            beeses AS Beeses
-          FROM anymals
-          WHERE
-            (@lastName IS NULL OR lastname LIKE CONCAT('%', @lastName, '%'))
-            AND (@name IS NULL OR name LIKE CONCAT('%', @name, '%'))
-            AND (@surname IS NULL OR surname LIKE CONCAT('%', @surname, '%'))
-            AND (@village IS NULL OR village = @village)
-          ORDER BY lastname, name",
-            new { lastName, name, surname, village });
+        anymalsId AS AnymalsId,
+        lastname AS LastName,
+        name AS Name,
+        surname AS Surname,
+        village AS Village,
+        anymals AS Anymals,
+        covs AS Covs,
+        pigs AS Pigs,
+        sheeps AS Sheeps,
+        goats AS Goats,
+        horses AS Horses,
+        birds AS Birds,
+        rabbits AS Rabbits,
+        beeses AS Beeses
+      FROM anymals
+      WHERE
+        (@lastName IS NULL OR LOWER(lastname) LIKE CONCAT('%', LOWER(@lastName), '%'))
+        AND (@name IS NULL OR LOWER(name) LIKE CONCAT('%', LOWER(@name), '%'))
+        AND (@surname IS NULL OR LOWER(surname) LIKE CONCAT('%', LOWER(@surname), '%'))
+        AND (@village IS NULL OR village = @village)
+        AND (@hasCovs = 0 OR covs > 0)
+        AND (@hasHorses = 0 OR horses > 0)
+        AND (@hasPigs = 0 OR pigs > 0)
+        AND (@hasSheeps = 0 OR sheeps > 0)
+        AND (@hasGoats = 0 OR goats > 0)
+        AND (@hasBirds = 0 OR birds > 0)
+        AND (@hasRabbits = 0 OR rabbits > 0)
+        AND (@hasBeeses = 0 OR beeses > 0)
+      ORDER BY lastname, name",
+            new
+            {
+                lastName,
+                name,
+                surname,
+                village,
+                hasCovs,
+                hasHorses,
+                hasPigs,
+                hasSheeps,
+                hasGoats,
+                hasBirds,
+                hasRabbits,
+                hasBeeses
+            });
     }
-    public async Task<IEnumerable<dynamic>> GetStatisticsByVillageAsync()
+    public async Task<IEnumerable<AnymalVillageStatisticsDto>> GetStatisticsByVillageAsync()
     {
         using var conn = _db.CreateConnection();
-        return await conn.QueryAsync(
+        return await conn.QueryAsync<AnymalVillageStatisticsDto>(
             @"SELECT 
             village AS Village,
+            SUM(anymals) + SUM(covs) AS Vrh,
             SUM(covs) AS Covs,
             SUM(pigs) AS Pigs,
             SUM(sheeps) AS Sheeps,
@@ -129,8 +161,7 @@ public class AnymalRepository : IAnymalRepository
             SUM(horses) AS Horses,
             SUM(birds) AS Birds,
             SUM(rabbits) AS Rabbits,
-            SUM(beeses) AS Beeses,
-            SUM(anymals) AS Anymals
+            SUM(beeses) AS Beeses
           FROM anymals
           GROUP BY village
           ORDER BY village");

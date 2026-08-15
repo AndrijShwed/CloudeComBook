@@ -20,5 +20,13 @@ namespace CloudeComBook.API.Repositories.Interfaces
             string? plotNumber = null,
             string? tenant = null,
             string? cadastr = null);
+
+        Task<bool> ExistsAsync(
+            string? cadastr, 
+            string? village, 
+            string? street, 
+            string? houseNumb, 
+            string? plotType, 
+            int? excludeId = null);
     }
 }

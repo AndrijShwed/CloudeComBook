@@ -1,0 +1,124 @@
+﻿@using CloudeComBook.Shared.Models
+@using CloudeComBook.Web.Services
+@using CloudeComBook.Web.Helpers
+@using MudBlazor
+@inject ApiService Api
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudGrid Spacing="2">
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField Value="Item.LastName"
+                                  ValueChanged="@((string? v) => Item.LastName = TextHelper.CapitalizeWords(v))"
+                                  Label="Прізвище" Required="true" RequiredError="Обов'язкове поле" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField Value="Item.Name"
+                                  ValueChanged="@((string? v) => Item.Name = TextHelper.CapitalizeWords(v))"
+                                  Label="Ім'я" Required="true" RequiredError="Обов'язкове поле" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField Value="Item.Surname"
+                                  ValueChanged="@((string? v) => Item.Surname = TextHelper.CapitalizeWords(v))"
+                                  Label="По батькові" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="string" Label="Населений пункт"
+                               @bind-Value="Item.Village"
+                               Required="true" RequiredError="Обов'язкове поле">
+                        @foreach (var v in _villages)
+                        {
+                            <MudSelectItem T="string" Value="@v.Name">@v.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="Item.Anymals" Label="Інші тварини" Min="0" />
+                </MudItem>
+
+                <MudItem xs="6" sm="3">
+                    <MudNumericField @bind-Value="Item.Covs" Label="Корови" Min="0" />
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudNumericField @bind-Value="Item.Horses" Label="Коні" Min="0" />
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudNumericField @bind-Value="Item.Pigs" Label="Свині" Min="0" />
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudNumericField @bind-Value="Item.Sheeps" Label="Вівці" Min="0" />
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudNumericField @bind-Value="Item.Goats" Label="Кози" Min="0" />
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudNumericField @bind-Value="Item.Birds" Label="Птиця" Min="0" />
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudNumericField @bind-Value="Item.Rabbits" Label="Кролі" Min="0" />
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudNumericField @bind-Value="Item.Beeses" Label="Бджолосім'ї" Min="0" />
+                </MudItem>
+
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync">Зберегти</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public Anymal Item { get; set; } = new();
+
+    private MudForm _form = default!;
+    private List<Village> _villages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _villages = await Api.GetVillagesAsync();
+    }
+
+    private async Task SaveAsync()
+    {
+        await _form.ValidateAsync();
+
+        if (!_form.IsValid)
+            return;
+
+        if (Item.AnymalsId == 0)
+        {
+            var exists = await Api.AnymalExistsAsync(
+                Item.LastName ?? "", Item.Name ?? "", Item.Surname, Item.Village ?? "");
+
+            if (exists)
+            {
+                var confirmed = await DialogService.ShowMessageBoxAsync(
+                    "Можливий дублікат",
+                    "Запис з таким прізвищем, ім'ям, по батькові та населеним пунктом вже є в реєстрі. Зберегти все одно?",
+                    yesText: "Зберегти", cancelText: "Скасувати");
+
+                if (confirmed != true)
+                    return;
+            }
+        }
+
+        bool success = Item.AnymalsId == 0
+            ? await Api.CreateAnymalAsync(Item)
+            : await Api.UpdateAnymalAsync(Item);
+
+        MudDialog.Close(DialogResult.Ok(success));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
