@@ -1,0 +1,194 @@
+﻿@using CloudeComBook.Shared.Models
+@using CloudeComBook.Web.Services
+@using CloudeComBook.Web.Helpers
+@using MudBlazor
+@inject ApiService Api
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudGrid Spacing="2">
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField Value="Item.FullName"
+                                  Immediate="true"
+                                  ValueChanged="@((string? v) => Item.FullName = TextHelper.CapitalizeWords(v))"
+                                  Label="Власник (ПІБ)" Required="true" RequiredError="Обов'язкове поле" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="Item.Tenant" Label="Орендар" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="int?" Label="Населений пункт"
+                               Value="_villageId"
+                               ValueChanged="OnVillageChangedAsync"
+                               Required="true" RequiredError="Обов'язкове поле">
+                        @foreach (var v in _villages)
+                        {
+                            <MudSelectItem T="int?" Value="@((int?)v.Id)">@v.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="string" Label="Вулиця"
+                               Value="Item.Street"
+                               ValueChanged="OnStreetChangedAsync"
+                               Disabled="_villageId == null">
+                        @foreach (var vs in _availableStreets)
+                        {
+                            <MudSelectItem T="string" Value="@vs.StreetName">@vs.StreetName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="string" Label="Номер будинку"
+                               @bind-Value="Item.HouseNumb"
+                               Disabled="_selectedVillageStreetId == null">
+                        @foreach (var h in _availableHouses)
+                        {
+                            <MudSelectItem T="string" Value="@h.NumbOfHouse">@h.NumbOfHouse</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="Item.FieldNumber" Label="Номер поля" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="Item.PlotType" Label="Тип ділянки" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="Item.PlotNumber" Label="Номер ділянки" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="Item.PlotArea" Label="Площа (га)" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField Value="Item.Cadastr"
+                                  ValueChanged="@((string? v) => Item.Cadastr = TextHelper.FormatCadastr(v))"
+                                  Label="Кадастровий номер"
+                                  Placeholder="0000000000:00:000:0000" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="Item.Url" Label="Посилання (URL)" />
+                </MudItem>
+
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync">Зберегти</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public Plot Item { get; set; } = new();
+
+    private MudForm _form = default!;
+
+    private async Task SaveAsync()
+    {
+        await _form.ValidateAsync();
+
+        if (!_form.IsValid)
+            return;
+
+        bool success = Item.Id == 0
+            ? await Api.CreatePlotAsync(Item)
+            : await Api.UpdatePlotAsync(Item);
+
+        MudDialog.Close(DialogResult.Ok(success));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private List<Village> _villages = new();
+    private List<VillageStreet> _villageStreets = new();
+    private List<VillageStreet> _availableStreets = new();
+    private int? _villageId;
+    private List<House> _availableHouses = new();
+    private int? _selectedVillageStreetId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _villages = await Api.GetVillagesAsync();
+        _villageStreets = await Api.GetVillageStreetsAsync();
+
+        if (!string.IsNullOrWhiteSpace(Item.Village))
+        {
+            var village = _villages.FirstOrDefault(v => v.Name == Item.Village);
+            if (village != null)
+            {
+                _villageId = village.Id;
+                _availableStreets = _villageStreets
+                    .Where(vs => vs.VillageId == village.Id && vs.IsActive)
+                    .ToList();
+
+                if (!string.IsNullOrWhiteSpace(Item.Street))
+                {
+                    var vs = _availableStreets.FirstOrDefault(x => x.StreetName == Item.Street);
+                    if (vs != null)
+                    {
+                        _selectedVillageStreetId = vs.Id;
+                        _availableHouses = (await Api.GetHousesByVillageStreetIdAsync(vs.Id))
+                            .OrderBy(h => GetHouseNumberSortKey(h.NumbOfHouse))
+                            .ThenBy(h => h.NumbOfHouse, StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                    }
+                }
+            }
+        }
+    }
+
+    private void OnVillageChangedAsync(int? villageId)
+    {
+        _villageId = villageId;
+        Item.Street = null;
+        Item.HouseNumb = null;
+        _selectedVillageStreetId = null;
+        _availableHouses = new List<House>();
+
+        var village = _villages.FirstOrDefault(v => v.Id == villageId);
+        Item.Village = village?.Name;
+
+        _availableStreets = villageId == null
+            ? new List<VillageStreet>()
+            : _villageStreets.Where(vs => vs.VillageId == villageId && vs.IsActive).ToList();
+    }
+
+    private async Task OnStreetChangedAsync(string? streetName)
+    {
+        Item.Street = streetName;
+        Item.HouseNumb = null;
+
+        var vs = _availableStreets.FirstOrDefault(x => x.StreetName == streetName);
+        _selectedVillageStreetId = vs?.Id;
+
+        _availableHouses = vs == null
+            ? new List<House>()
+            : (await Api.GetHousesByVillageStreetIdAsync(vs.Id))
+                .OrderBy(h => GetHouseNumberSortKey(h.NumbOfHouse))
+                .ThenBy(h => h.NumbOfHouse, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    private static int GetHouseNumberSortKey(string? numb)
+    {
+        if (string.IsNullOrWhiteSpace(numb))
+            return int.MaxValue;
+
+        var digits = new string(numb.TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(digits, out var n) ? n : int.MaxValue;
+    }
+}

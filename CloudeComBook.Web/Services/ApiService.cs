@@ -304,4 +304,64 @@ public class ApiService
 
         return await _http.GetFromJsonAsync<bool>(url);
     }
+
+    public async Task<List<Plot>> GetPlotsAsync(PlotFilter? filter = null)
+    {
+        filter ??= new PlotFilter();
+
+        var query = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(filter.FullName))
+            query.Add($"fullName={Uri.EscapeDataString(filter.FullName)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.Village))
+            query.Add($"village={Uri.EscapeDataString(filter.Village)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.Street))
+            query.Add($"street={Uri.EscapeDataString(filter.Street)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.HouseNumb))
+            query.Add($"houseNumb={Uri.EscapeDataString(filter.HouseNumb)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.FieldNumber))
+            query.Add($"fieldNumber={Uri.EscapeDataString(filter.FieldNumber)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.PlotType))
+            query.Add($"plotType={Uri.EscapeDataString(filter.PlotType)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.PlotNumber))
+            query.Add($"plotNumber={Uri.EscapeDataString(filter.PlotNumber)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.Tenant))
+            query.Add($"tenant={Uri.EscapeDataString(filter.Tenant)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.Cadastr))
+            query.Add($"cadastr={Uri.EscapeDataString(filter.Cadastr)}");
+
+        var url = "api/Plots/search";
+
+        if (query.Count > 0)
+            url += "?" + string.Join("&", query);
+
+        return await _http.GetFromJsonAsync<List<Plot>>(url)
+               ?? new List<Plot>();
+    }
+
+    public async Task<bool> CreatePlotAsync(Plot plot)
+    {
+        var response = await _http.PostAsJsonAsync("api/Plots", plot);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdatePlotAsync(Plot plot)
+    {
+        var response = await _http.PutAsJsonAsync($"api/Plots/{plot.Id}", plot);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeletePlotAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/Plots/{id}");
+        return response.IsSuccessStatusCode;
+    }
 }

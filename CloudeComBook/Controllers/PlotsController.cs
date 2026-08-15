@@ -10,11 +10,11 @@ namespace CloudeComBook.API.Controllers;
 [Authorize]
 [Authorize(Roles = "reader,user,admin")]
 
-public class PlotController : ControllerBase
+public class PlotsController : ControllerBase
 {
     private readonly IPlotRepository _repo;
 
-    public PlotController(IPlotRepository repo) => _repo = repo;
+    public PlotsController(IPlotRepository repo) => _repo = repo;
 
     [HttpGet]
     public async Task<IActionResult> GetAll() =>

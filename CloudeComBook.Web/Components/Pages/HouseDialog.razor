@@ -1,5 +1,6 @@
 ﻿@using CloudeComBook.Shared.Models
 @using CloudeComBook.Web.Services
+@using CloudeComBook.Web.Helpers
 @using MudBlazor
 @inject ApiService Api
 
@@ -7,9 +8,20 @@
     <DialogContent>
         <MudForm @ref="_form">
             <MudTextField @bind-Value="Item.NumbOfHouse" Label="Номер будинку" />
-            <MudTextField @bind-Value="Item.LastName" Label="Прізвище" />
-            <MudTextField @bind-Value="Item.Name" Label="Ім'я" />
-            <MudTextField @bind-Value="Item.Surname" Label="По батькові" />
+            <MudTextField Value="Item.LastName"
+                          Immediate="true"
+                          ValueChanged="@((string? v) => Item.LastName = TextHelper.CapitalizeWords(v))"
+                          Label="Прізвище" />
+
+            <MudTextField Value="Item.Name"
+                          Immediate="true"
+                          ValueChanged="@((string? v) => Item.Name = TextHelper.CapitalizeWords(v))"
+                          Label="Ім'я" />
+
+            <MudTextField Value="Item.Surname"  
+                          Immediate="true"
+                          ValueChanged="@((string? v) => Item.Surname = TextHelper.CapitalizeWords(v))"
+                          Label="По батькові" />
             <MudNumericField @bind-Value="Item.TotalArea" Label="Загальна площа (м²)" />
             <MudNumericField @bind-Value="Item.LivingArea" Label="Житлова площа (м²)" />
             <MudNumericField @bind-Value="Item.TotalOfRooms" Label="Кількість кімнат" />

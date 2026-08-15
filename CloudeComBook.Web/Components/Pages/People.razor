@@ -39,7 +39,7 @@
                         <MudItem xs="12" sm="6" md="2">
                             <MudTextField Value="Vm.Filter.LastName"
                                           Immediate="true"
-                                          ValueChanged="@((string? v) => Vm.Filter.LastName = TextHelper.CapitalizeFirst(v))"
+                                          ValueChanged="@((string? v) => Vm.Filter.LastName = TextHelper.CapitalizeWords(v))"
                                           Label="Прізвище"
                                           Variant="Variant.Outlined"
                                           Margin="Margin.Dense"
@@ -49,7 +49,7 @@
                         <MudItem xs="12" sm="6" md="2">
                             <MudTextField Value="Vm.Filter.Name"
                                           Immediate="true"
-                                          ValueChanged="@((string? v) => Vm.Filter.Name = TextHelper.CapitalizeFirst(v))"
+                                          ValueChanged="@((string? v) => Vm.Filter.Name = TextHelper.CapitalizeWords(v))"
                                           Label="Ім'я"
                                           Variant="Variant.Outlined"
                                           Margin="Margin.Dense"
@@ -59,7 +59,7 @@
                         <MudItem xs="12" sm="6" md="2">
                             <MudTextField Value="Vm.Filter.Surname"
                                           Immediate="true"
-                                          ValueChanged="@((string? v) => Vm.Filter.Surname = TextHelper.CapitalizeFirst(v))"
+                                          ValueChanged="@((string? v) => Vm.Filter.Surname = TextHelper.CapitalizeWords(v))"
                                           Label="По батькові"
                                           Variant="Variant.Outlined"
                                           Margin="Margin.Dense"
@@ -265,7 +265,7 @@
 
         <MudTable Items="Vm.People"
                   Hover="true" Dense="true" FixedHeader="true"
-                  Height="calc(100vh - 330px)"
+                  Height="calc(100vh - 350px)"
                   Striped="true"
                   Loading="Vm.Loading"
                   RowClassFunc="GetRowClass">

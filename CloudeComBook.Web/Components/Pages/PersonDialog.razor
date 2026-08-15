@@ -14,21 +14,21 @@
                 <MudItem xs="12" sm="4">
                     <MudTextField Value="Item.LastName"
                                   Immediate="true"
-                                  ValueChanged="@((string? v) => Item.LastName = TextHelper.CapitalizeFirst(v))"
+                                  ValueChanged="@((string? v) => Item.LastName = TextHelper.CapitalizeWords(v))"
                                   Label="Прізвище" Required="true" RequiredError="Обов'язкове поле" />
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
                     <MudTextField Value="Item.Name"
                                   Immediate="true"  
-                                  ValueChanged="@((string? v) => Item.Name = TextHelper.CapitalizeFirst(v))"
+                                  ValueChanged="@((string? v) => Item.Name = TextHelper.CapitalizeWords(v))"
                                   Label="Ім'я" Required="true" RequiredError="Обов'язкове поле" />
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
                     <MudTextField Value="Item.Surname"
                                   Immediate="true"
-                                  ValueChanged="@((string? v) => Item.Surname = TextHelper.CapitalizeFirst(v))"
+                                  ValueChanged="@((string? v) => Item.Surname = TextHelper.CapitalizeWords(v))"
                                   Label="По батькові" />
                 </MudItem>
 
