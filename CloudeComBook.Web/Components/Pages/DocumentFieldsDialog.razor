@@ -1,0 +1,65 @@
+﻿@using CloudeComBook.Web.Models
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudGrid Spacing="2">
+                @foreach (var field in Fields)
+                {
+                    <MudItem xs="12" sm="@(field.FullWidth ? 12 : 6)">
+                        @if (field.IsDate)
+                        {
+                            <MudDatePicker Label="@field.Label"
+                                           Date="@GetDate(field.Key)"
+                                           DateChanged="@(d => SetDate(field.Key, d))"
+                                           Required="field.Required" />
+                        }
+                        else
+                        {
+                            <MudTextField Value="@GetValue(field.Key)"
+                                          ValueChanged="@((string? v) => SetValue(field.Key, v))"
+                                          Label="@field.Label"
+                                          Required="field.Required"
+                                          RequiredError="Обов'язкове поле" />
+                        }
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="ConfirmAsync">Сформувати</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public List<DocumentFieldSpec> Fields { get; set; } = new();
+
+    private MudForm _form = default!;
+    private Dictionary<string, string> _values = new();
+
+    private string GetValue(string key) => _values.TryGetValue(key, out var v) ? v : "";
+    private void SetValue(string key, string? value) => _values[key] = value ?? "";
+
+    private DateTime? GetDate(string key) =>
+        DateTime.TryParseExact(GetValue(key), "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out var d)
+            ? d : null;
+
+    private void SetDate(string key, DateTime? date) =>
+        _values[key] = date?.ToString("dd.MM.yyyy") ?? "";
+
+    private async Task ConfirmAsync()
+    {
+        await _form.ValidateAsync();
+
+        if (!_form.IsValid)
+            return;
+
+        MudDialog.Close(DialogResult.Ok(_values));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

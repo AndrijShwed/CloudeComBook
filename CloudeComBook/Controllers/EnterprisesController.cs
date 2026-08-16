@@ -43,9 +43,13 @@ public class EnterprisesController: ControllerBase
     }
 
     [HttpGet("exists")]
-    public async Task<IActionResult> Exists([FromQuery] string name)
+    public async Task<IActionResult> Exists(
+     [FromQuery] string name,
+     [FromQuery] int? villageStreetId = null,
+     [FromQuery] string? houseNumber = null,
+     [FromQuery] int? excludeId = null)
     {
-        var exists = await _repo.ExistsByNameAsync(name);
+        var exists = await _repo.ExistsAsync(name, villageStreetId, houseNumber, excludeId);
         return Ok(exists);
     }
 

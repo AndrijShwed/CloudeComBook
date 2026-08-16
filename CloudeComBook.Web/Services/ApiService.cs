@@ -470,4 +470,84 @@ public class ApiService
         return await _http.GetFromJsonAsync<List<AnymalVillageStatisticsDto>>("api/Anymals/statistics")
                ?? new List<AnymalVillageStatisticsDto>();
     }
+
+    public async Task<List<Enterprise>> GetEnterprisesAsync(EnterpriseFilter? filter = null)
+    {
+        filter ??= new EnterpriseFilter();
+
+        var query = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+            query.Add($"name={Uri.EscapeDataString(filter.Name)}");
+
+        if (!string.IsNullOrWhiteSpace(filter.Owner))
+            query.Add($"owner={Uri.EscapeDataString(filter.Owner)}");
+
+        if (filter.VillageId.HasValue)
+            query.Add($"villageId={filter.VillageId}");
+
+        if (filter.StreetId.HasValue)
+            query.Add($"streetId={filter.StreetId}");
+
+        if (!string.IsNullOrWhiteSpace(filter.HouseNumber))
+            query.Add($"houseNumber={Uri.EscapeDataString(filter.HouseNumber)}");
+
+        var url = "api/Enterprises/search";
+        if (query.Count > 0)
+            url += "?" + string.Join("&", query);
+
+        return await _http.GetFromJsonAsync<List<Enterprise>>(url)
+               ?? new List<Enterprise>();
+    }
+
+    public async Task<bool> EnterpriseExistsAsync(string name, int? villageStreetId, string? houseNumber, int? excludeId = null)
+    {
+        var query = new List<string> { $"name={Uri.EscapeDataString(name)}" };
+
+        if (villageStreetId.HasValue)
+            query.Add($"villageStreetId={villageStreetId}");
+
+        if (!string.IsNullOrWhiteSpace(houseNumber))
+            query.Add($"houseNumber={Uri.EscapeDataString(houseNumber)}");
+
+        if (excludeId.HasValue)
+            query.Add($"excludeId={excludeId}");
+
+        var url = "api/Enterprises/exists?" + string.Join("&", query);
+        return await _http.GetFromJsonAsync<bool>(url);
+    }
+
+    public async Task<bool> CreateEnterpriseAsync(Enterprise enterprise)
+    {
+        var response = await _http.PostAsJsonAsync("api/Enterprises", enterprise);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateEnterpriseAsync(Enterprise enterprise)
+    {
+        var response = await _http.PutAsJsonAsync($"api/Enterprises/{enterprise.Id}", enterprise);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteEnterpriseAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/Enterprises/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<(byte[] Bytes, string FileName)?> GenerateDocumentAsync(GenerateDocumentRequest request)
+    {
+        var response = await _http.PostAsJsonAsync("api/Documents/generate", request);
+
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                       ?? response.Content.Headers.ContentDisposition?.FileName
+                       ?? "document.docx";
+        fileName = fileName.Trim('"');
+
+        return (bytes, fileName);
+    }
 }

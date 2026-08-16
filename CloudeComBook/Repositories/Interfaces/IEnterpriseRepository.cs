@@ -17,6 +17,9 @@ namespace CloudeComBook.API.Repositories.Interfaces
             int? villageId = null,
             int? streetId = null,
             string? houseNumber = null);
-        Task<bool> ExistsByNameAsync(string name);
+        Task<bool> ExistsAsync(string name,
+            int? villageStreetId,
+            string? houseNumber,
+            int? excludeId = null);
     }
 }

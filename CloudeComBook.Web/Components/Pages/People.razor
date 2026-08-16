@@ -1,14 +1,17 @@
 ﻿@page "/people"
 
 @using CloudeComBook.Shared.Models
-@using CloudeComBook.Shared.Filters
 @using CloudeComBook.Web.Services
 @using CloudeComBook.Web.ViewModels
 @using CloudeComBook.Web.Helpers
+@using CloudeComBook.Shared.DTOs
+@using CloudeComBook.Web.Models
 @using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
+
 @inject ApiService Api
 @inject PeopleViewModel Vm
+@inject IJSRuntime JS
 
 <PageTitle>Люди</PageTitle>
 <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
@@ -240,6 +243,8 @@
                 <b>Кількість записів: @Vm.People.Count</b>
                 </MudText>
 
+                
+
                 <MudSpacer />
 
                 <MudButton Variant="Variant.Filled"
@@ -282,6 +287,7 @@
                 <MudTh>Будинок</MudTh>
                 <MudTh>Реєстрація</MudTh>
                 <MudTh>Дії</MudTh>
+                <MudTh>Довідка</MudTh>
             </HeaderContent>
           
             <RowTemplate>
@@ -312,6 +318,19 @@
                                            OnClick="@(() => DeletePersonAsync(context))" />
                         </Authorized>
                     </AuthorizeView>
+                </MudTd>
+                <MudTd>
+                    <MudMenu Icon="@Icons.Material.Filled.Description"
+                             Color="Color.Secondary"
+                             Size="Size.Small"
+                             Dense="true">
+                        @foreach (var type in DocumentTypeConfig.DisplayNames)
+                        {
+                            <MudMenuItem OnClick="@(() => GenerateDocumentAsync(context, type.Key))">
+                                @type.Value
+                            </MudMenuItem>
+                        }
+                    </MudMenu>
                 </MudTd>
             </RowTemplate>
 
@@ -393,7 +412,7 @@
 
         var parameters = new DialogParameters<PersonDialog>
     {
-        { x => x.Item, model }
+        { "Item", model }
     };
 
         var options = new DialogOptions
@@ -437,5 +456,50 @@
         {
             Snackbar.Add("Не вдалося видалити", Severity.Error);
         }
+    }
+
+    private async Task GenerateDocumentAsync(Person person, string templateType)
+    {
+        var fieldSpecs = DocumentTypeConfig.GetFields(templateType);
+        Dictionary<string, string> extraFields = new();
+
+        if (fieldSpecs.Count > 0)
+        {
+            var parameters = new DialogParameters<DocumentFieldsDialog> { {"Fields", fieldSpecs } };
+            var options = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true };
+
+            var dialog = await DialogService.ShowAsync<DocumentFieldsDialog>(
+                $"Дані для: {DocumentTypeConfig.DisplayNames[templateType]}", parameters, options);
+            var result = await dialog.Result;
+
+            if (result is { Canceled: true } || result?.Data == null)
+                return;
+
+            extraFields = (Dictionary<string, string>)result.Data;
+        }
+
+        var request = new GenerateDocumentRequest
+        {
+            TemplateType = templateType,
+            PersonId = person.PeopleId,
+            ExtraFields = extraFields
+        };
+
+        var generated = await Api.GenerateDocumentAsync(request);
+
+        if (generated == null)
+        {
+            Snackbar.Add("Не вдалося сформувати документ. Перевірте, чи завантажено шаблон.", Severity.Error);
+            return;
+        }
+
+        await DownloadFileAsync(generated.Value.FileName, generated.Value.Bytes);
+    }
+
+    private async Task DownloadFileAsync(string fileName, byte[] bytes)
+    {
+        var base64 = Convert.ToBase64String(bytes);
+        await JS.InvokeVoidAsync("downloadFileFromBase64", fileName,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document", base64);
     }
 }

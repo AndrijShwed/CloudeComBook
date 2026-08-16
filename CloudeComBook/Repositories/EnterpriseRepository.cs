@@ -111,12 +111,20 @@ namespace CloudeComBook.API.Repositories
           ORDER BY e.name",
                 new { name, owner, villageId, streetId, houseNumber });
         }
-        public async Task<bool> ExistsByNameAsync(string name)
+        public async Task<bool> ExistsAsync(string name, int? villageStreetId, string? houseNumber, int? excludeId = null)
         {
             using var conn = _db.CreateConnection();
             var count = await conn.ExecuteScalarAsync<int>(
-                "SELECT COUNT(*) FROM enterprises WHERE name = @name",
-                new { name });
+                @"SELECT COUNT(*) FROM enterprises
+          WHERE (@excludeId IS NULL OR id != @excludeId)
+          AND (
+              LOWER(TRIM(name)) = LOWER(TRIM(@name))
+              OR (
+                  villagestreetId = @villageStreetId
+                  AND LOWER(TRIM(housenumber)) = LOWER(TRIM(@houseNumber))
+              )
+          )",
+                new { name, villageStreetId, houseNumber, excludeId });
             return count > 0;
         }
     }
