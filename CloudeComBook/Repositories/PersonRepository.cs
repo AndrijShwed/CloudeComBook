@@ -25,55 +25,55 @@ public class PersonRepository : IPersonRepository
     int? ageTo = null,
     int? statusYear = null,
     string? description = null
-    )
+)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<Person>(
             @"SELECT 
-            p.people_id AS PeopleId,
-            p.lastname AS LastName,
-            p.name AS Name,
-            p.surname AS Surname,
-            p.sex AS Sex,
-            p.date_of_birth AS DateOfBirth,
-            p.numb_of_house AS NumbOfHouse,
-            p.passport AS Passport,
-            p.id_kod AS IdKod,
-            p.phone_numb AS PhoneNumber,
-            p.status AS Status,
-            p.registr AS Registr,
-            p.m_date AS MDate,
-            p.mil_ID AS MilID,
-            p.villagestreetId AS VillageStreetId,
-            p.description AS Description,
-            v.name AS VillageName,
-            s.name AS StreetName
-          FROM people p
-          LEFT JOIN villagestreet vs ON p.villagestreetId = vs.id
-          LEFT JOIN villages v ON vs.villageId = v.id
-          LEFT JOIN streets s ON vs.streetId = s.id
-          WHERE
-            (@lastName IS NULL OR LOWER(p.lastname) LIKE CONCAT(LOWER(@lastName), '%'))
-            AND (@name IS NULL OR LOWER(p.name) LIKE CONCAT(LOWER(@name), '%'))
-            AND (@surname IS NULL OR LOWER(p.surname) LIKE CONCAT(LOWER(@surname), '%'))
-            AND (@sex IS NULL OR LOWER(p.sex) = LOWER(@sex))
-            AND (@status IS NULL OR LOWER(p.status) LIKE CONCAT(LOWER(@status), '%'))
-            AND (@statusYear IS NULL OR YEAR(p.m_date) = @statusYear)
-            AND (@registr IS NULL OR p.registr = @registr)
-            AND (@houseNumb IS NULL OR p.numb_of_house = @houseNumb)
-            AND (@villageId IS NULL OR p.villagestreetId IN (
-                SELECT id FROM villagestreet WHERE villageId = @villageId))
-            AND (@streetId IS NULL OR p.villagestreetId IN (
-                SELECT id FROM villagestreet WHERE streetId = @streetId))
-            AND (@ageFrom IS NULL OR (
-                    YEAR(CURDATE()) - YEAR(p.date_of_birth) - 
-                    (DATE_FORMAT(CURDATE(), '%m%d') < DATE_FORMAT(p.date_of_birth, '%m%d'))
-                ) >= @ageFrom)
-                AND (@ageTo IS NULL OR (
-                    YEAR(CURDATE()) - YEAR(p.date_of_birth) - 
-                    (DATE_FORMAT(CURDATE(), '%m%d') < DATE_FORMAT(p.date_of_birth, '%m%d'))
-                ) <= @ageTo)
-          ORDER BY p.lastname, p.name",
+        p.people_id AS PeopleId,
+        p.lastname AS LastName,
+        p.name AS Name,
+        p.surname AS Surname,
+        p.sex AS Sex,
+        p.date_of_birth AS DateOfBirth,
+        p.numb_of_house AS NumbOfHouse,
+        p.passport AS Passport,
+        p.id_kod AS IdKod,
+        p.phone_numb AS PhoneNumber,
+        p.status AS Status,
+        p.registr AS Registr,
+        p.m_date AS MDate,
+        p.mil_ID AS MilID,
+        p.villagestreetId AS VillageStreetId,
+        p.description AS Description,
+        v.name AS VillageName,
+        s.name AS StreetName
+      FROM people p
+      LEFT JOIN villagestreet vs ON p.villagestreetId = vs.id
+      LEFT JOIN villages v ON vs.villageId = v.id
+      LEFT JOIN streets s ON vs.streetId = s.id
+      WHERE
+        (@lastName IS NULL OR LOWER(p.lastname) LIKE CONCAT(LOWER(@lastName), '%'))
+        AND (@name IS NULL OR LOWER(p.name) LIKE CONCAT(LOWER(@name), '%'))
+        AND (@surname IS NULL OR LOWER(p.surname) LIKE CONCAT(LOWER(@surname), '%'))
+        AND (@sex IS NULL OR LOWER(p.sex) = LOWER(@sex))
+        AND (@status IS NULL OR LOWER(p.status) LIKE CONCAT(LOWER(@status), '%'))
+        AND (@statusYear IS NULL OR YEAR(p.m_date) = @statusYear)
+        AND (@registr IS NULL OR p.registr = @registr)
+        AND (@houseNumb IS NULL OR p.numb_of_house = @houseNumb)
+        AND (@villageId IS NULL OR p.villagestreetId IN (
+            SELECT id FROM villagestreet WHERE villageId = @villageId))
+        AND (@streetId IS NULL OR p.villagestreetId IN (
+            SELECT id FROM villagestreet WHERE streetId = @streetId))
+        AND (@ageFrom IS NULL OR (
+                YEAR(CURDATE()) - YEAR(p.date_of_birth) - 
+                (DATE_FORMAT(CURDATE(), '%m%d') < DATE_FORMAT(p.date_of_birth, '%m%d'))
+            ) >= @ageFrom)
+        AND (@ageTo IS NULL OR (
+                YEAR(CURDATE()) - YEAR(p.date_of_birth) - 
+                (DATE_FORMAT(CURDATE(), '%m%d') < DATE_FORMAT(p.date_of_birth, '%m%d'))
+            ) < @ageTo)
+      ORDER BY p.lastname, p.name",
             new
             {
                 lastName,

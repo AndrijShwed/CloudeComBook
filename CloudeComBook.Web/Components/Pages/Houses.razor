@@ -83,13 +83,17 @@ else
             <MudTd DataLabel="Житл. площа">@context.LivingArea</MudTd>
             <MudTd DataLabel="К-сть кімнат">@context.TotalOfRooms</MudTd>
             <MudTd DataLabel="Дії">
-                <AuthorizeView Roles="admin" Context="actionsContext">
+                <AuthorizeView Roles="admin,user" Context="actionsContext">
                     <Authorized>
                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                        Color="Color.Primary"
                                        Size="Size.Small"
                                        Title="Редагувати"
                                        OnClick="@(() => OpenHouseDialog(context))" />
+                    </Authorized>
+                </AuthorizeView>
+                <AuthorizeView Roles="admin" Context="actionsContext">
+                    <Authorized>
                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                        Color="Color.Error"
                                        Size="Size.Small"

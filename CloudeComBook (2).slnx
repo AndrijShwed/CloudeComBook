@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="ClaudeComBook.Desktop/ClaudeComBook.Desktop.csproj" Id="6621cc6b-33d5-4b97-8c73-70d3d830fdde" />
-  <Project Path="ClaudeComBook.Shared/ClaudeComBook.Shared.csproj" Id="e5d146fc-2b6e-4cd6-bf42-7dbe792c27a9" />
-  <Project Path="ClaudeComBook.Web/ClaudeComBook.Web.csproj" Id="c44027a1-5029-4dd4-b0c9-6d85e2831ea4" />
-  <Project Path="ClaudeComBook/ClaudeComBook.csproj" />
-</Solution>

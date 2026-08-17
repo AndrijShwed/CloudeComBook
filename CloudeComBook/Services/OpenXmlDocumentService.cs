@@ -1,166 +1,4 @@
-﻿//using CloudeComBook.Shared.Models;
-//using DocumentFormat.OpenXml.Packaging;
-//using DocumentFormat.OpenXml.Wordprocessing;
-
-//namespace CloudeComBook.API.Services;
-
-//public class OpenXmlDocumentService
-//{
-//    public byte[] GenerateDocument(
-//        byte[] templateBytes,
-//        Dictionary<string, string> fields,
-//        List<Person>? familyMembers = null)
-//    {
-//        using var stream = new MemoryStream();
-//        stream.Write(templateBytes, 0, templateBytes.Length);
-//        stream.Position = 0;
-
-//        using (var doc = WordprocessingDocument.Open(stream, true))
-//        {
-//            var body = doc.MainDocumentPart!.Document.Body!;
-
-//            MergeRunsInDocument(doc);
-//            ReplaceTextPlaceholders(body, fields);
-
-//            if (familyMembers != null)
-//                FillFamilyTable(body, familyMembers);
-
-//            doc.MainDocumentPart.Document.Save();
-//        }
-
-//        return stream.ToArray();
-//    }
-
-//    // Word часто розбиває один текст на кілька <w:r> - об'єднуємо їх у межах кожного параграфа
-//    private void MergeRunsInDocument(WordprocessingDocument doc)
-//    {
-//        var paragraphs = doc.MainDocumentPart!.Document.Body!.Descendants<Paragraph>().ToList();
-
-//        foreach (var paragraph in paragraphs)
-//        {
-//            var runs = paragraph.Elements<Run>().ToList();
-//            if (runs.Count <= 1) continue;
-
-//            var firstRun = runs[0];
-//            var texts = firstRun.Elements<Text>().ToList();
-//            if (texts.Count == 0) continue;
-
-//            var combinedText = string.Concat(runs.SelectMany(r =>
-//                r.Elements<Text>().Select(t => t.Text)));
-
-//            // Залишаємо лише перший Text у першому Run, решту прибираємо
-//            foreach (var t in texts.Skip(1))
-//                t.Remove();
-
-//            texts[0].Text = combinedText;
-//            texts[0].Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve;
-
-//            foreach (var run in runs.Skip(1))
-//                run.Remove();
-//        }
-//    }
-
-//    private void ReplaceTextPlaceholders(Body body, Dictionary<string, string> fields)
-//    {
-//        foreach (var text in body.Descendants<Text>())
-//        {
-//            foreach (var field in fields)
-//            {
-//                if (text.Text.Contains(field.Key))
-//                    text.Text = text.Text.Replace(field.Key, field.Value ?? "");
-//            }
-//        }
-//    }
-
-//    private void FillFamilyTable(Body body, List<Person> familyMembers)
-//    {
-//        foreach (var table in body.Descendants<Table>())
-//        {
-//            TableRow? templateRow = null;
-
-//            foreach (var row in table.Elements<TableRow>())
-//            {
-//                if (RowContainsMarker(row, "{FR}"))
-//                {
-//                    templateRow = row;
-//                    break;
-//                }
-//            }
-
-//            if (templateRow == null) continue;
-
-//            int number = 1;
-//            TableRow lastInsertedRow = templateRow;
-
-//            foreach (var person in familyMembers)
-//            {
-//                var newRow = (TableRow)templateRow.CloneNode(true);
-//                FillFamilyRow(newRow, person, number);
-//                lastInsertedRow.InsertAfterSelf(newRow);
-//                lastInsertedRow = newRow;
-//                number++;
-//            }
-
-//            // Прибираємо шаблонний рядок з маркером {FR}
-//            ClearMarkerInRow(templateRow, "{FR}");
-//        }
-//    }
-
-//    private void FillFamilyRow(TableRow row, Person person, int number)
-//    {
-//        var cells = row.Elements<TableCell>().ToList();
-
-//        SetCellText(cells, 0, number.ToString());
-//        SetCellText(cells, 1, $"{person.LastName} {person.Name} {person.Surname}");
-//        SetCellText(cells, 2, "член сім'ї");
-//        SetCellText(cells, 3, person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "");
-//        SetCellText(cells, 4, FormatDocument(person.Passport));
-
-//        ClearMarkerInRow(row, "{FR}");
-//    }
-
-//    private void SetCellText(List<TableCell> cells, int index, string value)
-//    {
-//        if (index >= cells.Count) return;
-
-//        var text = cells[index].Descendants<Text>().FirstOrDefault();
-//        if (text != null)
-//            text.Text = value;
-//    }
-
-//    private void ClearMarkerInRow(TableRow row, string marker)
-//    {
-//        foreach (var text in row.Descendants<Text>())
-//        {
-//            if (text.Text.Contains(marker))
-//                text.Text = text.Text.Replace(marker, "");
-//        }
-//    }
-
-//    private bool RowContainsMarker(TableRow row, string marker)
-//    {
-//        var rowText = string.Concat(row.Descendants<Text>().Select(t => t.Text));
-//        return rowText.Contains(marker);
-//    }
-
-//    public static string FormatDocument(string? document)
-//    {
-//        document ??= "";
-//        char[] result = Enumerable.Repeat(' ', 11).ToArray();
-
-//        for (int i = 0; i < Math.Min(4, document.Length); i++)
-//            result[i] = document[i];
-
-//        for (int i = 4; i < 11 && i < document.Length; i++)
-//            result[i] = char.IsDigit(document[i]) ? document[i] : ' ';
-
-//        return new string(result);
-//    }
-//}
-
-
-
-using CloudeComBook.Shared.Models;
+﻿using CloudeComBook.Shared.Models;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
@@ -483,7 +321,7 @@ public class OpenXmlDocumentService
             if (templateRow == null)
                 continue;
 
-            int number = 1;
+            int number = 2;
 
             TableRow lastInsertedRow = templateRow;
 
@@ -562,20 +400,25 @@ public class OpenXmlDocumentService
     // ============================================================
 
     private void SetCellText(
-        List<TableCell> cells,
-        int index,
-        string value)
+    List<TableCell> cells,
+    int index,
+    string value)
     {
         if (index >= cells.Count)
             return;
 
-        var text = cells[index]
+        var texts = cells[index]
             .Descendants<Text>()
-            .FirstOrDefault();
+            .ToList();
 
-        if (text != null)
+        if (texts.Count == 0)
+            return;
+
+        texts[0].Text = value;
+
+        for (int i = 1; i < texts.Count; i++)
         {
-            text.Text = value;
+            texts[i].Text = string.Empty;
         }
     }
 
