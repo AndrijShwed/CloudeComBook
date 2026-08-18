@@ -240,7 +240,7 @@
                       Class="mt-2" Spacing="2">
 
                 <MudText Typo="Typo.body2" Class="mb-2">
-                <b>Кількість записів: @Vm.People.Count</b>
+                    <b>Кількість записів: @Vm.People.Count</b>
                 </MudText>
 
                 
@@ -282,6 +282,7 @@
                 <MudTh>Дата народження</MudTh>
                 <MudTh>Стать</MudTh>
                 <MudTh>Статус</MudTh>
+                <MudTh>Дата зміни статусу</MudTh>
                 <MudTh>Населений пункт</MudTh>
                 <MudTh>Вулиця</MudTh>
                 <MudTh>Будинок</MudTh>
@@ -289,7 +290,7 @@
                 <MudTh>Дії</MudTh>
                 <MudTh>Довідка</MudTh>
             </HeaderContent>
-          
+
             <RowTemplate>
                 <MudTd>@context.LastName</MudTd>
                 <MudTd>@context.Name</MudTd>
@@ -297,6 +298,7 @@
                 <MudTd>@context.DateOfBirth?.ToString("dd.MM.yyyy")</MudTd>
                 <MudTd>@context.Sex</MudTd>
                 <MudTd>@context.Status</MudTd>
+                <MudTd>@context.MDateFormatted</MudTd>
                 <MudTd>@context.VillageName</MudTd>
                 <MudTd>@context.StreetName</MudTd>
                 <MudTd>@context.NumbOfHouse</MudTd>
@@ -379,7 +381,7 @@
                 return "row-vybuv";
             }
         }
-        
+
         return string.Empty;
     }
 
@@ -405,6 +407,7 @@
                 PhoneNumber = item.PhoneNumber,
                 Status = item.Status,
                 Registr = item.Registr,
+                MDate = item.MDate,
                 MilID = item.MilID,
                 VillageStreetId = item.VillageStreetId,
                 Description = item.Description
@@ -465,7 +468,7 @@
 
         if (fieldSpecs.Count > 0)
         {
-            var parameters = new DialogParameters<DocumentFieldsDialog> { {"Fields", fieldSpecs } };
+            var parameters = new DialogParameters<DocumentFieldsDialog> { { "Fields", fieldSpecs } };
             var options = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true };
 
             var dialog = await DialogService.ShowAsync<DocumentFieldsDialog>(

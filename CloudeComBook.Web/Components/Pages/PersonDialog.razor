@@ -20,7 +20,7 @@
 
                 <MudItem xs="12" sm="4">
                     <MudTextField Value="Item.Name"
-                                  Immediate="true"  
+                                  Immediate="true"
                                   ValueChanged="@((string? v) => Item.Name = TextHelper.CapitalizeWords(v))"
                                   Label="Ім'я" Required="true" RequiredError="Обов'язкове поле" />
                 </MudItem>
@@ -107,9 +107,13 @@
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
+                    <MudDatePicker @bind-Date="_mDate" Label="Дата зміни статусу" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
                     <MudTextField @bind-Value="Item.MilID" Label="Військовий ID" />
                 </MudItem>
-                
+
                 <MudItem xs="12" sm="4">
                     <MudTextField @bind-Value="Item.IdKod" Label="ІПН" />
                 </MudItem>
@@ -153,6 +157,11 @@
     {
         get => Item.DateOfBirth;
         set => Item.DateOfBirth = value;
+    }
+    private DateTime? _mDate
+    {
+        get => Item.MDate;
+        set => Item.MDate = value;
     }
 
     protected override async Task OnInitializedAsync()
