@@ -1,0 +1,129 @@
+﻿@page "/Admin/Users"
+@using CloudComBook.Web.Services
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@inject IDialogService DialogService
+@inject ApiService Api
+@inject ISnackbar Snackbar
+@attribute [Authorize(Roles = "admin")]
+
+<PageTitle>Керування користувачами</PageTitle>
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Користувачі</MudText>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.PersonAdd"
+               OnClick="OpenCreateForm">
+        Додати користувача
+    </MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="@_users" Hover="true" Dense="true" FixedHeader="true"
+              Height="calc(100vh - 330px)">
+        <HeaderContent>
+            <MudTh>Логін</MudTh>
+            <MudTh>ПІБ</MudTh>
+            <MudTh>Роль</MudTh>
+            <MudTh>Посада</MudTh>
+            <MudTh>Активний</MudTh>
+            <MudTh>Дії</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Логін">@context.Login</MudTd>
+            <MudTd DataLabel="ПІБ">@context.FullName</MudTd>
+            <MudTd DataLabel="Роль">@context.Role</MudTd>
+            <MudTd DataLabel="Посада">@context.Position</MudTd>
+            <MudTd DataLabel="Активний">
+                <MudSwitch T="bool" Value="@context.IsActive"
+                           ValueChanged="@(async (bool v) => await ToggleActiveAsync(context, v))"
+                           Color="Color.Success" />
+            </MudTd>
+            <MudTd DataLabel="Дії">
+                @if (context.Role != "admin")
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Size="Size.Small"
+                                   OnClick="@(() => DeleteAsync(context.Id, context.Login))" />
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+
+
+@code {
+    private bool _loading = true;
+    private List<UserProfileResponse> _users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsersAsync();
+    }
+
+    private async Task LoadUsersAsync()
+    {
+        _loading = true;
+        _users = await Api.GetUsersAsync();
+        _loading = false;
+    }
+
+    private async Task OpenCreateForm()
+    {
+        var dialog = await DialogService.ShowAsync<CreateUserDialog>("Новий користувач");
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false })
+        {
+            Snackbar.Add("Користувача створено", Severity.Success);
+            await LoadUsersAsync();
+        }
+    }
+
+    private async Task DeleteAsync(int id, string login)
+    {
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "Підтвердження видалення",
+            $"Ви дійсно хочете видалити користувача \"{login}\"? Цю дію неможливо скасувати.",
+            yesText: "Видалити", cancelText: "Скасувати");
+
+        if (confirmed != true)
+            return;
+
+        var (success, error) = await Api.DeleteUserAsync(id);
+
+        if (success)
+        {
+            Snackbar.Add("Користувача видалено", Severity.Success);
+            await LoadUsersAsync();
+        }
+        else
+        {
+            Snackbar.Add(error ?? "Не вдалося видалити користувача", Severity.Error);
+        }
+    }
+
+    private async Task ToggleActiveAsync(UserProfileResponse user, bool isActive)
+    {
+        var success = await Api.ToggleUserActiveAsync(user.Id, isActive);
+
+        if (success)
+        {
+            user.IsActive = isActive;
+            Snackbar.Add(isActive ? "Користувача активовано" : "Користувача деактивовано", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Не вдалося змінити статус", Severity.Error);
+        }
+    }
+
+}

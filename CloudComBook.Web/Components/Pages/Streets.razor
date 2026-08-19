@@ -1,0 +1,128 @@
+﻿@page "/streets"
+@using CloudComBook.Shared.Models
+@using CloudComBook.Web.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject ApiService Api
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@attribute [Authorize]
+
+<PageTitle>Вулиці</PageTitle>
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Вулиці</MudText>
+    <AuthorizeView Roles="user,admin" Context="authContext">
+        <Authorized>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="OpenCreateForm">
+                Додати вулицю
+            </MudButton>
+        </Authorized>
+    </AuthorizeView>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="@_streets" Hover="true" Dense="true" FixedHeader="true"
+              Height="calc(100vh - 180px)">
+        <HeaderContent>
+            <MudTh>Назва</MudTh>
+            <MudTh>Дії</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Назва">@context.Name</MudTd>
+            <MudTd DataLabel="Дії">
+                <MudStack Row="true" Spacing="1">
+                    <AuthorizeView Roles="user,admin" Context="editContext">
+                        <Authorized>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           OnClick="@(() => OpenEditForm(context))" />
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="admin" Context="delContext">
+                        <Authorized>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           Color="Color.Error"
+                                           Size="Size.Small"
+                                           OnClick="@(() => DeleteAsync(context))" />
+                        </Authorized>
+                    </AuthorizeView>
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private bool _loading = true;
+    private List<Street> _streets = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _streets = await Api.GetStreetsAsync();
+        _loading = false;
+    }
+
+    private async Task OpenCreateForm()
+    {
+        var dialog = await DialogService.ShowAsync<StreetDialog>("Нова вулиця");
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false })
+        {
+            Snackbar.Add("Вулицю додано", Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenEditForm(Street street)
+    {
+        var parameters = new DialogParameters<StreetDialog> { { x => x.Street, street } };
+        var dialog = await DialogService.ShowAsync<StreetDialog>("Редагувати вулицю", parameters);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false })
+        {
+            Snackbar.Add("Зміни збережено", Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteAsync(Street street)
+    {
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "Підтвердження видалення",
+            $"Видалити вулицю \"{street.Name}\"?",
+            yesText: "Видалити", cancelText: "Скасувати");
+
+        if (confirmed != true)
+            return;
+
+        var success = await Api.DeleteStreetAsync(street.Id);
+
+        if (success)
+        {
+            Snackbar.Add("Видалено", Severity.Success);
+            await LoadAsync();
+        }
+        else
+        {
+            Snackbar.Add("Не вдалося видалити (можливо, є пов'язані записи)", Severity.Error);
+        }
+    }
+}

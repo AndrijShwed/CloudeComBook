@@ -1,0 +1,6 @@
+@CloudComBook_HostAddress = http://localhost:5296
+
+GET {{CloudComBook_HostAddress}}/api/villages
+Accept: application/json
+
+###

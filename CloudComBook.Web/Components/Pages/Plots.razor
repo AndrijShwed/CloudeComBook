@@ -1,0 +1,329 @@
+﻿@page "/plots"
+
+@using CloudComBook.Shared.Models
+@using CloudComBook.Shared.Filters
+@using CloudComBook.Web.Services
+@using CloudComBook.Web.Helpers
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+
+@inject ApiService Api
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Земельні ділянки</PageTitle>
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
+    <MudText Typo="Typo.h6">Земельні ділянки</MudText>
+    <AuthorizeView Roles="user,admin" Context="addContext">
+        <Authorized>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.AddLocationAlt"
+                       OnClick="@(() => OpenPlotDialog(null))">
+                Додати ділянку
+            </MudButton>
+        </Authorized>
+    </AuthorizeView>
+</MudStack>
+
+<MudContainer MaxWidth="MaxWidth.False">
+
+    <MudExpansionPanels Class="mb-2 compact-panel" Elevation="1">
+        <MudExpansionPanel Class="compact-panel" Text="Фільтри" Expanded="true" Dense="true">
+
+            <MudGrid Spacing="2">
+
+                <MudItem xs="12" sm="6" md="3">
+                    <MudTextField Value="_filter.FullName"
+                                  Immediate="true"
+                                  ValueChanged="@((string? v) => _filter.FullName = TextHelper.CapitalizeWords(v))"
+                                  Label="Власник"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Size="Size.Small" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="2">
+                    <MudSelect T="int?" Label="Населений пункт"
+                               Value="_villageId"
+                               ValueChanged="OnVillageChanged"
+                               Variant="Variant.Outlined" Clearable="true"
+                               Margin="Margin.Dense" Dense="true">
+                        @foreach (var v in _villages)
+                        {
+                            <MudSelectItem T="int?" Value="@((int?)v.Id)">@v.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="2">
+                    <MudSelect T="string" Label="Вулиця"
+                               Value="_filter.Street"
+                               ValueChanged="OnStreetChangedAsync"
+                               Variant="Variant.Outlined" Clearable="true"
+                               Disabled="_villageId == null"
+                               Margin="Margin.Dense" Dense="true">
+                        @foreach (var vs in _availableStreets)
+                        {
+                            <MudSelectItem T="string" Value="@vs.StreetName">@vs.StreetName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="2">
+                    <MudSelect T="string" Label="Будинок"
+                               @bind-Value="_filter.HouseNumb"
+                               Variant="Variant.Outlined" Clearable="true"
+                               Disabled="_selectedVillageStreetId == null"
+                               Margin="Margin.Dense" Dense="true">
+                        @foreach (var h in _availableHouses)
+                        {
+                            <MudSelectItem T="string" Value="@h.NumbOfHouse">@h.NumbOfHouse</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="2">
+                    <MudTextField @bind-Value="_filter.FieldNumber"
+                                  Immediate="true"
+                                  Label="Номер поля"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Size="Size.Small" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="2">
+                    <MudTextField @bind-Value="_filter.PlotType"
+                                  Immediate="true"
+                                  Label="Тип ділянки"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Size="Size.Small" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="2">
+                    <MudTextField @bind-Value="_filter.PlotNumber"
+                                  Immediate="true"
+                                  Label="Номер ділянки"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Size="Size.Small" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="2">
+                    <MudTextField @bind-Value="_filter.Tenant"
+                                  Immediate="true"
+                                  Label="Орендар"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Size="Size.Small" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField @bind-Value="_filter.Cadastr"
+                                  Immediate="true"
+                                  Label="Кадастровий номер"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Size="Size.Small" />
+                </MudItem>
+
+            </MudGrid>
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-2" Spacing="2">
+                <MudText Typo="Typo.body2" Class="mr-6"><b>Кількість записів: @_plots.Count</b></MudText>
+                <MudText Typo="Typo.body2"><b>Загальна площа: @GetTotalArea() га</b></MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" OnClick="ClearFilter">
+                    Очистити фільтри
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="LoadPlotsAsync">
+                    Пошук
+                </MudButton>
+            </MudStack>
+
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+
+    <MudPaper Class="pa-2">
+        <MudTable Items="_plots" Hover="true" Dense="true" FixedHeader="true"
+                  Height="calc(100vh - 350px)">
+            <HeaderContent>
+                <MudTh>Власник</MudTh>
+                <MudTh>Населений пункт</MudTh>
+                <MudTh>Вулиця</MudTh>
+                <MudTh>Будинок</MudTh>
+                <MudTh>Поле</MudTh>
+                <MudTh>Тип</MudTh>
+                <MudTh>№ ділянки</MudTh>
+                <MudTh>Площа</MudTh>
+                <MudTh>Кадастровий №</MudTh>
+                <MudTh>Орендар</MudTh>
+                <MudTh>Дії</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.FullName</MudTd>
+                <MudTd>@context.Village</MudTd>
+                <MudTd>@context.Street</MudTd>
+                <MudTd>@context.HouseNumb</MudTd>
+                <MudTd>@context.FieldNumber</MudTd>
+                <MudTd>@context.PlotType</MudTd>
+                <MudTd>@context.PlotNumber</MudTd>
+                <MudTd>@context.PlotArea</MudTd>
+                <MudTd>@context.Cadastr</MudTd>
+                <MudTd>@context.Tenant</MudTd>
+                <MudTd>
+                    <AuthorizeView Roles="user,admin" Context="editContext">
+                        <Authorized>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Primary" Size="Size.Small"
+                                           OnClick="@(() => OpenPlotDialog(context))" />
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="admin" Context="deleteContext">
+                        <Authorized>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           Color="Color.Error" Size="Size.Small"
+                                           OnClick="@(() => DeletePlotAsync(context))" />
+                        </Authorized>
+                    </AuthorizeView>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+    private PlotFilter _filter = new();
+    private List<Plot> _plots = new();
+    private bool _loading;
+
+    private async Task LoadPlotsAsync()
+    {
+        _loading = true;
+        _plots = await Api.GetPlotsAsync(_filter);
+        _loading = false;
+    }
+
+    private void ClearFilter()
+    {
+        _filter = new PlotFilter();
+        _villageId = null;
+        _selectedVillageStreetId = null;
+        _availableStreets = new List<VillageStreet>();
+        _availableHouses = new List<House>();
+    }
+
+    private async Task OpenPlotDialog(Plot? item)
+    {
+        var isNew = item == null;
+        var model = item == null
+            ? new Plot()
+            : new Plot
+            {
+                Id = item.Id,
+                FullName = item.FullName,
+                Village = item.Village,
+                Street = item.Street,
+                HouseNumb = item.HouseNumb,
+                FieldNumber = item.FieldNumber,
+                PlotType = item.PlotType,
+                PlotNumber = item.PlotNumber,
+                PlotArea = item.PlotArea,
+                Cadastr = item.Cadastr,
+                Tenant = item.Tenant,
+                Url = item.Url
+            };
+
+        var parameters = new DialogParameters<PlotDialog> { { x => x.Item, model } };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true };
+
+        var dialog = await DialogService.ShowAsync<PlotDialog>(
+            isNew ? "Додати ділянку" : "Редагувати ділянку", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false } && result.Data is bool success && success)
+        {
+            Snackbar.Add("Збережено", Severity.Success);
+
+            if (isNew)
+                ClearFilter();
+
+        }
+        else if (result is { Canceled: false })
+        {
+            Snackbar.Add("Не вдалося зберегти", Severity.Error);
+        }
+    }
+
+    private async Task DeletePlotAsync(Plot item)
+    {
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "Підтвердження",
+            $"Видалити ділянку №{item.PlotNumber} ({item.FullName})?",
+            yesText: "Видалити", cancelText: "Скасувати");
+
+        if (confirmed != true) return;
+
+        var success = await Api.DeletePlotAsync(item.Id);
+        if (success)
+        {
+            Snackbar.Add("Видалено", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Не вдалося видалити", Severity.Error);
+        }
+    }
+
+    private List<Village> _villages = new();
+    private List<VillageStreet> _villageStreets = new();
+    private List<VillageStreet> _availableStreets = new();
+    private int? _villageId;
+    private List<House> _availableHouses = new();
+    private int? _selectedVillageStreetId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _villages = await Api.GetVillagesAsync();
+        _villageStreets = await Api.GetVillageStreetsAsync();
+    }
+
+    private void OnVillageChanged(int? villageId)
+    {
+        _villageId = villageId;
+        _filter.Street = null;
+        _filter.HouseNumb = null;
+        _selectedVillageStreetId = null;
+        _availableHouses = new List<House>();
+
+        var village = _villages.FirstOrDefault(v => v.Id == villageId);
+        _filter.Village = village?.Name;
+
+        _availableStreets = villageId == null
+            ? new List<VillageStreet>()
+            : _villageStreets.Where(vs => vs.VillageId == villageId && vs.IsActive).ToList();
+    }
+
+    private async Task OnStreetChangedAsync(string? streetName)
+    {
+        _filter.Street = streetName;
+        _filter.HouseNumb = null;
+
+        var vs = _availableStreets.FirstOrDefault(x => x.StreetName == streetName);
+        _selectedVillageStreetId = vs?.Id;
+
+        _availableHouses = vs == null
+            ? new List<House>()
+            : (await Api.GetHousesByVillageStreetIdAsync(vs.Id))
+                .OrderBy(h => GetHouseNumberSortKey(h.NumbOfHouse))
+                .ThenBy(h => h.NumbOfHouse, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    private static int GetHouseNumberSortKey(string? numb)
+    {
+        if (string.IsNullOrWhiteSpace(numb))
+            return int.MaxValue;
+
+        var digits = new string(numb.TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(digits, out var n) ? n : int.MaxValue;
+    }
+
+    private string GetTotalArea()
+    {
+        var total = _plots.Sum(p => p.PlotArea ?? 0);
+        return total.ToString("0.####");
+    }
+}

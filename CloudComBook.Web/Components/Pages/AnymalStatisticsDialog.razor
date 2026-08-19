@@ -1,0 +1,82 @@
+﻿@using CloudComBook.Shared.DTOs
+@using CloudComBook.Web.Services
+@using MudBlazor
+@inject ApiService Api
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
+            <MudText Typo="Typo.h6">Домашні тварини — статистика</MudText>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Success"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       OnClick="LoadAsync">
+                Оновити дані
+            </MudButton>
+        </MudStack>
+
+        <MudTable Items="_stats" Hover="true" Dense="true" Striped="true" Loading="_loading">
+            <HeaderContent>
+                <MudTh>Населений пункт</MudTh>
+                <MudTh>ВРХ</MudTh>
+                <MudTh>Корови</MudTh>
+                <MudTh>Свині</MudTh>
+                <MudTh>Вівці</MudTh>
+                <MudTh>Кози</MudTh>
+                <MudTh>Коні</MudTh>
+                <MudTh>Птиця</MudTh>
+                <MudTh>Кролі</MudTh>
+                <MudTh>Бджоли</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Village</MudTd>
+                <MudTd>@context.Vrh</MudTd>
+                <MudTd>@context.Covs</MudTd>
+                <MudTd>@context.Pigs</MudTd>
+                <MudTd>@context.Sheeps</MudTd>
+                <MudTd>@context.Goats</MudTd>
+                <MudTd>@context.Horses</MudTd>
+                <MudTd>@context.Birds</MudTd>
+                <MudTd>@context.Rabbits</MudTd>
+                <MudTd>@context.Beeses</MudTd>
+            </RowTemplate>
+            <FooterContent>
+                <MudTd><b>Загальні</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Vrh)</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Covs)</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Pigs)</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Sheeps)</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Goats)</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Horses)</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Birds)</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Rabbits)</b></MudTd>
+                <MudTd><b>@_stats.Sum(s => s.Beeses)</b></MudTd>
+            </FooterContent>
+        </MudTable>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close">Закрити</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private List<AnymalVillageStatisticsDto> _stats = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _stats = await Api.GetAnymalStatisticsAsync();
+        _loading = false;
+    }
+
+    private void Close() => MudDialog.Close();
+}

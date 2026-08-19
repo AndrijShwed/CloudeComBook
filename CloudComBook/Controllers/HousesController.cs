@@ -1,0 +1,101 @@
+﻿using CloudComBook.API.Repositories.Interfaces;
+using CloudComBook.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace CloudComBook.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+[Authorize(Roles = "reader,user,admin")]
+public class HousesController : ControllerBase
+{
+    private readonly IHouseRepository _repo;
+
+    public HousesController(IHouseRepository repo) => _repo = repo;
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll() =>
+        Ok(await _repo.GetAllAsync());
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var item = await _repo.GetByIdAsync(id);
+        return item == null ? NotFound() : Ok(item);
+    }
+
+    [HttpGet("by-villagestreet/{villageStreetId}")]
+    public async Task<IActionResult> GetByVillageStreet(int villageStreetId) =>
+        Ok(await _repo.GetByVillageStreetIdAsync(villageStreetId));
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search(
+    [FromQuery] int? villageId = null,
+    [FromQuery] int? streetId = null,
+    [FromQuery] string? houseNumber = null,
+    [FromQuery] string? lastName = null,
+    [FromQuery] string? name = null,
+    [FromQuery] string? surname = null)
+    {
+        var result = await _repo.SearchAsync(
+            villageId, streetId, houseNumber, lastName, name, surname);
+        return Ok(result);
+    }
+
+    [HttpGet("area-by-village")]
+    public async Task<IActionResult> GetAreaByVillage()
+    {
+        var result = await _repo.GetAreaByVillageAsync();
+        return Ok(result.Select(r => new { r.Village, r.TotalArea, r.LivingArea }));
+    }
+
+    [HttpGet("rooms-by-village")]
+    public async Task<IActionResult> GetRoomsByVillage()
+    {
+        var result = await _repo.GetRoomCountByVillageAsync();
+        return Ok(result);
+    }
+
+    [HttpGet("exists")]
+    public async Task<IActionResult> Exists(
+   [FromQuery] int villageStreetId,
+   [FromQuery] string numbOfHouse)
+    {
+        var exists = await _repo.ExistsAsync(villageStreetId, numbOfHouse);
+        return Ok(exists);
+    }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] House house)
+    {
+        house.IdHouses = await _repo.CreateAsync(house);
+        return CreatedAtAction(nameof(GetById), new { id = house.IdHouses }, house);
+    }
+
+    [Authorize(Roles = "user,admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] House house)
+    {
+        house.IdHouses = id;
+        var ok = await _repo.UpdateAsync(house);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var ok = await _repo.DeleteAsync(id);
+            return ok ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
+}

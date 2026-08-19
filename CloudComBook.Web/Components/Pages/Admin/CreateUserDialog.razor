@@ -1,0 +1,46 @@
+﻿@using CloudComBook.Shared.DTOs.Auth
+@using CloudComBook.Web.Services
+@inject ApiService Api
+
+<MudDialog>
+    <TitleContent>Новий користувач</TitleContent>
+    <DialogContent>
+        <MudTextField T="string" @bind-Value="_login" Label="Логін" Required="true" />
+        <MudTextField T="string" @bind-Value="_password" Label="Пароль" InputType="InputType.Password" Required="true" />
+        <MudTextField T="string" @bind-Value="_fullName" Label="ПІБ" />
+        <MudSelect T="string" @bind-Value="_role" Label="Роль">
+            <MudSelectItem Value="@("reader")">reader</MudSelectItem>
+            <MudSelectItem Value="@("user")">user</MudSelectItem>
+            <MudSelectItem Value="@("admin")">admin</MudSelectItem>
+        </MudSelect>
+        <MudTextField T="string" @bind-Value="_position" Label="Посада" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Створити</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private string _login = "";
+    private string _password = "";
+    private string? _fullName;
+    private string? _role = "user";
+    private string? _position;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_login) || string.IsNullOrWhiteSpace(_password))
+            return;
+
+        var request = new RegisterRequest(_login, _password, _fullName, _role, _position);
+        var success = await Api.RegisterUserAsync(request);
+
+        MudDialog.Close(DialogResult.Ok(success));
+    }
+}

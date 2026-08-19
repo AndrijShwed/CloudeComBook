@@ -1,0 +1,51 @@
+﻿@using CloudComBook.Shared.Models
+@using CloudComBook.Web.Services
+@inject ApiService Api
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string" @bind-Value="_name" Label="Назва вулиці" Required="true" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Зберегти</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public Street? Street { get; set; }
+
+    private string _name = "";
+
+    protected override void OnInitialized()
+    {
+        if (Street != null)
+            _name = Street.Name ?? "";
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_name))
+            return;
+
+        bool success;
+
+        if (Street == null)
+        {
+            success = await Api.CreateStreetAsync(new Street { Name = _name });
+        }
+        else
+        {
+            Street.Name = _name;
+            success = await Api.UpdateStreetAsync(Street);
+        }
+
+        MudDialog.Close(DialogResult.Ok(success));
+    }
+}
