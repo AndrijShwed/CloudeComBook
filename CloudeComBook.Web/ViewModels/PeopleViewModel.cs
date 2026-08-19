@@ -120,7 +120,6 @@ public class PeopleViewModel : BaseViewModel
         Filter.Surname = string.Empty;
         Filter.Sex = null;
         Filter.Status = null;
-        Filter.Registr = RegisteredYes ? "так" : null;
         Filter.VillageId = null;
         Filter.StreetId = null;
         Filter.HouseNumb = string.Empty;
@@ -131,5 +130,6 @@ public class PeopleViewModel : BaseViewModel
         Houses = new List<House>();
         RegisteredYes = true;
         RegisteredNo = false;
+        UpdateRegistrFilter();
     }
 }

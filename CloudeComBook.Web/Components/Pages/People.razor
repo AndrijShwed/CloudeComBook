@@ -257,7 +257,7 @@
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
                            Size="Size.Small"
-                           OnClick="Vm.LoadPeopleAsync">
+                           OnClick="SearchAsync">
                     Пошук
                 </MudButton>
 
@@ -280,13 +280,13 @@
                 <MudTh>Ім'я</MudTh>
                 <MudTh>По батькові</MudTh>
                 <MudTh>Дата народження</MudTh>
-                <MudTh>Стать</MudTh>
+               @*  <MudTh>Стать</MudTh> *@
                 <MudTh>Статус</MudTh>
                 <MudTh>Дата зміни статусу</MudTh>
                 <MudTh>Населений пункт</MudTh>
                 <MudTh>Вулиця</MudTh>
                 <MudTh>Будинок</MudTh>
-                <MudTh>Реєстрація</MudTh>
+               @*  <MudTh>Реєстрація</MudTh> *@
                 <MudTh>Дії</MudTh>
                 <MudTh>Довідка</MudTh>
             </HeaderContent>
@@ -296,13 +296,13 @@
                 <MudTd>@context.Name</MudTd>
                 <MudTd>@context.Surname</MudTd>
                 <MudTd>@context.DateOfBirth?.ToString("dd.MM.yyyy")</MudTd>
-                <MudTd>@context.Sex</MudTd>
+               @*  <MudTd>@context.Sex</MudTd> *@
                 <MudTd>@context.Status</MudTd>
                 <MudTd>@context.MDateFormatted</MudTd>
                 <MudTd>@context.VillageName</MudTd>
                 <MudTd>@context.StreetName</MudTd>
                 <MudTd>@context.NumbOfHouse</MudTd>
-                <MudTd>@context.Registr</MudTd>
+                @* <MudTd>@context.Registr</MudTd> *@
                 <MudTd>
                     <AuthorizeView Roles="user,admin" Context="editContext">
                         <Authorized>
@@ -359,6 +359,31 @@
     protected override async Task OnInitializedAsync()
     {
         await Vm.InitializeAsync();
+    }
+
+    private async Task SearchAsync()
+    {
+        var f = Vm.Filter;
+        var isEmpty =
+            string.IsNullOrWhiteSpace(f.LastName) &&
+            string.IsNullOrWhiteSpace(f.Name) &&
+            string.IsNullOrWhiteSpace(f.Surname) &&
+            string.IsNullOrWhiteSpace(f.Sex) &&
+            string.IsNullOrWhiteSpace(f.Status) &&
+            string.IsNullOrWhiteSpace(f.HouseNumb) &&
+            f.VillageId == null &&
+            f.StreetId == null &&
+            f.AgeFrom == null &&
+            f.AgeTo == null &&
+            f.StatusYear == null;
+
+        if (isEmpty)
+        {
+            Snackbar.Add("Заповніть хоча б одне поле фільтра для пошуку", Severity.Warning);
+            return;
+        }
+
+        await Vm.LoadPeopleAsync();
     }
 
     private async Task ClearFilter()
