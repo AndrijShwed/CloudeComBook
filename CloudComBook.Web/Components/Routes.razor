@@ -1,4 +1,4 @@
-﻿
+﻿@* 
 <Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(App).Assembly }">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
@@ -10,4 +10,46 @@
             <p role="alert">Сторінку не знайдено.</p>
         </LayoutView>
     </NotFound>
+</Router> *@
+
+
+@using Microsoft.AspNetCore.Components.Authorization
+
+<Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(App).Assembly }">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                <PageTitle>Необхідно увійти</PageTitle>
+                <LayoutView Layout="typeof(Layout.MainLayout)">
+                    <MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+                        <MudAlert Severity="Severity.Warning" Class="mb-4">
+                            Для доступу до системи необхідно увійти.
+                        </MudAlert>
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Href="/Account/Login"
+                                   Class="mt-2">
+                            Увійти
+                        </MudButton>
+                    </MudContainer>
+                </LayoutView>
+            </NotAuthorized>
+            <Authorizing>
+                <LayoutView Layout="typeof(Layout.MainLayout)">
+                    <MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+                        <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                        <MudText Class="ml-2">Перевірка автентифікації...</MudText>
+                    </MudContainer>
+                </LayoutView>
+            </Authorizing>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Не знайдено</PageTitle>
+        <LayoutView Layout="typeof(Layout.MainLayout)">
+            <p role="alert">Сторінку не знайдено.</p>
+        </LayoutView>
+    </NotFound>
 </Router>
+
