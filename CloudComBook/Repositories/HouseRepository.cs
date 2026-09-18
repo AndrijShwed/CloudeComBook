@@ -183,4 +183,21 @@ public class HouseRepository : IHouseRepository
           GROUP BY v.name
           ORDER BY v.name");
     }
+    public async Task<IEnumerable<House>> GetByVillageIdAsync(int villageId)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<House>(
+            @"SELECT h.idhouses AS IdHouses, h.villagestreetId AS VillageStreetId,
+          h.numb_of_house AS NumbOfHouse, h.lastname AS LastName, h.name AS Name,
+          h.surname AS Surname, h.totalArea AS TotalArea, h.livingArea AS LivingArea,
+          h.total_of_rooms AS TotalOfRooms,
+          v.name AS VillageName, s.name AS StreetName
+          FROM houses h
+          LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
+          LEFT JOIN villages v ON vs.villageId = v.id
+          LEFT JOIN streets s ON vs.streetId = s.id
+          WHERE vs.villageId = @villageId
+          ORDER BY s.name, h.numb_of_house",
+            new { villageId });
+    }
 }

@@ -15,6 +15,10 @@ public class HousesController : ControllerBase
 
     public HousesController(IHouseRepository repo) => _repo = repo;
 
+    [HttpGet("by-village/{villageId}")]
+    public async Task<IActionResult> GetByVillage(int villageId) =>
+    Ok(await _repo.GetByVillageIdAsync(villageId));
+
     [HttpGet]
     public async Task<IActionResult> GetAll() =>
         Ok(await _repo.GetAllAsync());

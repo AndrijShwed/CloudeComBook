@@ -550,4 +550,10 @@ public class ApiService
 
         return (bytes, fileName);
     }
+
+    public async Task<List<House>> GetHousesByVillageIdAsync(int villageId)
+    {
+        return await _http.GetFromJsonAsync<List<House>>($"api/houses/by-village/{villageId}")
+               ?? new List<House>();
+    }
 }

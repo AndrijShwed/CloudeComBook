@@ -30,7 +30,8 @@
             <MudSelect T="int?" Label="Вулиця"
                        Value="_selectedVillageStreetId"
                        ValueChanged="OnStreetChangedAsync"
-                       Disabled="_selectedVillageId == null">
+                       Disabled="_selectedVillageId == null"
+                       Clearable="true">
                 @foreach (var vs in _availableStreets)
                 {
                     <MudSelectItem T="int?" Value="@((int?)vs.Id)">@vs.StreetName</MudSelectItem>
@@ -53,9 +54,9 @@
     </MudGrid>
 </MudPaper>
 
-@if (_selectedVillageStreetId == null)
+@if (_selectedVillageId == null)
 {
-    <MudAlert Severity="Severity.Info">Оберіть населений пункт і вулицю, щоб побачити будинки</MudAlert>
+    <MudAlert Severity="Severity.Info">Оберіть населений пункт, щоб побачити будинки</MudAlert>
 }
 else if (_loadingHouses)
 {
@@ -63,8 +64,10 @@ else if (_loadingHouses)
 }
 else
 {
+    <MudText Typo="Typo.body2" Class="mb-2"><b>Кількість записів: @_houses.Count</b></MudText>
+
     <MudTable Items="@_houses" Hover="true" Dense="true" FixedHeader="true"
-              Height="calc(100vh - 260px)">
+              Height="calc(100vh - 300px)">
         <HeaderContent>
             <MudTh>№ будинку</MudTh>
             <MudTh>Прізвище</MudTh>
@@ -123,7 +126,7 @@ else
         _villageStreets = await Api.GetVillageStreetsAsync();
     }
 
-    private Task OnVillageChangedAsync(int? villageId)
+    private async Task OnVillageChangedAsync(int? villageId)
     {
         _selectedVillageId = villageId;
         _selectedVillageStreetId = null;
@@ -133,30 +136,58 @@ else
             ? new List<VillageStreet>()
             : _villageStreets.Where(vs => vs.VillageId == villageId && vs.IsActive).ToList();
 
-        return Task.CompletedTask;
+        if (villageId != null)
+        {
+            await LoadHousesForVillageAsync(villageId.Value);
+        }
     }
 
     private async Task OnStreetChangedAsync(int? villageStreetId)
     {
         _selectedVillageStreetId = villageStreetId;
-        await LoadHousesAsync();
+
+        if (villageStreetId == null)
+        {
+            if (_selectedVillageId != null)
+                await LoadHousesForVillageAsync(_selectedVillageId.Value);
+        }
+        else
+        {
+            await LoadHousesForStreetAsync(villageStreetId.Value);
+        }
+    }
+
+    private async Task LoadHousesForVillageAsync(int villageId)
+    {
+        _loadingHouses = true;
+        var list = await Api.GetHousesByVillageIdAsync(villageId);
+        _houses = SortHouses(list);
+        _loadingHouses = false;
+    }
+
+    private async Task LoadHousesForStreetAsync(int villageStreetId)
+    {
+        _loadingHouses = true;
+        var list = await Api.GetHousesByVillageStreetIdAsync(villageStreetId);
+        _houses = SortHouses(list);
+        _loadingHouses = false;
     }
 
     private async Task LoadHousesAsync()
     {
-        if (_selectedVillageStreetId == null)
-        {
-            _houses.Clear();
-            return;
-        }
+        if (_selectedVillageStreetId != null)
+            await LoadHousesForStreetAsync(_selectedVillageStreetId.Value);
+        else if (_selectedVillageId != null)
+            await LoadHousesForVillageAsync(_selectedVillageId.Value);
+    }
 
-        _loadingHouses = true;
-        var list = await Api.GetHousesByVillageStreetIdAsync(_selectedVillageStreetId.Value);
-        _houses = list
-            .OrderBy(h => GetHouseNumberSortKey(h.NumbOfHouse))
+    private static List<House> SortHouses(IEnumerable<House> houses)
+    {
+        return houses
+            .OrderBy(h => h.StreetName)
+            .ThenBy(h => GetHouseNumberSortKey(h.NumbOfHouse))
             .ThenBy(h => h.NumbOfHouse, StringComparer.OrdinalIgnoreCase)
             .ToList();
-        _loadingHouses = false;
     }
 
     private static int GetHouseNumberSortKey(string? numb)
