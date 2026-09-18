@@ -64,10 +64,12 @@ else if (_loadingHouses)
 }
 else
 {
-    <MudText Typo="Typo.body2" Class="mb-2"><b>Кількість записів: @_houses.Count</b></MudText>
+    <MudPaper Class="pa-2 mb-4 d-inline-block">
+        <MudText Typo="Typo.body2" Class="mb-2"><b>Кількість записів: @_houses.Count</b></MudText>
+    </MudPaper>
 
     <MudTable Items="@_houses" Hover="true" Dense="true" FixedHeader="true"
-              Height="calc(100vh - 300px)">
+                Height="calc(100vh - 300px)">
         <HeaderContent>
             <MudTh>№ будинку</MudTh>
             <MudTh>Прізвище</MudTh>
@@ -90,24 +92,25 @@ else
                 <AuthorizeView Roles="admin,user" Context="actionsContext">
                     <Authorized>
                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                       Color="Color.Primary"
-                                       Size="Size.Small"
-                                       Title="Редагувати"
-                                       OnClick="@(() => OpenHouseDialog(context))" />
+                                        Color="Color.Primary"
+                                        Size="Size.Small"
+                                        Title="Редагувати"
+                                        OnClick="@(() => OpenHouseDialog(context))" />
                     </Authorized>
                 </AuthorizeView>
                 <AuthorizeView Roles="admin" Context="actionsContext">
                     <Authorized>
                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                       Color="Color.Error"
-                                       Size="Size.Small"
-                                       Title="Видалити"
-                                       OnClick="@(() => DeleteHouseAsync(context))" />
+                                        Color="Color.Error"
+                                        Size="Size.Small"
+                                        Title="Видалити"
+                                        OnClick="@(() => DeleteHouseAsync(context))" />
                     </Authorized>
                 </AuthorizeView>
             </MudTd>
         </RowTemplate>
     </MudTable>
+    
 }
 
 @code {
