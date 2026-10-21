@@ -73,6 +73,11 @@ builder.Services.AddScoped<IDocumentTemplateRepository, DocumentTemplateReposito
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AuthService>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<ICommunityGuard, CommunityGuard>();
+builder.Services.AddScoped<IAuditService, AuditService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

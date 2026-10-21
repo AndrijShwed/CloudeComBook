@@ -14,4 +14,5 @@ public class Plot
     public string? Cadastr { get; set; }
     public string? Tenant { get; set; }
     public string? Url { get; set; }
+    public int? CommunityId { get; set; }
 }

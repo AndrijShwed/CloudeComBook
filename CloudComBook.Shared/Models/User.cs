@@ -19,4 +19,5 @@ public class User
     public string House { get; set; } = string.Empty;
     public string PostIndex { get; set; } = string.Empty;
     public string Organization { get; set; } = string.Empty;
+    public int? CommunityId { get; set; }
 }

@@ -32,7 +32,8 @@ public class UserRepository : IUserRepository
             street AS Street,
             house AS House,
             phone AS Phone,
-            post_index AS PostIndex
+            post_index AS PostIndex,
+            community_id AS CommunityId
         FROM users
         WHERE login = @login
           AND is_active = 1",
@@ -60,7 +61,8 @@ public class UserRepository : IUserRepository
             short_name AS ShortName,
             organization AS Organization,
             phone AS Phone,
-            post_index AS PostIndex
+            post_index AS PostIndex,
+            community_id AS CommunityId
           FROM users WHERE id = @id", new { id });
     }
 
@@ -85,7 +87,8 @@ public class UserRepository : IUserRepository
             short_name AS ShortName,
             organization AS Organization,
             phone AS Phone,
-            post_index AS PostIndex
+            post_index AS PostIndex,
+            community_id AS CommunityId
           FROM users ORDER BY login");
     }
 
@@ -93,8 +96,8 @@ public class UserRepository : IUserRepository
     {
         using var conn = _db.CreateConnection();
         return await conn.ExecuteScalarAsync<int>(
-            @"INSERT INTO users (login, password_hash, full_name, role, is_active, created_at, position)
-              VALUES (@Login, @PasswordHash, @FullName, @Role, @IsActive, @CreatedAt, @Position);
+            @"INSERT INTO users (login, password_hash, full_name, role, is_active, created_at, position, community_id)
+              VALUES (@Login, @PasswordHash, @FullName, @Role, @IsActive, @CreatedAt, @Position, @CommunityId);
               SELECT LAST_INSERT_ID();", user);
     }
 

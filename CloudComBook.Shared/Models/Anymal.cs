@@ -16,4 +16,5 @@ public class Anymal
     public int? Birds { get; set; }
     public int? Rabbits { get; set; }
     public int? Beeses { get; set; }
+    public int? CommunityId { get; set; }
 }
