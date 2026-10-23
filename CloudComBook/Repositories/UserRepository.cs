@@ -36,7 +36,8 @@ public class UserRepository : IUserRepository
             community_id AS CommunityId
         FROM users
         WHERE login = @login
-          AND is_active = 1",
+          AND is_active = 1
+          AND (community_id IS NULL OR community_id IN (SELECT id FROM communities WHERE is_active = 1))",
             new { login });
     }
 
@@ -66,30 +67,33 @@ public class UserRepository : IUserRepository
           FROM users WHERE id = @id", new { id });
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<IEnumerable<User>> GetAllAsync(int? communityId = null)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<User>(
             @"SELECT 
-            id AS Id,
-            login AS Login,
-            password_hash AS PasswordHash,
-            full_name AS FullName,
-            role AS Role,
-            is_active AS IsActive,
-            created_at AS CreatedAt,
-            position AS Position,
-            region AS Region,
-            district AS District,
-            village AS Village,
-            street AS Street,
-            house AS House,
-            short_name AS ShortName,
-            organization AS Organization,
-            phone AS Phone,
-            post_index AS PostIndex,
-            community_id AS CommunityId
-          FROM users ORDER BY login");
+        id AS Id,
+        login AS Login,
+        password_hash AS PasswordHash,
+        full_name AS FullName,
+        role AS Role,
+        is_active AS IsActive,
+        created_at AS CreatedAt,
+        position AS Position,
+        region AS Region,
+        district AS District,
+        village AS Village,
+        street AS Street,
+        house AS House,
+        short_name AS ShortName,
+        organization AS Organization,
+        phone AS Phone,
+        post_index AS PostIndex,
+        community_id AS CommunityId
+      FROM users
+      WHERE (@communityId IS NULL OR community_id = @communityId)
+      ORDER BY login",
+            new { communityId });
     }
 
     public async Task<int> CreateAsync(User user)

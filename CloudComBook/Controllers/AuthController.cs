@@ -12,25 +12,65 @@ namespace CloudComBook.API.Controllers;
 [Authorize]
 public class AuthController : ControllerBase
 {
+    private static readonly string[] AssignableRoles = { "reader", "user", "admin" };
+
     private readonly IUserRepository _repo;
-
     private readonly JwtService _jwt;
+    private readonly ICurrentUser _current;
+    private readonly IAuditService _audit;
 
-    public AuthController(IUserRepository repo, JwtService jwt)
+    public AuthController(IUserRepository repo, JwtService jwt, ICurrentUser current, IAuditService audit)
     {
         _repo = repo;
         _jwt = jwt;
+        _current = current;
+        _audit = audit;
     }
+
+    // ---------- допоміжні ----------
+
+    /// Супер-адмін керує будь-ким; адмін лише користувачами своєї громади, крім супер-адмінів.
+    private bool CanManage(User target) =>
+        _current.IsSuperAdmin ||
+        (target.CommunityId == _current.CommunityId && target.Role != "superadmin");
+
+    private bool CanAccessProfile(User target) =>
+        target.Id == _current.UserId || (User.IsInRole("admin") && CanManage(target));
+
+    private bool RoleAllowed(string? role) =>
+        role == "superadmin" ? _current.IsSuperAdmin : AssignableRoles.Contains(role);
+
+    // у журнал без PasswordHash
+    private static object Safe(User u) =>
+        new { u.Id, u.Login, u.FullName, u.Role, u.Position, u.CommunityId, u.IsActive };
+
+    private static UserProfileResponse ToProfile(User user) => new()
+    {
+        Id = user.Id,
+        Login = user.Login,
+        FullName = user.FullName,
+        Role = user.Role,
+        Position = user.Position,
+        Organization = user.Organization,
+        Region = user.Region,
+        District = user.District,
+        Village = user.Village,
+        Street = user.Street,
+        House = user.House,
+        ShortName = user.ShortName,
+        Phone = user.Phone,
+        PostIndex = user.PostIndex,
+        IsActive = user.IsActive
+    };
+
+    // ---------- вхід ----------
 
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var user = await _repo.GetByLoginAsync(request.Login);
-        if (user == null)
-            return Unauthorized(new LoginResponse { Success = false, Message = "Невірний логін або пароль" });
-
-        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return Unauthorized(new LoginResponse { Success = false, Message = "Невірний логін або пароль" });
 
         var token = _jwt.GenerateToken(user);
@@ -43,14 +83,29 @@ public class AuthController : ControllerBase
             Login = user.Login,
             FullName = user.FullName,
             ShortName = user.ShortName,
-            Role = user.Role
+            Role = user.Role,
+            CommunityId = user.CommunityId
         });
     }
 
-    [AllowAnonymous]
+    // ---------- керування користувачами ----------
+
+    [Authorize(Roles = "admin")]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
+        var role = request.Role ?? "user";
+        if (!RoleAllowed(role))
+            return Forbid();
+
+        int? communityId;
+        if (role == "superadmin")
+            communityId = null;
+        else if (_current.CommunityId is int c and > 0)
+            communityId = c;
+        else
+            return BadRequest(new { message = "Оберіть громаду." });
+
         var existing = await _repo.GetByLoginAsync(request.Login);
         if (existing != null)
             return Conflict(new { message = "Користувач вже існує" });
@@ -60,33 +115,23 @@ public class AuthController : ControllerBase
             Login = request.Login ?? "",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             FullName = request.FullName ?? "",
-            Role = request.Role ?? "user",
-            Position = request.Position ?? ""
+            Role = role,
+            Position = request.Position ?? "",
+            CommunityId = communityId
         };
         user.Id = await _repo.CreateAsync(user);
+
+        await _audit.LogAsync("users", user.Id, "CREATE", null, Safe(user));
         return Ok(new { user.Id, user.Login, user.FullName, user.Role, user.Position });
     }
 
     [Authorize(Roles = "admin")]
-    [HttpDelete("users/{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
+    [HttpGet("users")]
+    public async Task<IActionResult> GetUsers()
     {
-        var user = await _repo.GetByIdAsync(id);
-        if (user == null) return NotFound();
-
-        if (user.Role == "admin")
-            return BadRequest(new { message = "Видалення користувачів з роллю admin заборонено" });
-
-        var ok = await _repo.DeleteAsync(id);
-        return ok ? NoContent() : NotFound();
-    }
-
-    [Authorize(Roles = "admin")]
-    [HttpPut("users/{id}/toggle")]
-    public async Task<IActionResult> ToggleActive(int id, [FromBody] bool isActive)
-    {
-        var ok = await _repo.SetActiveAsync(id, isActive);
-        return ok ? NoContent() : NotFound();
+        // адмін: лише своя громада; супер-адмін: обрана громада або всі
+        var users = await _repo.GetAllAsync(_current.CommunityId);
+        return Ok(users.Select(ToProfile));
     }
 
     [Authorize(Roles = "admin")]
@@ -94,13 +139,19 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
     {
         var user = await _repo.GetByIdAsync(id);
-        if (user == null) return NotFound();
+        if (user == null || !CanManage(user)) return NotFound();
+
+        var newRole = request.Role ?? user.Role;
+        if (newRole != user.Role && !RoleAllowed(newRole))
+            return Forbid();
+
+        var old = Safe(user);
 
         user.Login = request.Login ?? "";
         if (!string.IsNullOrEmpty(request.Password))
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
         user.FullName = request.FullName ?? "";
-        user.Role = request.Role ?? "";
+        user.Role = newRole;
         user.Position = request.Position ?? "";
         user.Region = request.Region ?? "";
         user.District = request.District ?? "";
@@ -113,63 +164,52 @@ public class AuthController : ControllerBase
         user.PostIndex = request.PostIndex ?? "";
         user.IsActive = request.IsActive;
 
-        var ok = await _repo.UpdateAsync(user);
-        return ok ? NoContent() : BadRequest();
+        if (!await _repo.UpdateAsync(user)) return BadRequest();
+
+        await _audit.LogAsync("users", id, "UPDATE", old, Safe(user));
+        return NoContent();
     }
 
     [Authorize(Roles = "admin")]
-    [HttpGet("users")]
-    public async Task<IActionResult> GetUsers()
+    [HttpPut("users/{id}/toggle")]
+    public async Task<IActionResult> ToggleActive(int id, [FromBody] bool isActive)
     {
-        var users = await _repo.GetAllAsync();
+        var user = await _repo.GetByIdAsync(id);
+        if (user == null || !CanManage(user)) return NotFound();
 
-        var result = users.Select(user => new UserProfileResponse
-        {
-            Id = user.Id,
-            Login = user.Login,
-            FullName = user.FullName,
-            Role = user.Role,
-            Position = user.Position,
-            Organization = user.Organization,
-            Region = user.Region,
-            District = user.District,
-            Village = user.Village,
-            Street = user.Street,
-            House = user.House,
-            ShortName = user.ShortName,
-            Phone = user.Phone,
-            PostIndex = user.PostIndex,
-            IsActive = user.IsActive
-        });
+        if (!await _repo.SetActiveAsync(id, isActive)) return NotFound();
 
-        return Ok(result);
+        await _audit.LogAsync("users", id, "UPDATE",
+            new { user.Login, user.IsActive }, new { user.Login, IsActive = isActive });
+        return NoContent();
     }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("users/{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _repo.GetByIdAsync(id);
+        if (user == null || !CanManage(user)) return NotFound();
+
+        if (user.Role is "admin" or "superadmin")
+            return BadRequest(new { message = "Видалення користувачів з роллю admin заборонено" });
+
+        if (!await _repo.DeleteAsync(id)) return NotFound();
+
+        await _audit.LogAsync("users", id, "DELETE", Safe(user), null);
+        return NoContent();
+    }
+
+    // ---------- власний профіль ----------
 
     [Authorize(Roles = "reader,user,admin")]
     [HttpGet("users/{id}")]
     public async Task<IActionResult> GetUser(int id)
     {
         var user = await _repo.GetByIdAsync(id);
-        if (user == null) return NotFound();
+        if (user == null || !CanAccessProfile(user)) return NotFound();
 
-        return Ok(new UserProfileResponse
-        {
-            Id = user.Id,
-            Login = user.Login,
-            FullName = user.FullName,
-            Role = user.Role,
-            Position = user.Position,
-            Organization = user.Organization,
-            Region = user.Region,
-            District = user.District,
-            Village = user.Village,
-            Street = user.Street,
-            House = user.House,
-            ShortName = user.ShortName,
-            Phone = user.Phone,
-            PostIndex = user.PostIndex,
-            IsActive = user.IsActive
-        });
+        return Ok(ToProfile(user));
     }
 
     [Authorize(Roles = "reader,user,admin")]
@@ -177,12 +217,14 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> UpdateSettings(int id, [FromBody] UpdateSettingsRequest request)
     {
         var user = await _repo.GetByIdAsync(id);
-        if (user == null) return NotFound();
+        if (user == null || !CanAccessProfile(user)) return NotFound();
+
+        var old = Safe(user);
 
         user.FullName = request.FullName ?? "";
         user.Position = request.Position ?? "";
-        user.Region = request.Region?? "";
-        user.District = request.District?? "";
+        user.Region = request.Region ?? "";
+        user.District = request.District ?? "";
         user.Village = request.Village ?? "";
         user.Street = request.Street ?? "";
         user.House = request.House ?? "";
@@ -191,7 +233,9 @@ public class AuthController : ControllerBase
         user.Phone = request.Phone ?? "";
         user.PostIndex = request.PostIndex ?? "";
 
-        var ok = await _repo.UpdateAsync(user);
-        return ok ? NoContent() : BadRequest();
+        if (!await _repo.UpdateAsync(user)) return BadRequest();
+
+        await _audit.LogAsync("users", id, "UPDATE", old, Safe(user));
+        return NoContent();
     }
 }

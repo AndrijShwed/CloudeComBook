@@ -15,4 +15,5 @@
     public string? Phone { get; set; }
     public string? PostIndex { get; set; }
     public bool IsActive { get; set; }
+    public int? CommunityId { get; set; }
 }

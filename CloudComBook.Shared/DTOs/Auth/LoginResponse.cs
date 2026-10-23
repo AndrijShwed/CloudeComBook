@@ -17,4 +17,5 @@ public class LoginResponse
     public string ShortName { get; set; } = string.Empty;
 
     public string Role { get; set; } = string.Empty;
+    public int? CommunityId { get; set; }
 }
