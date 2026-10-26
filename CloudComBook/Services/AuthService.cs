@@ -27,7 +27,7 @@ public class AuthService
             return new LoginResponse
             {
                 Success = false,
-                Message = "Неправильний логін або пароль."
+                Message = "Неправильний логін або пароль.!"
             };
         }
 
