@@ -23,17 +23,25 @@ public class JwtService
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.UniqueName, user.Login),
-            new(ClaimTypes.Name, user.FullName),
-            new(ClaimTypes.Role, user.Role),
-            new("UserId", user.Id.ToString())
+            new(ClaimTypes.Name, string.IsNullOrWhiteSpace(user.FullName) ? user.Login : user.FullName),
+            new("UserId", user.Id.ToString()),
+            new("login", user.Login),
+            new("community_id", user.CommunityId?.ToString() ?? "")
         };
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_options.Key));
+        // супер-адмін має обидві ролі, тож усі наявні [Authorize(Roles = "admin")] працюють без змін
+        if (user.Role == "superadmin")
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "superadmin"));
+            claims.Add(new Claim(ClaimTypes.Role, "admin"));
+        }
+        else
+        {
+            claims.Add(new Claim(ClaimTypes.Role, user.Role));
+        }
 
-        var credentials = new SigningCredentials(
-            key,
-            SecurityAlgorithms.HmacSha256);
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             issuer: _options.Issuer,

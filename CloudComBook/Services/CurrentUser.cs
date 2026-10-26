@@ -24,10 +24,9 @@ public class CurrentUser : ICurrentUser
         _p = _ctx?.User ?? new ClaimsPrincipal();
     }
 
-    public int UserId => int.TryParse(
-        _p.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? _p.FindFirst("sub")?.Value, out var id) ? id : 0;
+    public int UserId => int.TryParse(_p.FindFirst("UserId")?.Value, out var id) ? id : 0;
 
-    public string Login => _p.Identity?.Name ?? "";
+    public string Login => _p.FindFirst("login")?.Value ?? "";
 
     public bool IsSuperAdmin => _p.IsInRole("superadmin");
 

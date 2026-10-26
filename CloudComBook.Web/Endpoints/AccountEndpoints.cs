@@ -12,15 +12,20 @@ public static class AccountEndpoints
     {
         app.MapPost("/Account/DoLogin", async (
             HttpContext context,
-            IHttpClientFactory httpClientFactory) =>
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration) =>
         {
             var form = await context.Request.ReadFormAsync();
             var login = form["Login"].ToString();
             var password = form["Password"].ToString();
             var returnUrl = form["ReturnUrl"].ToString();
 
+            // лише локальні адреси, щоб не було перенаправлення на сторонній сайт
+            if (!IsLocalUrl(returnUrl))
+                returnUrl = "/";
+
             var client = httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri("https://localhost:7079/");
+            client.BaseAddress = new Uri(configuration["ApiBaseUrl"] ?? "https://localhost:7079/");
 
             var response = await client.PostAsJsonAsync("api/auth/login",
                 new LoginRequest(login, password));
@@ -38,11 +43,22 @@ public static class AccountEndpoints
             {
                 new(ClaimTypes.NameIdentifier, result.UserId.ToString()),
                 new(ClaimTypes.Name, result.FullName ?? ""),
-                new(ClaimTypes.Role, result.Role ?? ""),
                 new("Login", result.Login ?? ""),
                 new("ShortName", result.ShortName ?? ""),
-                new("AccessToken", result.Token ?? "")
+                new("AccessToken", result.Token ?? ""),
+                new("CommunityId", result.CommunityId?.ToString() ?? "")
             };
+
+            // супер-адмін має обидві ролі, тож AuthorizeView Roles="admin" працює й для нього
+            if (result.Role == "superadmin")
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "superadmin"));
+                claims.Add(new Claim(ClaimTypes.Role, "admin"));
+            }
+            else
+            {
+                claims.Add(new Claim(ClaimTypes.Role, result.Role ?? ""));
+            }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -56,7 +72,7 @@ public static class AccountEndpoints
                     ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
                 });
 
-            return Results.Redirect(string.IsNullOrEmpty(returnUrl) ? "/" : returnUrl);
+            return Results.Redirect(returnUrl);
         });
 
         app.MapGet("/Account/Logout", async (HttpContext context) =>
@@ -65,4 +81,9 @@ public static class AccountEndpoints
             return Results.Redirect("/Account/Login");
         });
     }
+
+    private static bool IsLocalUrl(string? url) =>
+        !string.IsNullOrEmpty(url)
+        && url[0] == '/'
+        && (url.Length == 1 || (url[1] != '/' && url[1] != '\\'));
 }
