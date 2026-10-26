@@ -123,7 +123,8 @@ public class UserRepository : IUserRepository
           short_name = @ShortName,
           organization = @Organization,
           phone = @Phone,
-          post_index = @PostIndex
+          post_index = @PostIndex,
+          community_id = @CommunityId
           WHERE id=@Id", user);
         return rows > 0;
     }

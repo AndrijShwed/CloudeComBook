@@ -556,4 +556,6 @@ public class ApiService
         return await _http.GetFromJsonAsync<List<House>>($"api/houses/by-village/{villageId}")
                ?? new List<House>();
     }
+    public async Task<List<Community>> GetCommunitiesAsync() =>
+    await _http.GetFromJsonAsync<List<Community>>("api/Communities") ?? new List<Community>();
 }

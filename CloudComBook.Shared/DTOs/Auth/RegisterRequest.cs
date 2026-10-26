@@ -5,4 +5,5 @@ public record RegisterRequest(
     string Password,
     string? FullName,
     string? Role,
-    string? Position);
+    string? Position,
+    int? CommunityId);

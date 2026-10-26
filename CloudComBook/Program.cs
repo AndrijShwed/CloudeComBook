@@ -77,6 +77,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<ICommunityGuard, CommunityGuard>();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<ICommunityRepository, CommunityRepository>();
 
 var app = builder.Build();
 

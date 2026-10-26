@@ -15,4 +15,5 @@ public record UpdateUserRequest(
     string? Organization,
     string? Phone,
     string? PostIndex,
-    bool IsActive);
+    bool IsActive,
+    int? CommunityId);

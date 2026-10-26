@@ -18,6 +18,7 @@ public class AuthController : ControllerBase
     private readonly JwtService _jwt;
     private readonly ICurrentUser _current;
     private readonly IAuditService _audit;
+    private readonly ICommunityRepository _communities;
 
     public AuthController(IUserRepository repo, JwtService jwt, ICurrentUser current, IAuditService audit)
     {
@@ -60,7 +61,8 @@ public class AuthController : ControllerBase
         ShortName = user.ShortName,
         Phone = user.Phone,
         PostIndex = user.PostIndex,
-        IsActive = user.IsActive
+        IsActive = user.IsActive,
+        CommunityId = user.CommunityId,
     };
 
     // ---------- вхід ----------
@@ -100,11 +102,26 @@ public class AuthController : ControllerBase
 
         int? communityId;
         if (role == "superadmin")
+        {
             communityId = null;
+        }
+        else if (_current.IsSuperAdmin)
+        {
+            // супер-адмін: громада з форми, інакше та, що вибрана перемикачем
+            communityId = request.CommunityId ?? (_current.CommunityId is > 0 ? _current.CommunityId : null);
+            if (communityId == null)
+                return BadRequest(new { message = "Оберіть громаду." });
+            if (await _communities.GetByIdAsync(communityId.Value) == null)
+                return BadRequest(new { message = "Громаду не знайдено." });
+        }
         else if (_current.CommunityId is int c and > 0)
-            communityId = c;
+        {
+            communityId = c; // адмін громади: завжди своя, значення з форми ігнорується
+        }
         else
+        {
             return BadRequest(new { message = "Оберіть громаду." });
+        }
 
         var existing = await _repo.GetByLoginAsync(request.Login);
         if (existing != null)
@@ -163,6 +180,11 @@ public class AuthController : ControllerBase
         user.Phone = request.Phone ?? "";
         user.PostIndex = request.PostIndex ?? "";
         user.IsActive = request.IsActive;
+
+        if (newRole == "superadmin")
+            user.CommunityId = null;
+        else if (_current.IsSuperAdmin && request.CommunityId.HasValue)
+            user.CommunityId = request.CommunityId; // змінювати громаду може лише супер-адмін
 
         if (!await _repo.UpdateAsync(user)) return BadRequest();
 
