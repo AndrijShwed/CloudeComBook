@@ -1,4 +1,5 @@
 ﻿@page "/Admin/Users"
+@using CloudComBook.Shared.Models
 @using CloudComBook.Web.Services
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
@@ -33,6 +34,7 @@ else
             <MudTh>Роль</MudTh>
             <MudTh>Посада</MudTh>
             <MudTh>Активний</MudTh>
+            <MudTh>Громада</MudTh>
             <MudTh>Дії</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -44,6 +46,9 @@ else
                 <MudSwitch T="bool" Value="@context.IsActive"
                            ValueChanged="@(async (bool v) => await ToggleActiveAsync(context, v))"
                            Color="Color.Success" />
+            </MudTd>
+            <MudTd DataLabel="Громада">
+                @(_communities.FirstOrDefault(c => c.Id == context.CommunityId)?.Name ?? "Не визначено")
             </MudTd>
             <MudTd DataLabel="Дії">
                 @if (context.Role != "admin")
@@ -63,16 +68,25 @@ else
 @code {
     private bool _loading = true;
     private List<UserProfileResponse> _users = new();
+    private List<Community> _communities = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadUsersAsync();
+        await LoadCommunitiesAsync();
     }
 
     private async Task LoadUsersAsync()
     {
         _loading = true;
         _users = await Api.GetUsersAsync();
+        _loading = false;
+    }
+
+    private async Task LoadCommunitiesAsync()
+    {
+        _loading = true;
+        _communities = await Api.GetCommunitiesAsync();
         _loading = false;
     }
 

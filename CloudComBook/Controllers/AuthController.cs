@@ -20,6 +20,12 @@ public class AuthController : ControllerBase
     private readonly IAuditService _audit;
     private readonly ICommunityRepository _communities;
 
+    //public AuthController(ICommunityRepository communities)
+    //{
+    //    _communities = communities.GetAllAsync();
+    //        ?? throw new ArgumentNullException(nameof(communities));
+    //}
+
     public AuthController(IUserRepository repo, JwtService jwt, ICurrentUser current, IAuditService audit)
     {
         _repo = repo;

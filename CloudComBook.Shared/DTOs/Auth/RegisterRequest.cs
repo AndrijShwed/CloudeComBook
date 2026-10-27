@@ -6,4 +6,4 @@ public record RegisterRequest(
     string? FullName,
     string? Role,
     string? Position,
-    int? CommunityId);
+    int? CommunityId = null);

@@ -1,7 +1,10 @@
 ﻿@using CloudComBook.Shared.DTOs.Auth
 @using CloudComBook.Shared.Models
 @using CloudComBook.Web.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @inject ApiService Api
+@inject AuthenticationStateProvider AuthProvider
+@inject ISnackbar Snackbar
 
 <MudDialog>
     <TitleContent>Новий користувач</TitleContent>
@@ -9,12 +12,29 @@
         <MudTextField T="string" @bind-Value="_login" Label="Логін" Required="true" />
         <MudTextField T="string" @bind-Value="_password" Label="Пароль" InputType="InputType.Password" Required="true" />
         <MudTextField T="string" @bind-Value="_fullName" Label="ПІБ" />
-        <MudSelect T="string" @bind-Value="_role" Label="Роль">
+
+        <MudSelect T="string" Label="Роль" Value="_role" ValueChanged="OnRoleChanged">
             <MudSelectItem Value="@("reader")">reader</MudSelectItem>
             <MudSelectItem Value="@("user")">user</MudSelectItem>
             <MudSelectItem Value="@("admin")">admin</MudSelectItem>
+            @if (_isSuperAdmin)
+            {
+                <MudSelectItem Value="@("superadmin")">superadmin</MudSelectItem>
+            }
         </MudSelect>
+
         <MudTextField T="string" @bind-Value="_position" Label="Посада" />
+
+        @if (_isSuperAdmin && _role != "superadmin")
+        {
+            <MudSelect T="int?" Label="Громада" @bind-Value="_communityId"
+                       Required="true" RequiredError="Оберіть громаду">
+                @foreach (var c in _communities)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)c.Id)">@c.Name</MudSelectItem>
+                }
+            </MudSelect>
+        }
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Скасувати</MudButton>
@@ -25,7 +45,9 @@
 @code {
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
+
     private List<Community> _communities = new();
+    private bool _isSuperAdmin;
 
     private string _login = "";
     private string _password = "";
@@ -34,12 +56,35 @@
     private string? _position;
     private int? _communityId;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        _isSuperAdmin = auth.User.IsInRole("superadmin");
+
+        // список громад API віддає лише супер-адміну (для інших був би 403)
+        if (_isSuperAdmin)
+            _communities = await Api.GetCommunitiesAsync();
+    }
+
+    private void OnRoleChanged(string? role)
+    {
+        _role = role;
+        if (role == "superadmin")
+            _communityId = null;   // супер-адмін не належить жодній громаді
+    }
+
     private void Cancel() => MudDialog.Cancel();
 
     private async Task Submit()
     {
         if (string.IsNullOrWhiteSpace(_login) || string.IsNullOrWhiteSpace(_password))
             return;
+
+        if (_isSuperAdmin && _role != "superadmin" && _communityId == null)
+        {
+            Snackbar.Add("Оберіть громаду", Severity.Warning);
+            return;
+        }
 
         var request = new RegisterRequest(_login, _password, _fullName, _role, _position, _communityId);
         var success = await Api.RegisterUserAsync(request);
