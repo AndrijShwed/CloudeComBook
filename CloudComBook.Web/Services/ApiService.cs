@@ -101,6 +101,24 @@ public class ApiService
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<(bool Success, string? Error)> UpdateUserAsync(int id, UpdateUserRequest request)
+    {
+        var response = await _http.PutAsJsonAsync($"api/auth/users/{id}", request);
+
+        if (response.IsSuccessStatusCode)
+            return (true, null);
+
+        string? error = null;
+        try
+        {
+            var body = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            body?.TryGetValue("message", out error);
+        }
+        catch { /* тіло не JSON */ }
+
+        return (false, error);
+    }
+
     public async Task<(bool Success, string? Error)> DeleteUserAsync(int id)
     {
         var response = await _http.DeleteAsync($"api/auth/users/{id}");

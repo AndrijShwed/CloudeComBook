@@ -1,11 +1,15 @@
 ﻿@page "/Admin/Users"
+@using CloudComBook.Shared.DTOs.Auth
 @using CloudComBook.Shared.Models
 @using CloudComBook.Web.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @using MudBlazor
 @inject IDialogService DialogService
 @inject ApiService Api
 @inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthProvider
 @attribute [Authorize(Roles = "admin")]
 
 <PageTitle>Керування користувачами</PageTitle>
@@ -29,13 +33,16 @@ else
     <MudTable Items="@_users" Hover="true" Dense="true" FixedHeader="true"
               Height="calc(100vh - 330px)">
         <HeaderContent>
-            <MudTh>Логін</MudTh>
-            <MudTh>ПІБ</MudTh>
-            <MudTh>Роль</MudTh>
-            <MudTh>Посада</MudTh>
-            <MudTh>Активний</MudTh>
-            <MudTh>Громада</MudTh>
-            <MudTh>Дії</MudTh>
+            <MudTh Style="background-color: lightgreen;">Логін</MudTh>
+            <MudTh Style="background-color: lightgreen;">ПІБ</MudTh>
+            <MudTh Style="background-color: lightgreen;">Роль</MudTh>
+            <MudTh Style="background-color: lightgreen;">Посада</MudTh>
+            <MudTh Style="background-color: lightgreen;">Активний</MudTh>
+            @if (_isSuperAdmin)
+            {
+                <MudTh Style="background-color: lightgreen;">Громада</MudTh>
+            }
+            <MudTh Style="background-color: lightgreen;">Дії</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Логін">@context.Login</MudTd>
@@ -45,17 +52,25 @@ else
             <MudTd DataLabel="Активний">
                 <MudSwitch T="bool" Value="@context.IsActive"
                            ValueChanged="@(async (bool v) => await ToggleActiveAsync(context, v))"
+                           Disabled="@IsSelf(context)"
                            Color="Color.Success" />
             </MudTd>
-            <MudTd DataLabel="Громада">
-                @(_communities.FirstOrDefault(c => c.Id == context.CommunityId)?.Name ?? "Не визначено")
-            </MudTd>
+            @if (_isSuperAdmin)
+            {
+                <MudTd DataLabel="Громада">@CommunityName(context)</MudTd>
+            }
             <MudTd DataLabel="Дії">
-                @if (context.Role != "admin")
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               Title="Редагувати"
+                               OnClick="@(() => OpenEditForm(context))" />
+                @if (CanDelete(context))
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                    Color="Color.Error"
                                    Size="Size.Small"
+                                   Title="Видалити"
                                    OnClick="@(() => DeleteAsync(context.Id, context.Login))" />
                 }
             </MudTd>
@@ -63,17 +78,24 @@ else
     </MudTable>
 }
 
-
-
 @code {
     private bool _loading = true;
+    private bool _isSuperAdmin;
+    private int _currentUserId;
     private List<UserProfileResponse> _users = new();
     private List<Community> _communities = new();
 
     protected override async Task OnInitializedAsync()
     {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        _isSuperAdmin = auth.User.IsInRole("superadmin");
+        int.TryParse(auth.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out _currentUserId);
+
+        // список громад API віддає лише супер-адміну
+        if (_isSuperAdmin)
+            _communities = await Api.GetCommunitiesAsync();
+
         await LoadUsersAsync();
-        await LoadCommunitiesAsync();
     }
 
     private async Task LoadUsersAsync()
@@ -83,21 +105,51 @@ else
         _loading = false;
     }
 
-    private async Task LoadCommunitiesAsync()
-    {
-        _loading = true;
-        _communities = await Api.GetCommunitiesAsync();
-        _loading = false;
-    }
+    private bool IsSelf(UserProfileResponse u) => u.Id == _currentUserId;
+
+    // адмінів видаляє лише супер-адмін; себе видаляти не можна
+    private bool CanDelete(UserProfileResponse u) =>
+        !IsSelf(u) && (_isSuperAdmin || u.Role is not ("admin" or "superadmin"));
+
+    private string CommunityName(UserProfileResponse u) =>
+        u.Role == "superadmin"
+            ? "Усі громади"
+            : _communities.FirstOrDefault(c => c.Id == u.CommunityId)?.Name ?? "Не визначено";
 
     private async Task OpenCreateForm()
     {
-        var dialog = await DialogService.ShowAsync<CreateUserDialog>("Новий користувач");
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true };
+        var dialog = await DialogService.ShowAsync<CreateUserDialog>("Новий користувач", options);
         var result = await dialog.Result;
 
-        if (result is { Canceled: false })
+        if (result is { Canceled: false, Data: bool ok } && ok)
         {
             Snackbar.Add("Користувача створено", Severity.Success);
+            await LoadUsersAsync();
+        }
+        else if (result is { Canceled: false })
+        {
+            Snackbar.Add("Не вдалося створити користувача (можливо, такий логін уже існує)", Severity.Error);
+        }
+    }
+
+    private async Task OpenEditForm(UserProfileResponse user)
+    {
+        var parameters = new DialogParameters<EditUserDialog>
+        {
+            { x => x.Item, user },
+            { x => x.IsSelf, IsSelf(user) },
+            { x => x.IsSuperAdmin, _isSuperAdmin },
+            { x => x.Communities, _communities }
+        };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true };
+
+        var dialog = await DialogService.ShowAsync<EditUserDialog>("Редагувати користувача", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false, Data: bool ok } && ok)
+        {
+            Snackbar.Add("Збережено", Severity.Success);
             await LoadUsersAsync();
         }
     }
@@ -139,5 +191,4 @@ else
             Snackbar.Add("Не вдалося змінити статус", Severity.Error);
         }
     }
-
 }

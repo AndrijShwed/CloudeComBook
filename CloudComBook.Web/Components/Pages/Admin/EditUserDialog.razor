@@ -1,0 +1,179 @@
+﻿@using CloudComBook.Shared.DTOs.Auth
+@using CloudComBook.Shared.Models
+@using CloudComBook.Web.Services
+@using MudBlazor
+@inject ApiService Api
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_login" Label="Логін" Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_password" Label="Новий пароль"
+                              HelperText="Залиште порожнім, щоб не змінювати"
+                              InputType="InputType.Password" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_fullName" Label="ПІБ" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_shortName" Label="Скорочено (ПІБ)" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" Label="Роль" Value="_role" ValueChanged="OnRoleChanged"
+                           Disabled="IsSelf"
+                           HelperText="@(IsSelf ? "Власну роль змінити не можна" : null)">
+                    <MudSelectItem Value="@("reader")">reader</MudSelectItem>
+                    <MudSelectItem Value="@("user")">user</MudSelectItem>
+                    <MudSelectItem Value="@("admin")">admin</MudSelectItem>
+                    @if (IsSuperAdmin)
+                    {
+                        <MudSelectItem Value="@("superadmin")">superadmin</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                @if (IsSuperAdmin && _role != "superadmin")
+                {
+                    <MudSelect T="int?" Label="Громада" @bind-Value="_communityId"
+                               Required="true" RequiredError="Оберіть громаду">
+                        @foreach (var c in Communities)
+                        {
+                            <MudSelectItem T="int?" Value="@((int?)c.Id)">@c.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_position" Label="Посада" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_organization" Label="Організація" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_phone" Label="Телефон" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_postIndex" Label="Поштовий індекс" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_region" Label="Область" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField T="string" @bind-Value="_district" Label="Район" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudTextField T="string" @bind-Value="_village" Label="Населений пункт" />
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudTextField T="string" @bind-Value="_street" Label="Вулиця" />
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudTextField T="string" @bind-Value="_house" Label="Будинок" />
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudSwitch T="bool" @bind-Value="_isActive" Label="Активний"
+                           Color="Color.Success" Disabled="IsSelf" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync">Зберегти</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public UserProfileResponse Item { get; set; } = default!;
+    [Parameter] public bool IsSelf { get; set; }
+    [Parameter] public bool IsSuperAdmin { get; set; }
+    [Parameter] public List<Community> Communities { get; set; } = new();
+
+    private string _login = "";
+    private string? _password;
+    private string? _fullName, _shortName, _role, _position, _organization;
+    private string? _phone, _postIndex, _region, _district, _village, _street, _house;
+    private int? _communityId;
+    private bool _isActive;
+
+    protected override void OnInitialized()
+    {
+        _login = Item.Login ?? "";
+        _fullName = Item.FullName;
+        _shortName = Item.ShortName;
+        _role = Item.Role;
+        _position = Item.Position;
+        _organization = Item.Organization;
+        _phone = Item.Phone;
+        _postIndex = Item.PostIndex;
+        _region = Item.Region;
+        _district = Item.District;
+        _village = Item.Village;
+        _street = Item.Street;
+        _house = Item.House;
+        _communityId = Item.CommunityId;
+        _isActive = Item.IsActive;
+    }
+
+    private void OnRoleChanged(string? role)
+    {
+        _role = role;
+        if (role == "superadmin")
+            _communityId = null;   // супер-адмін не належить жодній громаді
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SaveAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_login))
+        {
+            Snackbar.Add("Вкажіть логін", Severity.Warning);
+            return;
+        }
+
+        if (IsSuperAdmin && _role != "superadmin" && _communityId == null)
+        {
+            Snackbar.Add("Оберіть громаду", Severity.Warning);
+            return;
+        }
+
+        var request = new UpdateUserRequest(
+                Login: _login,
+                Password: string.IsNullOrEmpty(_password) ? null : _password,
+                FullName: _fullName,
+                Role: _role ?? Item.Role,
+                Position: _position,
+                Region: _region,
+                District: _district,
+                Village: _village,
+                Street: _street,
+                House: _house,
+                ShortName: _shortName,
+                Organization: _organization,
+                Phone: _phone,
+                PostIndex: _postIndex,
+                IsActive: _isActive,
+                CommunityId: _communityId);
+
+        var (success, error) = await Api.UpdateUserAsync(Item.Id, request);
+
+        if (success)
+            MudDialog.Close(DialogResult.Ok(true));
+        else
+            Snackbar.Add(error ?? "Не вдалося зберегти", Severity.Error);   // діалог лишається відкритим
+    }
+}

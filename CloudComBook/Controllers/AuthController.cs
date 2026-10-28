@@ -20,18 +20,13 @@ public class AuthController : ControllerBase
     private readonly IAuditService _audit;
     private readonly ICommunityRepository _communities;
 
-    //public AuthController(ICommunityRepository communities)
-    //{
-    //    _communities = communities.GetAllAsync();
-    //        ?? throw new ArgumentNullException(nameof(communities));
-    //}
-
-    public AuthController(IUserRepository repo, JwtService jwt, ICurrentUser current, IAuditService audit)
+    public AuthController(IUserRepository repo, JwtService jwt, ICurrentUser current, IAuditService audit, ICommunityRepository communities)
     {
         _repo = repo;
         _jwt = jwt;
         _current = current;
         _audit = audit;
+        _communities = communities;
     }
 
     // ---------- допоміжні ----------
@@ -164,11 +159,32 @@ public class AuthController : ControllerBase
         var user = await _repo.GetByIdAsync(id);
         if (user == null || !CanManage(user)) return NotFound();
 
-        var newRole = request.Role ?? user.Role;
+        var isSelf = user.Id == _current.UserId;
+
+        // власну роль і активність змінювати не можна, щоб не заблокувати себе
+        var newRole = isSelf ? user.Role : (request.Role ?? user.Role);
+        var isActive = isSelf ? user.IsActive : request.IsActive;
+
         if (newRole != user.Role && !RoleAllowed(newRole))
             return Forbid();
 
         var old = Safe(user);
+
+        // громаду змінює лише супер-адмін; для ролі superadmin громади немає
+        if (newRole == "superadmin")
+        {
+            user.CommunityId = null;
+        }
+        else if (_current.IsSuperAdmin && request.CommunityId.HasValue
+                 && request.CommunityId != user.CommunityId)
+        {
+            if (await _communities.GetByIdAsync(request.CommunityId.Value) == null)
+                return BadRequest(new { message = "Громаду не знайдено." });
+            user.CommunityId = request.CommunityId;
+        }
+
+        if (newRole != "superadmin" && user.CommunityId == null)
+            return BadRequest(new { message = "Оберіть громаду." });
 
         user.Login = request.Login ?? "";
         if (!string.IsNullOrEmpty(request.Password))
@@ -185,12 +201,7 @@ public class AuthController : ControllerBase
         user.Organization = request.Organization ?? "";
         user.Phone = request.Phone ?? "";
         user.PostIndex = request.PostIndex ?? "";
-        user.IsActive = request.IsActive;
-
-        if (newRole == "superadmin")
-            user.CommunityId = null;
-        else if (_current.IsSuperAdmin && request.CommunityId.HasValue)
-            user.CommunityId = request.CommunityId; // змінювати громаду може лише супер-адмін
+        user.IsActive = isActive;
 
         if (!await _repo.UpdateAsync(user)) return BadRequest();
 
@@ -204,6 +215,9 @@ public class AuthController : ControllerBase
     {
         var user = await _repo.GetByIdAsync(id);
         if (user == null || !CanManage(user)) return NotFound();
+
+        if (user.Id == _current.UserId && !isActive)
+            return BadRequest(new { message = "Не можна вимкнути власний обліковий запис." });
 
         if (!await _repo.SetActiveAsync(id, isActive)) return NotFound();
 
@@ -219,8 +233,12 @@ public class AuthController : ControllerBase
         var user = await _repo.GetByIdAsync(id);
         if (user == null || !CanManage(user)) return NotFound();
 
-        if (user.Role is "admin" or "superadmin")
-            return BadRequest(new { message = "Видалення користувачів з роллю admin заборонено" });
+        if (user.Id == _current.UserId)
+            return BadRequest(new { message = "Не можна видалити власний обліковий запис." });
+
+        // адміністраторів видаляє лише супер-адмін
+        if ((user.Role is "admin" or "superadmin") && !_current.IsSuperAdmin)
+            return BadRequest(new { message = "Видаляти адміністраторів може лише супер-адміністратор." });
 
         if (!await _repo.DeleteAsync(id)) return NotFound();
 
