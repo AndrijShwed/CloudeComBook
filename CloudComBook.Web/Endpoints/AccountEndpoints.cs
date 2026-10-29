@@ -80,6 +80,36 @@ public static class AccountEndpoints
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Results.Redirect("/Account/Login");
         });
+
+        app.MapGet("/Account/SetCommunity", ( HttpContext context, string? id, string? returnUrl) =>
+        {
+            // Змінювати вибір громади може лише супер-адмін
+            if (context.User.IsInRole("superadmin"))
+            {
+                if (int.TryParse(id, out var communityId) && communityId > 0)
+                {
+                    context.Response.Cookies.Append(
+                        "community_id",
+                        communityId.ToString(),
+                        new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            SameSite = SameSiteMode.Lax,
+                            Expires = DateTimeOffset.UtcNow.AddDays(30)
+                        });
+                }
+                else
+                {
+                    // Порожній id або відсутність id — усі громади
+                    context.Response.Cookies.Delete("community_id");
+                }
+            }
+
+            return Results.Redirect(
+                IsLocalUrl(returnUrl) ? returnUrl! : "/");
+        }).RequireAuthorization();
+
     }
 
     private static bool IsLocalUrl(string? url) =>

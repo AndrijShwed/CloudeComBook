@@ -5,6 +5,11 @@
 
 @using CloudComBook.Web.Theme
 
+@using CloudComBook.Shared.Models
+@using CloudComBook.Web.Services
+@inject ApiService Api
+@inject IHttpContextAccessor HttpContextAccessor
+
 <MudThemeProvider Theme="@AppTheme.Default" />
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -31,6 +36,22 @@
         </MudStack>
 
         <MudSpacer />
+
+        <AuthorizeView Roles="superadmin" Context="saContext">
+            <Authorized>
+                <MudSelect T="int?" Dense="true" Variant="Variant.Outlined" Margin="Margin.Dense"
+                           Style="min-width: 260px; color: white;"
+                           Label="Громада"
+                           Value="_selectedCommunityId"
+                           ValueChanged="OnCommunityChanged">
+                    <MudSelectItem T="int?" Value="@((int?)null)">Усі громади (лише перегляд)</MudSelectItem>
+                    @foreach (var c in _communities)
+                    {
+                        <MudSelectItem T="int?" Value="@((int?)c.Id)">@c.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </Authorized>
+        </AuthorizeView>
 
         <AuthorizeView Context="authContext">
             <Authorized>
@@ -159,6 +180,8 @@
 @code
 {
     private bool _drawerOpen = true;
+    private List<Community> _communities = new();
+    private int? _selectedCommunityId;
 
     [CascadingParameter]
     private Task<AuthenticationState>? AuthStateTask { get; set; }
@@ -175,7 +198,12 @@
         {
             var authState = await AuthStateTask;
             var user = authState.User;
-
+            if (user.IsInRole("superadmin"))
+            {
+                _communities = await Api.GetCommunitiesAsync();
+                if (int.TryParse(HttpContextAccessor.HttpContext?.Request.Cookies["community_id"], out var cid))
+                    _selectedCommunityId = cid;
+            }
             DisplayName = user.FindFirst("ShortName")?.Value ?? user.Identity?.Name ?? "";
             RoleName = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
         }
@@ -189,5 +217,12 @@
     private void Logout()
     {
         NavigationManager.NavigateTo("/Account/Logout", forceLoad: true);
+    }
+
+    private void OnCommunityChanged(int? id)
+    {
+        // перезавантаження з нуля, щоб усі сторінки перечитали дані для нової громади
+        var back = Uri.EscapeDataString(NavigationManager.ToBaseRelativePath(NavigationManager.Uri).Insert(0, "/"));
+        NavigationManager.NavigateTo($"/Account/SetCommunity?id={id}&returnUrl={back}", forceLoad: true);
     }
 }

@@ -1,56 +1,84 @@
 ﻿using Dapper;
 using CloudComBook.API.Data;
-using CloudComBook.Shared.Models;
 using CloudComBook.API.Repositories.Interfaces;
+using CloudComBook.API.Services;
+using CloudComBook.Shared.Models;
 
 namespace CloudComBook.API.Repositories;
 
 public class HouseRepository : IHouseRepository
 {
-    private readonly DbConnectionFactory _db;
+    // @communityId = NULL означає «усі громади» (лише супер-адмін без вибраної громади).
+    // Будинок без зв'язку з вулицею бачить тільки супер-адмін.
+    private const string Scope = @"(@communityId IS NULL OR h.villagestreetId IN (
+            SELECT vs_s.id FROM villagestreet vs_s
+            JOIN villages v_s ON v_s.id = vs_s.villageId
+            WHERE v_s.community_id = @communityId))";
 
-    public HouseRepository(DbConnectionFactory db) => _db = db;
+    private const string Select = @"
+        SELECT h.idhouses AS IdHouses,
+               h.villagestreetId AS VillageStreetId,
+               h.numb_of_house AS NumbOfHouse,
+               h.lastname AS LastName,
+               h.name AS Name,
+               h.surname AS Surname,
+               h.totalArea AS TotalArea,
+               h.livingArea AS LivingArea,
+               h.total_of_rooms AS TotalOfRooms,
+               v.name AS VillageName,
+               s.name AS StreetName
+        FROM houses h
+        LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
+        LEFT JOIN villages v ON vs.villageId = v.id
+        LEFT JOIN streets s ON vs.streetId = s.id";
+
+    private readonly DbConnectionFactory _db;
+    private readonly ICurrentUser _user;
+
+    public HouseRepository(DbConnectionFactory db, ICurrentUser user)
+    {
+        _db = db;
+        _user = user;
+    }
 
     public async Task<IEnumerable<House>> GetAllAsync()
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<House>(
-            "SELECT * FROM houses ORDER BY numb_of_house");
+            $"{Select} WHERE {Scope} ORDER BY h.numb_of_house",
+            new { communityId = _user.CommunityId });
     }
 
     public async Task<House?> GetByIdAsync(int id)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryFirstOrDefaultAsync<House>(
-            "SELECT * FROM houses WHERE idhouses = @id", new { id });
+            $"{Select} WHERE h.idhouses = @id AND {Scope}",
+            new { id, communityId = _user.CommunityId });
     }
 
     public async Task<IEnumerable<House>> GetByVillageStreetIdAsync(int villageStreetId)
     {
         using var conn = _db.CreateConnection();
-
         return await conn.QueryAsync<House>(
-            @"SELECT
-            idhouses AS IdHouses,
-            villagestreetId AS VillageStreetId,
-            numb_of_house AS NumbOfHouse,
-            lastname AS LastName,
-            name AS Name,
-            surname AS Surname,
-            totalArea AS TotalArea,
-            livingArea AS LivingArea,
-            total_of_rooms AS TotalOfRooms
-          FROM houses
-          WHERE villagestreetId = @villageStreetId
-          ORDER BY numb_of_house",
-            new { villageStreetId });
+            $"{Select} WHERE h.villagestreetId = @villageStreetId AND {Scope} ORDER BY h.numb_of_house",
+            new { villageStreetId, communityId = _user.CommunityId });
+    }
+
+    public async Task<IEnumerable<House>> GetByVillageIdAsync(int villageId)
+    {
+        using var conn = _db.CreateConnection();
+        return await conn.QueryAsync<House>(
+            $"{Select} WHERE vs.villageId = @villageId AND {Scope} ORDER BY s.name, h.numb_of_house",
+            new { villageId, communityId = _user.CommunityId });
     }
 
     public async Task<int> CreateAsync(House house)
     {
+        // що адреса належить громаді користувача, перевіряє контролер (ICommunityGuard)
         using var conn = _db.CreateConnection();
         return await conn.ExecuteScalarAsync<int>(
-            @"INSERT INTO houses 
+            @"INSERT INTO houses
               (villagestreetId, numb_of_house, lastname, name, surname,
                totalArea, livingArea, total_of_rooms)
               VALUES
@@ -61,18 +89,21 @@ public class HouseRepository : IHouseRepository
 
     public async Task<bool> UpdateAsync(House house)
     {
+        var args = new DynamicParameters(house);
+        args.Add("communityId", _user.CommunityId);
+
         using var conn = _db.CreateConnection();
         var rows = await conn.ExecuteAsync(
-            @"UPDATE houses SET
-              villagestreetId=@VillageStreetId,
-              numb_of_house=@NumbOfHouse,
-              lastname=@LastName,
-              name=@Name,
-              surname=@Surname,
-              totalArea=@TotalArea,
-              livingArea=@LivingArea,
-              total_of_rooms=@TotalOfRooms
-              WHERE idhouses=@IdHouses", house);
+            $@"UPDATE houses h SET
+              h.villagestreetId=@VillageStreetId,
+              h.numb_of_house=@NumbOfHouse,
+              h.lastname=@LastName,
+              h.name=@Name,
+              h.surname=@Surname,
+              h.totalArea=@TotalArea,
+              h.livingArea=@LivingArea,
+              h.total_of_rooms=@TotalOfRooms
+              WHERE h.idhouses=@IdHouses AND {Scope}", args);
         return rows > 0;
     }
 
@@ -80,11 +111,11 @@ public class HouseRepository : IHouseRepository
     {
         using var conn = _db.CreateConnection();
         var count = await conn.ExecuteScalarAsync<int>(
-            @"SELECT COUNT(*) FROM people p
+            $@"SELECT COUNT(*) FROM people p
           INNER JOIN houses h ON h.villagestreetId = p.villagestreetId
                               AND h.numb_of_house = p.numb_of_house
-          WHERE h.idhouses = @id",
-            new { id });
+          WHERE h.idhouses = @id AND {Scope}",
+            new { id, communityId = _user.CommunityId });
         return count > 0;
     }
 
@@ -95,73 +126,75 @@ public class HouseRepository : IHouseRepository
 
         using var conn = _db.CreateConnection();
         var rows = await conn.ExecuteAsync(
-            "DELETE FROM houses WHERE idhouses = @id", new { id });
+            $"DELETE h FROM houses h WHERE h.idhouses = @id AND {Scope}",
+            new { id, communityId = _user.CommunityId });
         return rows > 0;
     }
+
     public async Task<bool> ExistsAsync(int villageStreetId, string numbOfHouse)
     {
         using var conn = _db.CreateConnection();
         var count = await conn.ExecuteScalarAsync<int>(
-            @"SELECT COUNT(*) FROM houses 
-          WHERE villagestreetId = @villageStreetId 
-          AND numb_of_house = @numbOfHouse",
-            new { villageStreetId, numbOfHouse });
+            $@"SELECT COUNT(*) FROM houses h
+          WHERE h.villagestreetId = @villageStreetId
+          AND h.numb_of_house = @numbOfHouse
+          AND {Scope}",
+            new { villageStreetId, numbOfHouse, communityId = _user.CommunityId });
         return count > 0;
     }
+
     public async Task<IEnumerable<House>> SearchAsync(
-    int? villageId = null,
-    int? streetId = null,
-    string? houseNumber = null,
-    string? lastName = null,
-    string? name = null,
-    string? surname = null)
+        int? villageId = null,
+        int? streetId = null,
+        string? houseNumber = null,
+        string? lastName = null,
+        string? name = null,
+        string? surname = null)
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<House>(
-                    @"SELECT 
-                        h.idhouses AS IdHouses,
-                        h.villagestreetId AS VillageStreetId,
-                        h.numb_of_house AS NumbOfHouse,
-                        h.lastname AS LastName,
-                        h.name AS Name,
-                        h.surname AS Surname,
-                        h.totalArea AS TotalArea,
-                        h.livingArea AS LivingArea,
-                        h.total_of_rooms AS TotalOfRooms,
-                        v.name AS VillageName,
-                        s.name AS StreetName
-                      FROM houses h
-                      LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
-                      LEFT JOIN villages v ON vs.villageId = v.id
-                      LEFT JOIN streets s ON vs.streetId = s.id
-                      WHERE
-                        (@villageId IS NULL OR vs.villageId = @villageId)
-                        AND (@streetId IS NULL OR vs.streetId = @streetId)
-                        AND (@houseNumber IS NULL OR h.numb_of_house = @houseNumber)
-                        AND (@lastName IS NULL OR h.lastname LIKE CONCAT('%', @lastName, '%'))
-                        AND (@name IS NULL OR h.name LIKE CONCAT('%', @name, '%'))
-                        AND (@surname IS NULL OR h.surname LIKE CONCAT('%', @surname, '%'))
-                      ORDER BY v.name, s.name, h.numb_of_house",
-                    new { villageId, streetId, houseNumber, lastName, name, surname });
+            $@"{Select}
+              WHERE {Scope}
+                AND (@villageId IS NULL OR vs.villageId = @villageId)
+                AND (@streetId IS NULL OR vs.streetId = @streetId)
+                AND (@houseNumber IS NULL OR h.numb_of_house = @houseNumber)
+                AND (@lastName IS NULL OR h.lastname LIKE CONCAT('%', @lastName, '%'))
+                AND (@name IS NULL OR h.name LIKE CONCAT('%', @name, '%'))
+                AND (@surname IS NULL OR h.surname LIKE CONCAT('%', @surname, '%'))
+              ORDER BY v.name, s.name, h.numb_of_house",
+            new
+            {
+                communityId = _user.CommunityId,
+                villageId,
+                streetId,
+                houseNumber,
+                lastName,
+                name,
+                surname
+            });
     }
+
     public async Task<IEnumerable<(string Village, decimal TotalArea, decimal LivingArea)>> GetAreaByVillageAsync()
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync<(string Village, decimal TotalArea, decimal LivingArea)>(
-            @"SELECT v.name AS Village, 
+            $@"SELECT v.name AS Village,
             SUM(h.totalArea) AS TotalArea,
             SUM(h.livingArea) AS LivingArea
             FROM houses h
             LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
             LEFT JOIN villages v ON vs.villageId = v.id
-            GROUP BY v.name
-            ORDER BY v.name");
+            WHERE {Scope}
+            GROUP BY v.id, v.name
+            ORDER BY v.name",
+            new { communityId = _user.CommunityId });
     }
+
     public async Task<IEnumerable<dynamic>> GetRoomCountByVillageAsync()
     {
         using var conn = _db.CreateConnection();
         return await conn.QueryAsync(
-            @"SELECT 
+            $@"SELECT
             v.name AS Village,
             SUM(CASE WHEN h.total_of_rooms = 1 THEN 1 ELSE 0 END) AS OneRoom,
             SUM(CASE WHEN h.total_of_rooms = 2 THEN 1 ELSE 0 END) AS TwoRooms,
@@ -170,34 +203,14 @@ public class HouseRepository : IHouseRepository
             SUM(CASE WHEN h.total_of_rooms = 5 THEN 1 ELSE 0 END) AS FiveRooms,
             SUM(CASE WHEN h.total_of_rooms = 6 THEN 1 ELSE 0 END) AS SixRooms,
             SUM(CASE WHEN h.total_of_rooms > 6 THEN 1 ELSE 0 END) AS MoreThanSix,
-            SUM(CASE WHEN h.total_of_rooms = 1 THEN 1 ELSE 0 END) +
-            SUM(CASE WHEN h.total_of_rooms = 2 THEN 1 ELSE 0 END) +
-            SUM(CASE WHEN h.total_of_rooms = 3 THEN 1 ELSE 0 END) +
-            SUM(CASE WHEN h.total_of_rooms = 4 THEN 1 ELSE 0 END) +
-            SUM(CASE WHEN h.total_of_rooms = 5 THEN 1 ELSE 0 END) +
-            SUM(CASE WHEN h.total_of_rooms = 6 THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN h.total_of_rooms BETWEEN 1 AND 6 THEN 1 ELSE 0 END) +
             SUM(CASE WHEN h.total_of_rooms > 6 THEN 1 ELSE 0 END) AS Total
           FROM houses h
           LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
           LEFT JOIN villages v ON vs.villageId = v.id
-          GROUP BY v.name
-          ORDER BY v.name");
-    }
-    public async Task<IEnumerable<House>> GetByVillageIdAsync(int villageId)
-    {
-        using var conn = _db.CreateConnection();
-        return await conn.QueryAsync<House>(
-            @"SELECT h.idhouses AS IdHouses, h.villagestreetId AS VillageStreetId,
-          h.numb_of_house AS NumbOfHouse, h.lastname AS LastName, h.name AS Name,
-          h.surname AS Surname, h.totalArea AS TotalArea, h.livingArea AS LivingArea,
-          h.total_of_rooms AS TotalOfRooms,
-          v.name AS VillageName, s.name AS StreetName
-          FROM houses h
-          LEFT JOIN villagestreet vs ON h.villagestreetId = vs.id
-          LEFT JOIN villages v ON vs.villageId = v.id
-          LEFT JOIN streets s ON vs.streetId = s.id
-          WHERE vs.villageId = @villageId
-          ORDER BY s.name, h.numb_of_house",
-            new { villageId });
+          WHERE {Scope}
+          GROUP BY v.id, v.name
+          ORDER BY v.name",
+            new { communityId = _user.CommunityId });
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CloudComBook.API.Repositories.Interfaces;
+using CloudComBook.API.Services;
 using CloudComBook.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,19 @@ namespace CloudComBook.API.Controllers;
 public class HousesController : ControllerBase
 {
     private readonly IHouseRepository _repo;
+    private readonly ICommunityGuard _guard;
+    private readonly IAuditService _audit;
 
-    public HousesController(IHouseRepository repo) => _repo = repo;
+    public HousesController(IHouseRepository repo, ICommunityGuard guard, IAuditService audit)
+    {
+        _repo = repo;
+        _guard = guard;
+        _audit = audit;
+    }
 
     [HttpGet("by-village/{villageId}")]
     public async Task<IActionResult> GetByVillage(int villageId) =>
-    Ok(await _repo.GetByVillageIdAsync(villageId));
+        Ok(await _repo.GetByVillageIdAsync(villageId));
 
     [HttpGet]
     public async Task<IActionResult> GetAll() =>
@@ -36,12 +44,12 @@ public class HousesController : ControllerBase
 
     [HttpGet("search")]
     public async Task<IActionResult> Search(
-    [FromQuery] int? villageId = null,
-    [FromQuery] int? streetId = null,
-    [FromQuery] string? houseNumber = null,
-    [FromQuery] string? lastName = null,
-    [FromQuery] string? name = null,
-    [FromQuery] string? surname = null)
+        [FromQuery] int? villageId = null,
+        [FromQuery] int? streetId = null,
+        [FromQuery] string? houseNumber = null,
+        [FromQuery] string? lastName = null,
+        [FromQuery] string? name = null,
+        [FromQuery] string? surname = null)
     {
         var result = await _repo.SearchAsync(
             villageId, streetId, houseNumber, lastName, name, surname);
@@ -56,26 +64,24 @@ public class HousesController : ControllerBase
     }
 
     [HttpGet("rooms-by-village")]
-    public async Task<IActionResult> GetRoomsByVillage()
-    {
-        var result = await _repo.GetRoomCountByVillageAsync();
-        return Ok(result);
-    }
+    public async Task<IActionResult> GetRoomsByVillage() =>
+        Ok(await _repo.GetRoomCountByVillageAsync());
 
     [HttpGet("exists")]
     public async Task<IActionResult> Exists(
-   [FromQuery] int villageStreetId,
-   [FromQuery] string numbOfHouse)
-    {
-        var exists = await _repo.ExistsAsync(villageStreetId, numbOfHouse);
-        return Ok(exists);
-    }
+        [FromQuery] int villageStreetId,
+        [FromQuery] string numbOfHouse) =>
+        Ok(await _repo.ExistsAsync(villageStreetId, numbOfHouse));
 
     [Authorize(Roles = "user,admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] House house)
     {
+        if (!await _guard.VillageStreetAllowedAsync(house.VillageStreetId))
+            return Forbid();
+
         house.IdHouses = await _repo.CreateAsync(house);
+        await _audit.LogAsync("houses", house.IdHouses, "CREATE", null, house);
         return CreatedAtAction(nameof(GetById), new { id = house.IdHouses }, house);
     }
 
@@ -83,23 +89,36 @@ public class HousesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] House house)
     {
+        var old = await _repo.GetByIdAsync(id);              // чужий будинок: 404
+        if (old == null) return NotFound();
+
+        if (!await _guard.VillageStreetAllowedAsync(house.VillageStreetId))
+            return Forbid();                                  // не можна перенести в чужу громаду
+
         house.IdHouses = id;
-        var ok = await _repo.UpdateAsync(house);
-        return ok ? NoContent() : NotFound();
+        if (!await _repo.UpdateAsync(house)) return NotFound();
+
+        await _audit.LogAsync("houses", id, "UPDATE", old, house);
+        return NoContent();
     }
 
     [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var old = await _repo.GetByIdAsync(id);
+        if (old == null) return NotFound();
+
         try
         {
-            var ok = await _repo.DeleteAsync(id);
-            return ok ? NoContent() : NotFound();
+            if (!await _repo.DeleteAsync(id)) return NotFound();
         }
         catch (InvalidOperationException ex)
         {
             return Conflict(new { message = ex.Message });
         }
+
+        await _audit.LogAsync("houses", id, "DELETE", old, null);
+        return NoContent();
     }
 }

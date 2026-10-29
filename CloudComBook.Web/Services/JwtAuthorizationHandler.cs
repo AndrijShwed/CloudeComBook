@@ -16,15 +16,25 @@ public class JwtAuthorizationHandler : DelegatingHandler
     }
 
     protected override Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken)
+    HttpRequestMessage request,
+    CancellationToken cancellationToken)
     {
-        var token = _httpContextAccessor.HttpContext?.User
-            .Claims.FirstOrDefault(c => c.Type == "AccessToken")?.Value;
+        var ctx = _httpContextAccessor.HttpContext;
 
+        var token = ctx?.User.Claims.FirstOrDefault(c => c.Type == "AccessToken")?.Value;
         if (!string.IsNullOrEmpty(token))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        // обрана супер-адміном громада; API ігнорує цей заголовок для інших ролей
+        if (ctx != null
+            && ctx.User.IsInRole("superadmin")
+            && int.TryParse(ctx.Request.Cookies["community_id"], out var communityId)
+            && communityId > 0)
+        {
+            request.Headers.Remove("X-Community-Id");
+            request.Headers.Add("X-Community-Id", communityId.ToString());
         }
 
         return base.SendAsync(request, cancellationToken);
