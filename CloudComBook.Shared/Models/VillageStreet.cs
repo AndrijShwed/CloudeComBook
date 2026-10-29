@@ -16,4 +16,5 @@ public class VillageStreet
     RenameDate.HasValue && RenameDate.Value.Year > 1
         ? RenameDate.Value.ToString("dd.MM.yyyy")
         : "";
+    public int? OldStreetId { get; set; }
 }
