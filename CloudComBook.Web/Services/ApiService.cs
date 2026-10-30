@@ -616,4 +616,18 @@ public class ApiService
         catch { /* тіло не JSON */ }
         return null;
     }
+    public async Task<List<AuditLogEntry>> GetAuditAsync(
+    DateTime? from, DateTime? to, string? entity, string? userLogin, string? action, int limit = 1000)
+    {
+        var query = new List<string> { $"limit={limit}" };
+
+        if (from.HasValue) query.Add($"from={from.Value:yyyy-MM-dd}");
+        if (to.HasValue) query.Add($"to={to.Value:yyyy-MM-dd}");
+        if (!string.IsNullOrWhiteSpace(entity)) query.Add($"entity={Uri.EscapeDataString(entity)}");
+        if (!string.IsNullOrWhiteSpace(userLogin)) query.Add($"userLogin={Uri.EscapeDataString(userLogin)}");
+        if (!string.IsNullOrWhiteSpace(action)) query.Add($"action={Uri.EscapeDataString(action)}");
+
+        return await _http.GetFromJsonAsync<List<AuditLogEntry>>("api/Audit?" + string.Join("&", query))
+               ?? new List<AuditLogEntry>();
+    }
 }

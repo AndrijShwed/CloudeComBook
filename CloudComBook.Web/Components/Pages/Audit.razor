@@ -1,0 +1,191 @@
+﻿@page "/Admin/Audit"
+@using CloudComBook.Shared.Models
+@using CloudComBook.Web.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject IDialogService DialogService
+@inject ApiService Api
+@inject AuthenticationStateProvider AuthProvider
+@attribute [Authorize(Roles = "admin")]
+
+<PageTitle>Журнал змін</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Журнал змін</MudText>
+
+<MudPaper Class="pa-3 mb-3">
+    <MudGrid Spacing="2">
+        <MudItem xs="6" md="2">
+            <MudDatePicker Label="З" @bind-Date="_from" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="6" md="2">
+            <MudDatePicker Label="По" @bind-Date="_to" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudSelect T="string" Label="Розділ" @bind-Value="_entity" Clearable="true"
+                       Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
+                @foreach (var e in EntityNames)
+                {
+                    <MudSelectItem T="string" Value="@e.Key">@e.Value</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="6" md="2">
+            <MudSelect T="string" Label="Дія" @bind-Value="_action" Clearable="true"
+                       Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
+                <MudSelectItem T="string" Value="@("CREATE")">Створення</MudSelectItem>
+                <MudSelectItem T="string" Value="@("UPDATE")">Зміна</MudSelectItem>
+                <MudSelectItem T="string" Value="@("DELETE")">Видалення</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="6" md="3">
+            <MudTextField T="string" @bind-Value="_userLogin" Label="Користувач (логін)" Immediate="true"
+                          Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+    </MudGrid>
+
+    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-2" Spacing="2">
+        @if (_searched)
+        {
+            <MudText Typo="Typo.body2"><b>Кількість записів: @_entries.Count</b></MudText>
+        }
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" OnClick="ClearFilter">
+            Очистити фільтри
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="SearchAsync">
+            Пошук
+        </MudButton>
+    </MudStack>
+</MudPaper>
+
+@if (!_searched)
+{
+    <MudAlert Severity="Severity.Info">Оберіть період і натисніть «Пошук», щоб побачити записи журналу.</MudAlert>
+}
+else
+{
+    @if (_entries.Count >= Limit)
+    {
+        <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-2">
+            Показано перші @Limit записів. Звузьте період або додайте фільтри, щоб побачити решту.
+        </MudAlert>
+    }
+
+    <MudPaper Class="pa-2">
+        <MudTable Items="@_entries" Hover="true" Dense="true" FixedHeader="true"
+                  Height="calc(100vh - 470px)" Loading="_loading" RowsPerPage="50">
+            <HeaderContent>
+                <MudTh Style="background-color: lightgreen;">Дата й час</MudTh>
+                <MudTh Style="background-color: lightgreen;">Користувач</MudTh>
+                @if (_isSuperAdmin)
+                {
+                    <MudTh Style="background-color: lightgreen;">Громада</MudTh>
+                }
+                <MudTh Style="background-color: lightgreen;">Розділ</MudTh>
+                <MudTh Style="background-color: lightgreen;">№ запису</MudTh>
+                <MudTh Style="background-color: lightgreen;">Дія</MudTh>
+                <MudTh Style="background-color: lightgreen;">Деталі</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Дата й час">@context.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</MudTd>
+                <MudTd DataLabel="Користувач">@context.UserLogin</MudTd>
+                @if (_isSuperAdmin)
+                {
+                    <MudTd DataLabel="Громада">@(context.CommunityName ?? "—")</MudTd>
+                }
+                <MudTd DataLabel="Розділ">@EntityNames.GetValueOrDefault(context.Entity, context.Entity)</MudTd>
+                <MudTd DataLabel="№ запису">@context.EntityId</MudTd>
+                <MudTd DataLabel="Дія">
+                    <MudChip T="string" Size="Size.Small" Color="@ActionColor(context.Action)">
+                        @ActionName(context.Action)
+                    </MudChip>
+                </MudTd>
+                <MudTd DataLabel="Деталі">
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small"
+                                   Color="Color.Primary" Title="Переглянути зміни"
+                                   OnClick="@(() => OpenDetails(context))" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new int[] { 25, 50, 100 }" />
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+}
+
+@code {
+    private const int Limit = 1000;
+
+    private static readonly Dictionary<string, string> EntityNames = new()
+    {
+        ["people"] = "Люди",
+        ["houses"] = "Будинки",
+        ["enterprises"] = "Підприємства",
+        ["plot"] = "Земельні ділянки",
+        ["anymals"] = "Тварини",
+        ["villages"] = "Населені пункти",
+        ["streets"] = "Вулиці",
+        ["villagestreet"] = "Вулиці в н.п.",
+        ["users"] = "Користувачі",
+        ["communities"] = "Громади",
+        ["document_templates"] = "Шаблони довідок"
+    };
+
+    private DateTime? _from = DateTime.Today.AddDays(-7);
+    private DateTime? _to = DateTime.Today;
+    private string? _entity;
+    private string? _action;
+    private string? _userLogin;
+
+    private List<AuditLogEntry> _entries = new();
+    private bool _searched;
+    private bool _loading;
+    private bool _isSuperAdmin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        _isSuperAdmin = auth.User.IsInRole("superadmin");
+    }
+
+    private async Task SearchAsync()
+    {
+        _loading = true;
+        _searched = true;
+        _entries = await Api.GetAuditAsync(_from, _to, _entity, _userLogin, _action, Limit);
+        _loading = false;
+    }
+
+    private void ClearFilter()
+    {
+        _from = DateTime.Today.AddDays(-7);
+        _to = DateTime.Today;
+        _entity = null;
+        _action = null;
+        _userLogin = null;
+    }
+
+    private async Task OpenDetails(AuditLogEntry entry)
+    {
+        var parameters = new DialogParameters<AuditDetailsDialog> { { x => x.Entry, entry } };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true };
+        await DialogService.ShowAsync<AuditDetailsDialog>("Деталі запису журналу", parameters, options);
+    }
+
+    private static string ActionName(string action) => action switch
+    {
+        "CREATE" => "Створення",
+        "UPDATE" => "Зміна",
+        "DELETE" => "Видалення",
+        _ => action
+    };
+
+    private static Color ActionColor(string action) => action switch
+    {
+        "CREATE" => Color.Success,
+        "UPDATE" => Color.Info,
+        "DELETE" => Color.Error,
+        _ => Color.Default
+    };
+}
