@@ -1,7 +1,9 @@
 ﻿@page "/Admin/Templates"
 @using CloudComBook.Shared.DTOs
+@using CloudComBook.Web.Helpers
 @using CloudComBook.Web.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @inject ApiService Api
 @inject ISnackbar Snackbar
@@ -12,6 +14,15 @@
 
 <MudText Typo="Typo.h4" Class="mb-4">Шаблони довідок</MudText>
 
+<AuthorizeView Roles="superadmin" Context="saContext">
+    <NotAuthorized>
+        <MudAlert Severity="Severity.Info" Class="mb-4">
+            Шаблони спільні для всіх громад. Завантажувати й замінювати їх може лише супер-адміністратор;
+            ви можете переглянути статус і завантажити поточний шаблон.
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>
+
 @if (_loading)
 {
     <MudProgressCircular Indeterminate="true" />
@@ -21,13 +32,15 @@ else
     <MudTable Items="@_statuses" Hover="true" Dense="true" FixedHeader="true"
               Height="calc(100vh - 330px)">
         <HeaderContent>
-            <MudTh>Тип довідки</MudTh>
-            <MudTh>Статус</MudTh>
-            <MudTh>Оновлено</MudTh>
-            <MudTh>Дії</MudTh>
+            <MudTh Style="background-color: lightgreen;">Тип довідки</MudTh>
+            <MudTh Style="background-color: lightgreen;">Статус</MudTh>
+            <MudTh Style="background-color: lightgreen;">Оновлено</MudTh>
+            <MudTh Style="background-color: lightgreen;">Дії</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Тип довідки">@context.Type</MudTd>
+            <MudTd DataLabel="Тип довідки">
+                @DocumentTypeConfig.DisplayNames.GetValueOrDefault(context.Type, context.Type)
+            </MudTd>
             <MudTd DataLabel="Статус">
                 @if (context.Exists)
                 {
@@ -41,28 +54,34 @@ else
             <MudTd DataLabel="Оновлено">
                 @(context.UpdatedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm") ?? "—")
             </MudTd>
-                <MudTd DataLabel="Дії">
-                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                    <MudFileUpload T="IBrowserFile" FilesChanged="@(file => UploadAsync(context.Type, file))" Accept=".docx">
-                        <CustomContent Context="fileUpload">
-                            <MudButton Variant="Variant.Filled"
-                                       Color="@(context.Exists ? Color.Warning : Color.Primary)"
-                                       StartIcon="@(context.Exists ? Icons.Material.Filled.Autorenew : Icons.Material.Filled.UploadFile)"
-                                       Size="Size.Small"
-                                       OnClick="@fileUpload.OpenFilePickerAsync">
-                                @(context.Exists ? "Замінити" : "Завантажити")
-                            </MudButton>
-                        </CustomContent>
-                    </MudFileUpload>
+            <MudTd DataLabel="Дії">
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
 
-                        @if (context.Exists)
-                        {
-                            <MudIconButton Icon="@Icons.Material.Filled.Download"
-                                           Color="Color.Default"
-                                           Size="Size.Small"
-                                           OnClick="@(() => DownloadAsync(context.Type))" />
-                        }
-                    </MudStack>
+                    <AuthorizeView Roles="superadmin" Context="uploadContext">
+                        <Authorized>
+                            <MudFileUpload T="IBrowserFile" FilesChanged="@(file => UploadAsync(context.Type, file))" Accept=".docx">
+                                <CustomContent Context="fileUpload">
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="@(context.Exists ? Color.Warning : Color.Primary)"
+                                               StartIcon="@(context.Exists ? Icons.Material.Filled.Autorenew : Icons.Material.Filled.UploadFile)"
+                                               Size="Size.Small"
+                                               OnClick="@fileUpload.OpenFilePickerAsync">
+                                        @(context.Exists ? "Замінити" : "Завантажити")
+                                    </MudButton>
+                                </CustomContent>
+                            </MudFileUpload>
+                        </Authorized>
+                    </AuthorizeView>
+
+                    @if (context.Exists)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Download"
+                                       Color="Color.Default"
+                                       Size="Size.Small"
+                                       Title="Завантажити шаблон"
+                                       OnClick="@(() => DownloadAsync(context.Type))" />
+                    }
+                </MudStack>
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -94,7 +113,7 @@ else
             return;
         }
 
-        var success = await Api.UploadTemplateAsync(type, file);
+        var (success, error) = await Api.UploadTemplateAsync(type, file);
 
         if (success)
         {
@@ -103,7 +122,7 @@ else
         }
         else
         {
-            Snackbar.Add("Не вдалося завантажити шаблон", Severity.Error);
+            Snackbar.Add(error ?? "Не вдалося завантажити шаблон", Severity.Error);
         }
     }
 

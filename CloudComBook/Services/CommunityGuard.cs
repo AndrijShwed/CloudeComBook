@@ -9,6 +9,7 @@ public interface ICommunityGuard
     Task<bool> VillageAllowedAsync(int villageId);
     Task<bool> StreetAllowedAsync(int streetId);
     Task<bool> SameCommunityAsync(int villageId, int streetId);
+    Task<bool> VillageNameInCommunityAsync(string? villageName, int communityId);
 }
 
 public class CommunityGuard : ICommunityGuard
@@ -59,5 +60,15 @@ public class CommunityGuard : ICommunityGuard
           JOIN streets s ON s.community_id = v.community_id
           WHERE v.id = @v AND s.id = @s",
             new { v = villageId, s = streetId }) > 0;
+    }
+    public async Task<bool> VillageNameInCommunityAsync(string? villageName, int communityId)
+    {
+        if (string.IsNullOrWhiteSpace(villageName)) return false;
+
+        using var conn = _db.CreateConnection();
+        return await conn.ExecuteScalarAsync<int>(
+            @"SELECT COUNT(*) FROM villages
+          WHERE community_id = @c AND LOWER(TRIM(name)) = LOWER(TRIM(@n))",
+            new { c = communityId, n = villageName }) > 0;
     }
 }

@@ -149,15 +149,25 @@ public class ApiService
                ?? new List<DocumentTemplateStatusDto>();
     }
 
-    public async Task<bool> UploadTemplateAsync(string type, IBrowserFile file)
+    public async Task<(bool Success, string? Error)> UploadTemplateAsync(string type, IBrowserFile file)
     {
         using var content = new MultipartFormDataContent();
         var streamContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024));
-        streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType is { Length: > 0 } ? file.ContentType : "application/octet-stream");
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(
+            file.ContentType is { Length: > 0 } ? file.ContentType : "application/octet-stream");
         content.Add(streamContent, "file", file.Name);
 
         var response = await _http.PostAsync($"api/documenttemplates/upload/{Uri.EscapeDataString(type)}", content);
-        return response.IsSuccessStatusCode;
+
+        if (response.IsSuccessStatusCode)
+            return (true, null);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            return (false, "Змінювати шаблони може лише супер-адміністратор.");
+
+        // API повертає текст помилки звичайним рядком
+        var body = await response.Content.ReadAsStringAsync();
+        return (false, string.IsNullOrWhiteSpace(body) ? null : body.Trim('"'));
     }
 
     public async Task<(byte[] Bytes, string FileName)?> DownloadTemplateAsync(string type)
