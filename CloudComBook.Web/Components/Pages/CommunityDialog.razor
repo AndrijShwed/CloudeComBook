@@ -1,0 +1,60 @@
+﻿@using CloudComBook.Shared.Models
+@using CloudComBook.Web.Services
+@using MudBlazor
+@inject ApiService Api
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string" @bind-Value="_name" Label="Назва громади"
+                      Required="true" RequiredError="Вкажіть назву" Immediate="true" />
+        <MudSwitch T="bool" @bind-Value="_isActive" Color="Color.Success" Class="mt-2"
+                   Label="Активна" />
+        @if (!_isActive)
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true" Class="mt-2">
+                Користувачі вимкненої громади не зможуть увійти в систему.
+            </MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Скасувати</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync">Зберегти</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public Community Item { get; set; } = new();
+
+    private string _name = "";
+    private bool _isActive = true;
+
+    protected override void OnInitialized()
+    {
+        _name = Item.Name;
+        _isActive = Item.IsActive;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SaveAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_name))
+        {
+            Snackbar.Add("Вкажіть назву громади", Severity.Warning);
+            return;
+        }
+
+        var community = new Community { Id = Item.Id, Name = _name.Trim(), IsActive = _isActive };
+
+        var (success, error) = Item.Id == 0
+            ? await Api.CreateCommunityAsync(community)
+            : await Api.UpdateCommunityAsync(community);
+
+        if (success)
+            MudDialog.Close(DialogResult.Ok(true));
+        else
+            Snackbar.Add(error ?? "Не вдалося зберегти", Severity.Error);   // діалог лишається відкритим
+    }
+}

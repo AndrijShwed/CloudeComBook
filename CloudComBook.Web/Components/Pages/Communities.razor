@@ -1,0 +1,128 @@
+﻿@page "/Admin/Communities"
+@using CloudComBook.Shared.Models
+@using CloudComBook.Web.Services
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@inject IDialogService DialogService
+@inject ApiService Api
+@inject ISnackbar Snackbar
+@attribute [Authorize(Roles = "superadmin")]
+
+<PageTitle>Громади</PageTitle>
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Громади</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.AddBusiness"
+               OnClick="@(() => OpenDialog(null))">
+        Додати громаду
+    </MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudPaper Class="pa-2">
+        <MudText Typo="Typo.body2" Class="pa-2"><b>Кількість громад: @_communities.Count</b></MudText>
+
+        <MudTable Items="@_communities" Hover="true" Dense="true" FixedHeader="true"
+                  Height="calc(100vh - 340px)">
+            <HeaderContent>
+                <MudTh Style="background-color: lightgreen;">Назва</MudTh>
+                <MudTh Style="background-color: lightgreen;">Користувачів</MudTh>
+                <MudTh Style="background-color: lightgreen;">Населених пунктів</MudTh>
+                <MudTh Style="background-color: lightgreen;">Статус</MudTh>
+                <MudTh Style="background-color: lightgreen;">Дії</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Назва">@context.Name</MudTd>
+                <MudTd DataLabel="Користувачів">@context.UsersCount</MudTd>
+                <MudTd DataLabel="Населених пунктів">@context.VillagesCount</MudTd>
+                <MudTd DataLabel="Статус">
+                    @if (context.IsActive)
+                    {
+                        <MudChip T="string" Color="Color.Success" Size="Size.Small">Активна</MudChip>
+                    }
+                    else
+                    {
+                        <MudChip T="string" Color="Color.Default" Size="Size.Small">Вимкнена</MudChip>
+                    }
+                </MudTd>
+                <MudTd DataLabel="Дії">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Primary" Size="Size.Small"
+                                   Title="Редагувати"
+                                   OnClick="@(() => OpenDialog(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error" Size="Size.Small"
+                                   Title="@(CanDelete(context) ? "Видалити" : "Є користувачі або дані: вимкніть громаду")"
+                                   Disabled="@(!CanDelete(context))"
+                                   OnClick="@(() => DeleteAsync(context))" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+
+@code {
+    private bool _loading = true;
+    private List<Community> _communities = new();
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _communities = await Api.GetCommunitiesAsync();
+        _loading = false;
+    }
+
+    // остаточне рішення приймає сервер: він враховує ще вулиці, ділянки й тварин
+    private static bool CanDelete(Community c) => c.UsersCount == 0 && c.VillagesCount == 0;
+
+    private async Task OpenDialog(Community? item)
+    {
+        var isNew = item == null;
+        var model = item == null
+            ? new Community()
+            : new Community { Id = item.Id, Name = item.Name, IsActive = item.IsActive };
+
+        var parameters = new DialogParameters<CommunityDialog> { { x => x.Item, model } };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true };
+
+        var dialog = await DialogService.ShowAsync<CommunityDialog>(
+            isNew ? "Нова громада" : "Редагувати громаду", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false, Data: bool ok } && ok)
+        {
+            Snackbar.Add("Збережено", Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteAsync(Community item)
+    {
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "Підтвердження видалення",
+            $"Видалити громаду \"{item.Name}\"? Цю дію неможливо скасувати.",
+            yesText: "Видалити", cancelText: "Скасувати");
+
+        if (confirmed != true) return;
+
+        var (success, error) = await Api.DeleteCommunityAsync(item.Id);
+
+        if (success)
+        {
+            Snackbar.Add("Громаду видалено", Severity.Success);
+            await LoadAsync();
+        }
+        else
+        {
+            Snackbar.Add(error ?? "Не вдалося видалити громаду", Severity.Error);
+        }
+    }
+}

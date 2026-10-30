@@ -119,6 +119,13 @@
                     <MudDivider Class="my-2" />
                 </Authorized>
             </AuthorizeView>
+            <AuthorizeView Roles="superadmin" Context="saNav">
+                <Authorized>
+                    <MudNavLink Href="/Admin/Communities" Icon="@Icons.Material.Filled.Domain">
+                        Громади
+                    </MudNavLink>
+                </Authorized>
+            </AuthorizeView>
 
             <MudNavLink Href="/" Match="NavLinkMatch.All"
                         Icon="@Icons.Material.Filled.Home">

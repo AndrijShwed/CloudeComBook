@@ -586,4 +586,34 @@ public class ApiService
     }
     public async Task<List<Community>> GetCommunitiesAsync() =>
     await _http.GetFromJsonAsync<List<Community>>("api/Communities") ?? new List<Community>();
+
+    public async Task<(bool Success, string? Error)> CreateCommunityAsync(Community community)
+    {
+        var response = await _http.PostAsJsonAsync("api/Communities", community);
+        return (response.IsSuccessStatusCode, response.IsSuccessStatusCode ? null : await ReadErrorAsync(response));
+    }
+
+    public async Task<(bool Success, string? Error)> UpdateCommunityAsync(Community community)
+    {
+        var response = await _http.PutAsJsonAsync($"api/Communities/{community.Id}", community);
+        return (response.IsSuccessStatusCode, response.IsSuccessStatusCode ? null : await ReadErrorAsync(response));
+    }
+
+    public async Task<(bool Success, string? Error)> DeleteCommunityAsync(int id)
+    {
+        var response = await _http.DeleteAsync($"api/Communities/{id}");
+        return (response.IsSuccessStatusCode, response.IsSuccessStatusCode ? null : await ReadErrorAsync(response));
+    }
+
+    private static async Task<string?> ReadErrorAsync(HttpResponseMessage response)
+    {
+        try
+        {
+            var body = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            if (body != null && body.TryGetValue("message", out var message))
+                return message;
+        }
+        catch { /* тіло не JSON */ }
+        return null;
+    }
 }
