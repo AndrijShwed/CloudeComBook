@@ -78,6 +78,7 @@ public static class AccountEndpoints
         app.MapGet("/Account/Logout", async (HttpContext context) =>
         {
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            context.Response.Cookies.Delete("community_id");
             return Results.Redirect("/Account/Login");
         });
 

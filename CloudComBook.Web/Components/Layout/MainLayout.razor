@@ -40,7 +40,12 @@
         <AuthorizeView Roles="superadmin" Context="saContext">
             <Authorized>
                 <MudSelect T="int?" Dense="true" Variant="Variant.Outlined" Margin="Margin.Dense"
-                           Style="min-width: 260px; color: white;"
+                           Style="min-width: 260px;
+                                    --mud-palette-text-primary: white;
+                                    --mud-palette-text-secondary: white;
+                                    --mud-palette-lines-inputs: white;
+                                    --mud-palette-action-default: white;
+                                    --mud-palette-primary: white;"
                            Label="Громада"
                            Value="_selectedCommunityId"
                            ValueChanged="OnCommunityChanged">

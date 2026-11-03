@@ -1,4 +1,5 @@
 ﻿using CloudComBook.Shared.Models;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
@@ -6,6 +7,8 @@ namespace CloudComBook.API.Services;
 
 public class OpenXmlDocumentService
 {
+    private const string FamilyMarker = "{FR}";
+
     public byte[] GenerateDocument(
         byte[] templateBytes,
         Dictionary<string, string> fields,
@@ -17,15 +20,21 @@ public class OpenXmlDocumentService
 
         using (var doc = WordprocessingDocument.Open(stream, true))
         {
-            var body = doc.MainDocumentPart!.Document.Body!;
+            var main = doc.MainDocumentPart
+                ?? throw new InvalidOperationException("Шаблон не містить тіла документа.");
+            var body = main.Document.Body
+                ?? throw new InvalidOperationException("Шаблон порожній.");
 
-            // Об'єднуємо розбиті Word Run
-            MergeRunsInDocument(doc);
+            var replacer = new PlaceholderReplacer(fields);
 
-            // Заміна звичайних текстових полів
-            ReplaceTextPlaceholders(body, fields);
+            replacer.Replace(body);
+            foreach (var header in main.HeaderParts) replacer.Replace(header.Header);
+            foreach (var footer in main.FooterParts) replacer.Replace(footer.Footer);
 
-            // Обробка членів сім'ї
+            //if (familyMembers != null)
+            //    FillFamilyTable(body, familyMembers);
+
+            //Обробка членів сім'ї
             if (familyMembers != null && familyMembers.Count > 0)
             {
                 // Якщо в шаблоні є закладка FamilyMembers -
@@ -40,99 +49,103 @@ public class OpenXmlDocumentService
                 FillFamilyTable(body, familyMembers);
             }
 
-            doc.MainDocumentPart.Document.Save();
+            main.Document.Save();
         }
 
         return stream.ToArray();
     }
 
-
-    // ============================================================
-    // ОБ'ЄДНАННЯ RUN
-    // ============================================================
-
-    // Word часто розбиває один текст на кілька <w:r>.
-    // Об'єднуємо їх у межах кожного параграфа.
-    private void MergeRunsInDocument(WordprocessingDocument doc)
-    {
-        var paragraphs = doc.MainDocumentPart!
-            .Document
-            .Body!
-            .Descendants<Paragraph>()
-            .ToList();
-
-        foreach (var paragraph in paragraphs)
-        {
-            var runs = paragraph.Elements<Run>().ToList();
-
-            if (runs.Count <= 1)
-                continue;
-
-            var firstRun = runs[0];
-
-            var texts = firstRun
-                .Elements<Text>()
-                .ToList();
-
-            if (texts.Count == 0)
-                continue;
-
-            var combinedText = string.Concat(
-                runs.SelectMany(r =>
-                    r.Elements<Text>()
-                     .Select(t => t.Text)));
-
-            // Залишаємо лише перший Text
-            foreach (var t in texts.Skip(1))
-                t.Remove();
-
-            texts[0].Text = combinedText;
-            texts[0].Space =
-                DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve;
-
-            // Видаляємо всі наступні Run
-            foreach (var run in runs.Skip(1))
-                run.Remove();
-        }
-    }
-
-
-    // ============================================================
-    // ЗАМІНА ЗВИЧАЙНИХ ТЕКСТОВИХ ПОЛІВ
-    // ============================================================
-
-    private void ReplaceTextPlaceholders(
-        Body body,
-        Dictionary<string, string> fields)
-    {
-        foreach (var text in body.Descendants<Text>())
-        {
-            foreach (var field in fields)
-            {
-                if (text.Text.Contains(field.Key))
-                {
-                    text.Text = text.Text.Replace(
-                        field.Key,
-                        field.Value ?? "");
-                }
-            }
-        }
-    }
-
-
-    // ============================================================
+    //============================================================
     // ПЕРЕВІРКА НАЯВНОСТІ ЗАКЛАДКИ
     // ============================================================
 
     private bool HasBookmark(
-        Body body,
-        string bookmarkName)
+            Body body,
+            string bookmarkName)
     {
         return body
             .Descendants<BookmarkStart>()
             .Any(x => x.Name?.Value == bookmarkName);
     }
 
+    // ---------- таблиця членів сім'ї ----------
+
+    private static void FillFamilyTable(Body body, List<Person> familyMembers)
+    {
+        foreach (var table in body.Descendants<Table>().ToList())
+        {
+            var templateRow = table.Elements<TableRow>()
+                .FirstOrDefault(r => string.Concat(r.Descendants<Text>().Select(t => t.Text))
+                    .Contains(FamilyMarker));
+
+            if (templateRow == null) continue;
+
+            // рядок із маркером це рядок заявника (№ 1), тому члени сім'ї нумеруються з 2
+            int number = 2;
+            TableRow last = templateRow;
+
+            foreach (var person in familyMembers)
+            {
+                var newRow = (TableRow)templateRow.CloneNode(true);
+                FillFamilyRow(newRow, person, number++);
+                last.InsertAfterSelf(newRow);
+                last = newRow;
+            }
+
+            new PlaceholderReplacer(new Dictionary<string, string> { [FamilyMarker] = "" })
+                .Replace(templateRow);
+            return;
+        }
+    }
+
+    private static void FillFamilyRow(TableRow row, Person person, int number)
+    {
+        var cells = row.Elements<TableCell>().ToList();
+
+        SetCellText(cells, 0, number.ToString());
+        SetCellText(cells, 1, $"{person.LastName} {person.Name} {person.Surname}".Trim());
+        SetCellText(cells, 2, "член сім'ї");
+        SetCellText(cells, 3, person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "");
+        SetCellText(cells, 4, FormatDocument(person.Passport));
+    }
+
+    private static void SetCellText(List<TableCell> cells, int index, string value)
+    {
+        if (index >= cells.Count) return;
+        var cell = cells[index];
+
+        var texts = cell.Descendants<Text>().ToList();
+        if (texts.Count > 0)
+        {
+            texts[0].Text = value;
+            texts[0].Space = SpaceProcessingModeValues.Preserve;
+            foreach (var t in texts.Skip(1)) t.Text = "";
+            return;
+        }
+
+        // порожня комірка: створюємо текст самі
+        var paragraph = cell.Elements<Paragraph>().FirstOrDefault();
+        if (paragraph == null)
+        {
+            paragraph = new Paragraph();
+            cell.Append(paragraph);
+        }
+        paragraph.Append(new Run(new Text(value) { Space = SpaceProcessingModeValues.Preserve }));
+    }
+
+    public static string FormatDocument(string? document)
+    {
+        document ??= "";
+        char[] result = Enumerable.Repeat(' ', 11).ToArray();
+
+        for (int i = 0; i < Math.Min(4, document.Length); i++)
+            result[i] = document[i];
+
+        for (int i = 4; i < 11 && i < document.Length; i++)
+            result[i] = char.IsDigit(document[i]) ? document[i] : ' ';
+
+        return new string(result);
+    }
 
     // ============================================================
     // FAMILY MEMBERS — ЗАКЛАДКА FamilyMembers
@@ -257,6 +270,20 @@ public class OpenXmlDocumentService
         RemoveBookmarkIfEmpty(bookmarkStart, bookmarkEnd);
     }
 
+    // ============================================================
+    // ПРИБИРАННЯ ПОРОЖНЬОЇ ЗАКЛАДКИ
+    // ============================================================
+
+    private void RemoveBookmarkIfEmpty(
+        BookmarkStart bookmarkStart,
+        BookmarkEnd bookmarkEnd)
+    {
+        // Закладку залишаємо в документі.
+        // Word може використовувати її надалі.
+        //
+        // Сам текст усередині вже очищений
+        // методом RemoveBookmarkContent().
+    }
 
     // ============================================================
     // ВИДАЛЕННЯ ВМІСТУ ЗАКЛАДКИ
@@ -279,215 +306,120 @@ public class OpenXmlDocumentService
         }
     }
 
+    // ---------- заміна плейсхолдерів зі збереженням форматування ----------
 
-    // ============================================================
-    // ПРИБИРАННЯ ПОРОЖНЬОЇ ЗАКЛАДКИ
-    // ============================================================
-
-    private void RemoveBookmarkIfEmpty(
-        BookmarkStart bookmarkStart,
-        BookmarkEnd bookmarkEnd)
+    private sealed class PlaceholderReplacer
     {
-        // Закладку залишаємо в документі.
-        // Word може використовувати її надалі.
-        //
-        // Сам текст усередині вже очищений
-        // методом RemoveBookmarkContent().
-    }
+        private readonly List<KeyValuePair<string, string>> _fields;
 
-
-    // ============================================================
-    // FAMILY MEMBERS — ТАБЛИЦЯ {FR}
-    // ============================================================
-
-    private void FillFamilyTable(
-        Body body,
-        List<Person> familyMembers)
-    {
-        foreach (var table in body.Descendants<Table>())
+        public PlaceholderReplacer(IDictionary<string, string> fields)
         {
-            TableRow? templateRow = null;
+            // довші ключі перевіряються першими: «Посада_1» раніше за «Посада»
+            _fields = fields
+                .Where(f => !string.IsNullOrEmpty(f.Key))
+                .Select(f => new KeyValuePair<string, string>(Normalize(f.Key), f.Value ?? ""))
+                .OrderByDescending(f => f.Key.Length)
+                .ToList();
+        }
 
-            foreach (var row in table.Elements<TableRow>())
+        public void Replace(OpenXmlElement root)
+        {
+            foreach (var paragraph in root.Descendants<Paragraph>().ToList())
+                ReplaceInParagraph(paragraph);
+        }
+
+        private void ReplaceInParagraph(Paragraph paragraph)
+        {
+            // лише текст самого абзацу (вкладені абзаци текстових полів обробляються окремо)
+            var texts = paragraph.Descendants<Text>()
+                .Where(t => ReferenceEquals(t.Ancestors<Paragraph>().FirstOrDefault(), paragraph))
+                .ToList();
+            if (texts.Count == 0) return;
+
+            var lengths = texts.Select(t => (t.Text ?? "").Length).ToArray();
+            var starts = new int[texts.Count];
+            int pos = 0;
+            for (int k = 0; k < texts.Count; k++)
             {
-                if (RowContainsMarker(row, "{FR}"))
+                starts[k] = pos;
+                pos += lengths[k];
+            }
+
+            var normalized = Normalize(string.Concat(texts.Select(t => t.Text ?? "")));
+
+            // один прохід зліва направо: замінений текст повторно не перевіряється
+            var matches = new List<(int Start, int Length, string Value)>();
+            int i = 0;
+            while (i < normalized.Length)
+            {
+                bool found = false;
+                foreach (var f in _fields)
                 {
-                    templateRow = row;
-                    break;
+                    if (f.Key.Length <= normalized.Length - i &&
+                        string.Compare(normalized, i, f.Key, 0, f.Key.Length,
+                            StringComparison.OrdinalIgnoreCase) == 0)
+                    {
+                        matches.Add((i, f.Key.Length, f.Value));
+                        i += f.Key.Length;
+                        found = true;
+                        break;
+                    }
                 }
+                if (!found) i++;
             }
 
-            // У цій таблиці немає {FR}
-            if (templateRow == null)
-                continue;
-
-            int number = 2;
-
-            TableRow lastInsertedRow = templateRow;
-
-            foreach (var person in familyMembers)
+            // застосовуємо з кінця, щоб позиції попередніх збігів не зсувалися
+            for (int m = matches.Count - 1; m >= 0; m--)
             {
-                var newRow =
-                    (TableRow)templateRow.CloneNode(true);
+                var (start, length, value) = matches[m];
+                int end = start + length;
 
-                FillFamilyRow(
-                    newRow,
-                    person,
-                    number);
+                int first = FindText(starts, lengths, start);
+                int last = FindText(starts, lengths, end - 1);
+                if (first < 0 || last < 0) continue;
 
-                lastInsertedRow.InsertAfterSelf(newRow);
+                int startLocal = start - starts[first];
+                int endLocal = end - starts[last];
 
-                lastInsertedRow = newRow;
+                var firstStr = texts[first].Text ?? "";
 
-                number++;
+                if (first == last)
+                {
+                    texts[first].Text = firstStr.Substring(0, startLocal) + value + firstStr.Substring(endLocal);
+                }
+                else
+                {
+                    texts[first].Text = firstStr.Substring(0, startLocal) + value;
+                    for (int k = first + 1; k < last; k++) texts[k].Text = "";
+                    texts[last].Text = (texts[last].Text ?? "").Substring(endLocal);
+                }
+
+                for (int k = first; k <= last; k++)
+                    texts[k].Space = SpaceProcessingModeValues.Preserve;
             }
-
-            // Прибираємо шаблонний рядок
-            // з маркером {FR}.
-            ClearMarkerInRow(
-                templateRow,
-                "{FR}");
         }
-    }
 
-
-    // ============================================================
-    // ЗАПОВНЕННЯ РЯДКА ТАБЛИЦІ
-    // ============================================================
-
-    private void FillFamilyRow(
-        TableRow row,
-        Person person,
-        int number)
-    {
-        var cells = row
-            .Elements<TableCell>()
-            .ToList();
-
-        SetCellText(
-            cells,
-            0,
-            number.ToString());
-
-        SetCellText(
-            cells,
-            1,
-            $"{person.LastName} {person.Name} {person.Surname}");
-
-        SetCellText(
-            cells,
-            2,
-            "член сім'ї");
-
-        SetCellText(
-            cells,
-            3,
-            person.DateOfBirth?.ToString("dd.MM.yyyy") ?? "");
-
-        SetCellText(
-            cells,
-            4,
-            FormatDocument(person.Passport));
-
-        ClearMarkerInRow(
-            row,
-            "{FR}");
-    }
-
-
-    // ============================================================
-    // ЗАПИС ТЕКСТУ В КОМІРКУ
-    // ============================================================
-
-    private void SetCellText(
-    List<TableCell> cells,
-    int index,
-    string value)
-    {
-        if (index >= cells.Count)
-            return;
-
-        var texts = cells[index]
-            .Descendants<Text>()
-            .ToList();
-
-        if (texts.Count == 0)
-            return;
-
-        texts[0].Text = value;
-
-        for (int i = 1; i < texts.Count; i++)
+        private static int FindText(int[] starts, int[] lengths, int index)
         {
-            texts[i].Text = string.Empty;
+            for (int k = 0; k < starts.Length; k++)
+                if (index >= starts[k] && index < starts[k] + lengths[k]) return k;
+            return -1;
         }
-    }
 
-
-    // ============================================================
-    // ВИДАЛЕННЯ МАРКЕРА З РЯДКА
-    // ============================================================
-
-    private void ClearMarkerInRow(
-        TableRow row,
-        string marker)
-    {
-        foreach (var text in row.Descendants<Text>())
+        // довжина рядка не змінюється, тож позиції збігаються з оригіналом
+        private static string Normalize(string s)
         {
-            if (text.Text.Contains(marker))
+            var chars = s.ToCharArray();
+            for (int i = 0; i < chars.Length; i++)
             {
-                text.Text = text.Text.Replace(
-                    marker,
-                    "");
+                chars[i] = chars[i] switch
+                {
+                    '’' or 'ʼ' or '‘' or '`' => '\'',
+                    '\u00A0' => ' ',
+                    var c => c
+                };
             }
+            return new string(chars);
         }
-    }
-
-
-    // ============================================================
-    // ПЕРЕВІРКА РЯДКА НА МАРКЕР
-    // ============================================================
-
-    private bool RowContainsMarker(
-        TableRow row,
-        string marker)
-    {
-        var rowText = string.Concat(
-            row.Descendants<Text>()
-               .Select(t => t.Text));
-
-        return rowText.Contains(marker);
-    }
-
-
-    // ============================================================
-    // ФОРМАТУВАННЯ ПАСПОРТА
-    // ============================================================
-
-    public static string FormatDocument(
-        string? document)
-    {
-        document ??= "";
-
-        char[] result =
-            Enumerable.Repeat(' ', 11).ToArray();
-
-        for (int i = 0;
-             i < Math.Min(4, document.Length);
-             i++)
-        {
-            result[i] = document[i];
-        }
-
-        for (int i = 4;
-             i < 11 && i < document.Length;
-             i++)
-        {
-            result[i] =
-                char.IsDigit(document[i])
-                    ? document[i]
-                    : ' ';
-        }
-
-        return new string(result);
     }
 }
