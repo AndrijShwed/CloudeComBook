@@ -91,7 +91,11 @@
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
-                    <MudSelect T="string" @bind-Value="Item.Status" Label="Статус" Clearable="true">
+                    <MudSelect T="string"
+                               Value="Item.Status"
+                               ValueChanged="OnStatusChanged"
+                               Label="Статус"
+                               Clearable="true">
                         <MudSelectItem T="string" Value="@("помер")">помер</MudSelectItem>
                         <MudSelectItem T="string" Value="@("ЗСУ")">ЗСУ</MudSelectItem>
                         <MudSelectItem T="string" Value="@("одинокий")">одинокий</MudSelectItem>
@@ -240,6 +244,11 @@
             }
         }
 
+        if (Item.Status == "помер" || Item.Status == "загинув на війні")
+        {
+            Item.Registr = "ні";
+        }
+
         bool success = Item.PeopleId == 0
             ? await Api.CreatePersonAsync(Item)
             : await Api.UpdatePersonAsync(Item);
@@ -256,5 +265,15 @@
 
         var digits = new string(numb.TakeWhile(char.IsDigit).ToArray());
         return int.TryParse(digits, out var n) ? n : int.MaxValue;
+    }
+
+    private void OnStatusChanged(string? status)
+    {
+        Item.Status = status;
+
+        if (status == "помер" || status == "загинув на війні")
+        {
+            Item.Registr = "ні";
+        }
     }
 }
