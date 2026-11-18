@@ -40,7 +40,11 @@
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
-                    <MudDatePicker @bind-Date="_dateOfBirth" Label="Дата народження" />
+                    <MudDatePicker @bind-Date="_dateOfBirth" Label="Дата народження"
+                                   DateFormat="dd.MM.yyyy"
+                                   Editable="true"
+                                   Mask="@(new DateMask("dd.MM.yyyy"))"
+                                   Placeholder="дд.мм.рррр" />
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
@@ -111,7 +115,11 @@
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
-                    <MudDatePicker @bind-Date="_mDate" Label="Дата зміни статусу" />
+                    <MudDatePicker @bind-Date="_mDate" Label="Дата зміни статусу"
+                                    DateFormat="dd.MM.yyyy"
+                                    Editable="true"
+                                    Mask="@(new DateMask("dd.MM.yyyy"))"
+                                    Placeholder="дд.мм.рррр"/>
                 </MudItem>
 
                 <MudItem xs="12" sm="4">

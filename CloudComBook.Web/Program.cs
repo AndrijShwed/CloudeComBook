@@ -100,11 +100,19 @@ builder.Services.AddAuthorization();
 // Handler, що підставляє JWT з cookie-claims у заголовок Authorization
 builder.Services.AddTransient<JwtAuthorizationHandler>();
 
+var apiBase = (builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7079").TrimEnd('/') + "/";
+
 builder.Services.AddHttpClient<ApiService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7079/");
+    client.BaseAddress = new Uri(apiBase);
 })
 .AddHttpMessageHandler<JwtAuthorizationHandler>();
+
+//builder.Services.AddHttpClient<ApiService>(client =>
+//{
+//    client.BaseAddress = new Uri("https://localhost:7079/");
+//})
+//.AddHttpMessageHandler<JwtAuthorizationHandler>();
 
 builder.Services.AddScoped<PeopleViewModel>();
 
